@@ -18,19 +18,25 @@ public class IdentityService : IIdentityService
     private readonly IMemberRepository _memberRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly JwtSettings _jwtSettings;
+    private readonly IEmailContactService _emailContactService;
+    private readonly IMemberContactRepository _memberContactRepository;
 
     public IdentityService(
         UserManager<Account> userManager,
         RoleManager<Role> roleManager,
         IMemberRepository memberRepository,
         IUnitOfWork unitOfWork,
-        IOptions<JwtSettings> jwtSettings)
+        IOptions<JwtSettings> jwtSettings,
+        IEmailContactService emailContactService,
+        IMemberContactRepository memberContactRepository)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _memberRepository = memberRepository;
         _unitOfWork = unitOfWork;
         _jwtSettings = jwtSettings.Value;
+        _emailContactService = emailContactService;
+        _memberContactRepository = memberContactRepository;
     }
 
     public async Task<Result<Guid>> RegisterAsync(
@@ -39,6 +45,8 @@ public class IdentityService : IIdentityService
         string displayName, 
         string firstName,
         string lastName,
+        bool acceptNews,
+        bool acceptPromo,
         CancellationToken cancellationToken = default)
     {
         var existingAccount = await _userManager.FindByEmailAsync(email);
@@ -47,7 +55,7 @@ public class IdentityService : IIdentityService
             return Result.Failure<Guid>(new Error("Auth.EmailNotUnique", "Email is already registered."));
         }
 
-        var memberResult = Member.Create(email, displayName, firstName, lastName);
+        var memberResult = Member.Create(email, displayName, firstName, lastName, acceptNews, acceptPromo);
         if (memberResult.IsFailure)
         {
             return Result.Failure<Guid>(memberResult.Error);
@@ -86,6 +94,24 @@ public class IdentityService : IIdentityService
         }
 
         await _memberRepository.AddAsync(memberResult.Value, cancellationToken);
+
+        if (acceptNews || acceptPromo)
+        {
+            var resendResult = await _emailContactService.CreateContactAsync(email, firstName, lastName, acceptNews, acceptPromo, cancellationToken);
+            if (resendResult.IsFailure)
+            {
+                return Result.Failure<Guid>(resendResult.Error);
+            }
+
+            var memberContactResult = MemberContact.Create(userId, resendResult.Value, email, unsubscribed: false);
+            if (memberContactResult.IsFailure)
+            {
+                return Result.Failure<Guid>(memberContactResult.Error);
+            }
+
+            await _memberContactRepository.AddAsync(memberContactResult.Value, cancellationToken);
+        }
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return userId;

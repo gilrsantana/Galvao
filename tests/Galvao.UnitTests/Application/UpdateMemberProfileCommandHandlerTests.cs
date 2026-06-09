@@ -25,7 +25,7 @@ public class UpdateMemberProfileCommandHandlerTests
     public async Task HandleAsync_ShouldReturnSuccess_WhenCommandIsValid()
     {
         // Arrange
-        var member = Member.Create("test@galvao.com", "Original Name", "OriginalFirst", "OriginalLast").Value;
+        var member = Member.Create("test@galvao.com", "Original Name", "OriginalFirst", "OriginalLast", false, false).Value;
         var memberId = member.Id;
         var command = new UpdateMemberProfileCommand(memberId, "Updated Name", "UpdatedFirst", "UpdatedLast");
 
@@ -72,7 +72,7 @@ public class UpdateMemberProfileCommandHandlerTests
     public async Task HandleAsync_ShouldReturnFailure_WhenDisplayNameIsEmpty()
     {
         // Arrange
-        var member = Member.Create("test@galvao.com", "Original Name", "First", "Last").Value;
+        var member = Member.Create("test@galvao.com", "Original Name", "First", "Last", false, false).Value;
         var memberId = member.Id;
         var command = new UpdateMemberProfileCommand(memberId, "", "First", "Last"); // Invalid name
 
@@ -95,7 +95,7 @@ public class UpdateMemberProfileCommandHandlerTests
     public async Task HandleAsync_ShouldReturnFailure_WhenFirstNameIsEmpty()
     {
         // Arrange
-        var member = Member.Create("test@galvao.com", "Original Name", "First", "Last").Value;
+        var member = Member.Create("test@galvao.com", "Original Name", "First", "Last", false, false).Value;
         var memberId = member.Id;
         var command = new UpdateMemberProfileCommand(memberId, "DisplayName", "", "Last"); // Invalid first name
 
@@ -118,7 +118,7 @@ public class UpdateMemberProfileCommandHandlerTests
     public async Task HandleAsync_ShouldReturnFailure_WhenLastNameIsEmpty()
     {
         // Arrange
-        var member = Member.Create("test@galvao.com", "Original Name", "First", "Last").Value;
+        var member = Member.Create("test@galvao.com", "Original Name", "First", "Last", false, false).Value;
         var memberId = member.Id;
         var command = new UpdateMemberProfileCommand(memberId, "DisplayName", "First", ""); // Invalid last name
 

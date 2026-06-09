@@ -2139,7 +2139,9 @@
           "password",
           "displayName",
           "firstName",
-          "lastName"
+          "lastName",
+          "acceptNews",
+          "acceptPromo"
         ],
         "type": "object",
         "properties": {
@@ -2157,6 +2159,12 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "acceptNews": {
+            "type": "boolean"
+          },
+          "acceptPromo": {
+            "type": "boolean"
           }
         }
       },

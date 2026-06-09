@@ -10,6 +10,7 @@ namespace Galvao.Infrastructure.Persistence;
 public class GalvaoDbContext : IdentityDbContext<Account, Role, Guid>, IUnitOfWork
 {
     public DbSet<Member> Members => Set<Member>();
+    public DbSet<MemberContact> MemberContacts => Set<MemberContact>();
     public DbSet<ShowroomItem> ShowroomItems => Set<ShowroomItem>();
     public DbSet<Article> Articles => Set<Article>();
 

@@ -14,6 +14,13 @@ public abstract class BaseEntity
         Active = true;
     }
 
+    protected BaseEntity(Guid id)
+    {
+        Id = id;
+        CreatedAt = DateTime.Now;
+        Active = true;
+    }
+
 
 
     public virtual void Update()

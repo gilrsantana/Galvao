@@ -7,6 +7,7 @@ using Galvao.Infrastructure.Identity;
 using Galvao.Infrastructure.Persistence;
 using Galvao.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Galvao.Infrastructure.Services.Emails.Resend;
 
 namespace Galvao.Infrastructure.Extensions;
 
@@ -40,6 +41,7 @@ public static class DependencyInjection
 
         // Repositories
         services.AddScoped<IMemberRepository, MemberRepository>();
+        services.AddScoped<IMemberContactRepository, MemberContactRepository>();
         services.AddScoped<IShowroomItemRepository, ShowroomItemRepository>();
         services.AddScoped<IArticleRepository, ArticleRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<GalvaoDbContext>());
@@ -47,6 +49,15 @@ public static class DependencyInjection
         // Identity Services
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRoleService, RoleService>();
+
+        // Resend Email Integration
+        services.Configure<ResendSettings>(configuration.GetSection(ResendSettings.SectionName));
+        services.AddHttpClient<IEmailContactService, ResendEmailContactService>((sp, client) =>
+        {
+            var settings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ResendSettings>>().Value;
+            client.BaseAddress = new Uri("https://api.resend.com/");
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.ApiKey);
+        });
 
         return services;
     }

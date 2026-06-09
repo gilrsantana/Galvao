@@ -25,6 +25,12 @@ public class MemberConfiguration : IEntityTypeConfiguration<Member>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(m => m.AcceptNews)
+            .IsRequired();
+
+        builder.Property(m => m.AcceptPromo)
+            .IsRequired();
+
         builder.Property(m => m.Email)
             .IsRequired()
             .HasMaxLength(256);

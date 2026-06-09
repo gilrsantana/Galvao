@@ -19,6 +19,8 @@ export class RegisterComponent {
   readonly displayName = signal<string>('');
   readonly firstName = signal<string>('');
   readonly lastName = signal<string>('');
+  readonly acceptNews = signal<boolean>(false);
+  readonly acceptPromo = signal<boolean>(false);
   readonly errorMessage = signal<string>('');
   readonly isSubmitting = signal<boolean>(false);
 
@@ -33,7 +35,9 @@ export class RegisterComponent {
         password: this.password(),
         displayName: this.displayName(),
         firstName: this.firstName(),
-        lastName: this.lastName()
+        lastName: this.lastName(),
+        acceptNews: this.acceptNews(),
+        acceptPromo: this.acceptPromo()
       });
 
       // 2. Perform Automatic Login for a seamless user experience

@@ -19,7 +19,7 @@ public class AuthController : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
-        var result = await _identityService.RegisterAsync(request.Email, request.Password, request.DisplayName, request.FirstName, request.LastName, cancellationToken);
+        var result = await _identityService.RegisterAsync(request.Email, request.Password, request.DisplayName, request.FirstName, request.LastName, request.AcceptNews, request.AcceptPromo, cancellationToken);
         return HandleResult(result);
     }
 
@@ -42,6 +42,6 @@ public class AuthController : ApiControllerBase
     }
 }
 
-public record RegisterRequest(string Email, string Password, string DisplayName, string FirstName, string LastName);
+public record RegisterRequest(string Email, string Password, string DisplayName, string FirstName, string LastName, bool AcceptNews, bool AcceptPromo);
 public record LoginRequest(string Email, string Password);
 public record RefreshRequest(string AccessToken, string RefreshToken);
