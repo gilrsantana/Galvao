@@ -1,0 +1,540 @@
+<div class="container" style="padding: 48px 0; min-height: 80vh;">
+  <!-- Dashboard Header -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border-color); padding-bottom: 24px; margin-bottom: 40px; gap: 24px; flex-wrap: wrap;">
+    <div>
+      <span class="badge badge-gold" style="margin-bottom: 8px;">Portal Administrativo</span>
+      <h1 style="font-size: 40px; color: var(--text-primary); line-height: 1.1;">Painel de Controle</h1>
+      <p style="color: var(--text-secondary); font-size: 15px; margin-top: 4px;">Controle a galeria do showroom, publique artigos de decoração e gerencie perfis de usuários.</p>
+    </div>
+
+    <!-- Tab Switching Navigation -->
+    <div class="tab-navigation">
+      <button 
+        (click)="switchTab('showroom')" 
+        [class]="activeTab() === 'showroom' ? 'tab-btn active' : 'tab-btn'">
+        Showroom
+      </button>
+      <button 
+        (click)="switchTab('articles')" 
+        [class]="activeTab() === 'articles' ? 'tab-btn active' : 'tab-btn'">
+        Artigos
+      </button>
+      <button 
+        (click)="switchTab('roles')" 
+        [class]="activeTab() === 'roles' ? 'tab-btn active' : 'tab-btn'">
+        Perfis & Acesso
+      </button>
+    </div>
+  </div>
+
+  <!-- SHOWROOM TAB CONTENT -->
+  @if (activeTab() === 'showroom') {
+    <div style="animation: fadeIn 0.4s ease-out;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+          <h2 style="font-size: 24px; color: var(--text-primary);">Catálogo do Showroom</h2>
+          <p style="color: var(--text-secondary); font-size: 14px;">Total de {{ showroomItems().length }} peças de design cadastradas.</p>
+        </div>
+        <button (click)="openNewItemModal()" class="btn btn-primary btn-sm">
+          + Adicionar Item ao Showroom
+        </button>
+      </div>
+
+      @if (showroomItems().length === 0) {
+        <div class="empty-state-box">
+          <p>Nenhum item de showroom encontrado. Comece criando um novo item.</p>
+        </div>
+      } @else {
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Fotos</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of showroomItems(); track item.id) {
+                <tr>
+                  <td style="font-weight: 550; color: var(--text-primary);">{{ item.title }}</td>
+                  <td><span class="badge badge-dark" style="font-size: 10px;">{{ item.category }}</span></td>
+                  <td>{{ item.price | currency:'USD':'symbol':'1.2-2' }}</td>
+                  <td>
+                    <span style="font-size: 13px; font-weight: 500;">
+                      {{ item.photos.length }} foto(s)
+                    </span>
+                  </td>
+                  <td style="text-align: right;">
+                    <button (click)="openPhotosModal(item)" class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 11px; margin-right: 8px;">
+                      Gerenciar Fotos
+                    </button>
+                    <button (click)="openEditItemModal(item)" class="btn btn-gold btn-sm" style="padding: 6px 12px; font-size: 11px;">
+                      Editar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ARTICLES TAB CONTENT -->
+  @if (activeTab() === 'articles') {
+    <div style="animation: fadeIn 0.4s ease-out;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+          <h2 style="font-size: 24px; color: var(--text-primary);">Artigos de Decoração</h2>
+          <p style="color: var(--text-secondary); font-size: 14px;">Gerencie histórias publicadas e dicas de decoração.</p>
+        </div>
+        <button (click)="openNewArticleModal()" class="btn btn-primary btn-sm">
+          + Escrever Novo Artigo
+        </button>
+      </div>
+
+      @if (articles().length === 0) {
+        <div class="empty-state-box">
+          <p>Nenhum artigo encontrado. Comece escrevendo conteúdo sobre decoração para o portal.</p>
+        </div>
+      } @else {
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Data de Publicação</th>
+                <th>Status</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (art of articles(); track art.id) {
+                <tr>
+                  <td style="font-weight: 550; color: var(--text-primary);">{{ art.title }}</td>
+                  <td>{{ art.author }}</td>
+                  <td>
+                    @if (art.publishedAt) {
+                      {{ art.publishedAt | date:'mediumDate' }}
+                    } @else {
+                      <span style="color: var(--text-secondary); font-style: italic;">Não Publicado</span>
+                    }
+                  </td>
+                  <td>
+                    @if (art.isPublished) {
+                      <span class="badge badge-gold" style="background-color: rgba(197,168,128,0.2); color: #8c6e40; font-weight: 600;">Publicado</span>
+                    } @else {
+                      <span class="badge" style="background-color: var(--bg-secondary); color: var(--text-secondary);">Rascunho</span>
+                    }
+                  </td>
+                  <td style="text-align: right;">
+                    <button 
+                      (click)="togglePublish(art)" 
+                      [class]="art.isPublished ? 'btn btn-secondary btn-sm' : 'btn btn-gold btn-sm'" 
+                      style="padding: 6px 12px; font-size: 11px; margin-right: 8px;">
+                      {{ art.isPublished ? 'Despublicar' : 'Publicar' }}
+                    </button>
+                    <button (click)="openEditArticleModal(art)" class="btn btn-primary btn-sm" style="padding: 6px 12px; font-size: 11px;">
+                      Editar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ROLES TAB CONTENT -->
+  @if (activeTab() === 'roles') {
+    <div style="animation: fadeIn 0.4s ease-out; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px;">
+      
+      <!-- Available Roles Column -->
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 24px; color: var(--text-primary);">Perfis de Acesso</h2>
+            <p style="color: var(--text-secondary); font-size: 14px;">Gerencie as categorias de permissão administrativa.</p>
+          </div>
+          <button (click)="openRoleModal()" class="btn btn-primary btn-sm">
+            + Criar Perfil
+          </button>
+        </div>
+
+        @if (roles().length === 0) {
+          <div class="empty-state-box">
+            <p>Nenhum perfil de sistema encontrado.</p>
+          </div>
+        } @else {
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nome do Perfil</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (role of roles(); track role.id) {
+                  <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">
+                      <span class="badge badge-dark">{{ role.name }}</span>
+                    </td>
+                    <td>{{ role.description }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <!-- Assign/Remove Role Form -->
+      <div>
+        <div style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; color: var(--text-primary);">Atribuição de Perfis de Usuários</h2>
+          <p style="color: var(--text-secondary); font-size: 14px;">Atribua perfis de autorização para IDs de usuários específicos.</p>
+        </div>
+
+        <div class="premium-card" style="padding: 32px; background-color: var(--bg-primary);">
+          <div class="form-group">
+            <label class="form-label" for="assignUserId">Identificador do Usuário (ID)</label>
+            <input 
+              type="text" 
+              id="assignUserId" 
+              [ngModel]="assignUserId()"
+              (ngModelChange)="assignUserId.set($event)"
+              placeholder="ex: 2df1b4a0-7cc3-..." 
+              class="form-control">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 32px;">
+            <label class="form-label" for="assignRoleName">Perfil</label>
+            <select 
+              id="assignRoleName" 
+              [ngModel]="assignRoleName()"
+              (ngModelChange)="assignRoleName.set($event)"
+              class="form-control">
+              <option value="" disabled selected>Selecione um perfil...</option>
+              @for (role of roles(); track role.id) {
+                <option [value]="role.name">{{ role.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <button 
+              (click)="removeRole()" 
+              [disabled]="!assignUserId() || !assignRoleName()"
+              class="btn btn-secondary btn-sm"
+              style="width: 100%;">
+              Remover Perfil
+            </button>
+            <button 
+              (click)="assignRole()" 
+              [disabled]="!assignUserId() || !assignRoleName()"
+              class="btn btn-primary btn-sm"
+              style="width: 100%;">
+              Atribuir Perfil
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ============================================== -->
+<!-- MODAL OVERLAYS                                 -->
+<!-- ============================================== -->
+
+<!-- 1. SHOWROOM ITEM MODAL -->
+@if (showItemModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="font-size: 24px; margin-bottom: 24px; color: var(--text-primary);">
+        {{ editingItemId() ? 'Modificar Item do Showroom' : 'Novo Item do Showroom' }}
+      </h3>
+      
+      <form (ngSubmit)="saveItem()">
+        <div class="form-group">
+          <label class="form-label">Título do Item</label>
+          <input 
+            type="text" 
+            required 
+            [ngModel]="itemTitle()"
+            (ngModelChange)="itemTitle.set($event)"
+            name="itemTitle"
+            placeholder="ex: Poltrona de Veludo Atemporal" 
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <input 
+            type="text" 
+            required 
+            [ngModel]="itemCategory()"
+            (ngModelChange)="itemCategory.set($event)"
+            name="itemCategory"
+            placeholder="ex: Assentos" 
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Preço (USD)</label>
+          <input 
+            type="number" 
+            required 
+            step="0.01"
+            min="0"
+            [ngModel]="itemPrice()"
+            (ngModelChange)="itemPrice.set($event)"
+            name="itemPrice"
+            class="form-control">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 32px;">
+          <label class="form-label">Descrição</label>
+          <textarea 
+            rows="4" 
+            required
+            [ngModel]="itemDescription()"
+            (ngModelChange)="itemDescription.set($event)"
+            name="itemDescription"
+            placeholder="Descreva os detalhes de estilo, materiais e acabamento..." 
+            class="form-control"
+            style="resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 16px;">
+          <button type="button" (click)="closeItemModal()" class="btn btn-secondary btn-sm">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm">
+            Salvar Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- 2. MANAGE PHOTOS MODAL -->
+@if (showPhotoModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content" style="max-width: 700px; width: 95%;">
+      <h3 style="font-size: 24px; margin-bottom: 12px; color: var(--text-primary);">
+        Gerenciador de Galeria de Fotos
+      </h3>
+      <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">
+        Gerenciando fotos para: <strong>{{ currentItemForPhotos()?.title }}</strong>
+      </p>
+
+      <!-- Existing Photos List -->
+      <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 12px;">
+        Fotos Atuais ({{ currentItemForPhotos()?.photos?.length || 0 }})
+      </h4>
+
+      @if (!currentItemForPhotos()?.photos || currentItemForPhotos()?.photos?.length === 0) {
+        <div style="background-color: var(--bg-secondary); padding: 16px; text-align: center; border-radius: var(--radius-sm); margin-bottom: 24px; font-size: 13px; color: var(--text-secondary);">
+          Nenhuma foto cadastrada para este item ainda. Adicione uma abaixo.
+        </div>
+      } @else {
+        <div class="admin-photo-grid">
+          @for (photo of currentItemForPhotos()?.photos; track photo.id) {
+            <div class="admin-photo-card">
+              <img [src]="photo.url" [alt]="photo.caption || 'Foto do Item'">
+              <div class="admin-photo-info">
+                <p style="font-size: 11px; font-weight: 500; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  {{ photo.caption || '(Sem legenda)' }}
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  @if (photo.isPrimary) {
+                    <span class="badge badge-gold" style="font-size: 9px; padding: 2px 6px;">Principal</span>
+                  } @else {
+                    <span></span>
+                  }
+                  <button (click)="removePhoto(photo.id)" class="delete-photo-btn">
+                    Excluir
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+
+      <!-- Add Photo Form -->
+      <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 16px;">
+        Adicionar Nova Foto
+      </h4>
+
+      <form (ngSubmit)="addPhoto()">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">URL da Foto</label>
+            <input 
+              type="url" 
+              required 
+              [ngModel]="photoUrl()"
+              (ngModelChange)="photoUrl.set($event)"
+              name="photoUrl"
+              placeholder="https://images.unsplash.com/..." 
+              class="form-control">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Legenda / Descrição</label>
+            <input 
+              type="text" 
+              [ngModel]="photoCaption()"
+              (ngModelChange)="photoCaption.set($event)"
+              name="photoCaption"
+              placeholder="ex: Vista lateral em detalhe" 
+              class="form-control">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 24px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-secondary);">
+            <input 
+              type="checkbox" 
+              [ngModel]="photoIsPrimary()"
+              (ngModelChange)="photoIsPrimary.set($event)"
+              name="photoIsPrimary"
+              style="accent-color: var(--accent-gold); width: 16px; height: 16px;">
+            Definir como Imagem Principal do Showroom
+          </label>
+          
+          <button type="submit" [disabled]="!photoUrl()" class="btn btn-gold btn-sm">
+            Adicionar Foto
+          </button>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" (click)="closePhotosModal()" class="btn btn-secondary btn-sm">
+            Fechar Gerenciador
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- 3. ARTICLE EDIT MODAL -->
+@if (showArticleModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content" style="max-width: 750px; width: 95%;">
+      <h3 style="font-size: 24px; margin-bottom: 24px; color: var(--text-primary);">
+        {{ editingArticleId() ? 'Modificar Artigo de Decoração' : 'Novo Artigo de Decoração' }}
+      </h3>
+
+      <form (ngSubmit)="saveArticle()">
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Título do Artigo</label>
+            <input 
+              type="text" 
+              required 
+              [ngModel]="articleTitle()"
+              (ngModelChange)="articleTitle.set($event)"
+              name="articleTitle"
+              placeholder="ex: A Bíblia do Design Minimalista e Aconchegante" 
+              class="form-control">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Nome do Autor</label>
+            <input 
+              type="text" 
+              required 
+              [ngModel]="articleAuthor()"
+              (ngModelChange)="articleAuthor.set($event)"
+              name="articleAuthor"
+              placeholder="ex: Astrid Galvão" 
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 32px; margin-top: 16px;">
+          <label class="form-label">Conteúdo do Artigo (Markdown Disponível)</label>
+          <textarea 
+            rows="10" 
+            required 
+            [ngModel]="articleContent()"
+            (ngModelChange)="articleContent.set($event)"
+            name="articleContent"
+            placeholder="Escreva o artigo aqui. Use a sintaxe markdown para estilização de parágrafos, listas, cabeçalhos..." 
+            class="form-control"
+            style="resize: vertical; font-family: monospace; font-size: 13px; line-height: 1.5;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 16px;">
+          <button type="button" (click)="closeArticleModal()" class="btn btn-secondary btn-sm">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm">
+            Salvar Artigo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- 4. ACCESS ROLE MODAL -->
+@if (showRoleModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="font-size: 24px; margin-bottom: 24px; color: var(--text-primary);">
+        Criar Perfil de Acesso do Sistema
+      </h3>
+
+      <form (ngSubmit)="saveRole()">
+        <div class="form-group">
+          <label class="form-label">Nome do Perfil</label>
+          <input 
+            type="text" 
+            required 
+            [ngModel]="newRoleName()"
+            (ngModelChange)="newRoleName.set($event)"
+            name="newRoleName"
+            placeholder="ex: Editor" 
+            class="form-control"
+            style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 32px;">
+          <label class="form-label">Descrição do Perfil</label>
+          <input 
+            type="text" 
+            required 
+            [ngModel]="newRoleDescription()"
+            (ngModelChange)="newRoleDescription.set($event)"
+            name="newRoleDescription"
+            placeholder="ex: Pode criar e publicar itens no showroom" 
+            class="form-control">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 16px;">
+          <button type="button" (click)="closeRoleModal()" class="btn btn-secondary btn-sm">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm">
+            Criar Perfil
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

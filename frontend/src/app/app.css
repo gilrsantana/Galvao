@@ -1,0 +1,14 @@
+nav a {
+  transition: var(--transition-fast);
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+}
+
+nav a:hover {
+  color: var(--accent-gold);
+}
+
+.active-link {
+  color: var(--accent-gold) !important;
+  border-bottom: 2px solid var(--accent-gold);
+}

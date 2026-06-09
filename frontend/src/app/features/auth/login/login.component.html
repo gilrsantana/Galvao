@@ -1,0 +1,61 @@
+<section style="padding: 96px 0; display: flex; align-items: center; justify-content: center; min-height: 70vh;">
+  <div class="premium-card" style="max-width: 420px; width: 100%; padding: 40px; background-color: var(--bg-primary);">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h2 style="font-size: 32px; color: var(--text-primary); margin-bottom: 8px;">Entrar</h2>
+      <p style="color: var(--text-secondary); font-size: 14px;">Acesse o painel da Galvão.</p>
+    </div>
+
+    <!-- Error message -->
+    @if (errorMessage()) {
+      <div style="background-color: rgba(220, 53, 69, 0.08); border: 1px solid rgba(220, 53, 69, 0.2); color: #dc3545; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 24px;">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label class="form-label" for="email">Endereço de E-mail</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          required 
+          class="form-control" 
+          placeholder="seu-nome@dominio.com">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 32px;">
+        <label class="form-label" for="password">Senha</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          required 
+          class="form-control" 
+          placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+      </div>
+
+      <button 
+        type="submit" 
+        [disabled]="isSubmitting()" 
+        class="btn btn-primary" 
+        style="width: 100%; margin-bottom: 24px;">
+        @if (isSubmitting()) { Entrando... } @else { Entrar }
+      </button>
+    </form>
+
+    <!-- Footer link -->
+    <div style="text-align: center; font-size: 13px; color: var(--text-secondary);">
+      Não tem uma conta? 
+      <a routerLink="/register" style="color: var(--accent-gold); font-weight: 550; border-bottom: 1px solid transparent; padding-bottom: 1px;">
+        Cadastre-se aqui
+      </a>
+    </div>
+  </div>
+</section>

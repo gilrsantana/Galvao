@@ -1,0 +1,132 @@
+/* Tab Navigation Styles */
+.tab-navigation {
+  display: flex;
+  background-color: var(--bg-secondary);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  gap: 4px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(30, 30, 26, 0.03);
+}
+
+.tab-btn.active {
+  color: var(--bg-primary);
+  background-color: var(--bg-dark);
+}
+
+/* Empty State Styling */
+.empty-state-box {
+  background-color: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+/* Photo Gallery Manager Grid */
+.admin-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  background-color: var(--bg-secondary);
+}
+
+.admin-photo-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-photo-grid::-webkit-scrollbar-thumb {
+  background-color: var(--accent-gold);
+  border-radius: 3px;
+}
+
+.admin-photo-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+.admin-photo-card:hover {
+  border-color: var(--accent-gold);
+  transform: translateY(-2px);
+}
+
+.admin-photo-card img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-photo-info {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.delete-photo-btn {
+  background: none;
+  border: none;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: var(--transition-fast);
+}
+
+.delete-photo-btn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Access Role select custom border style */
+select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%231E1E1A' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

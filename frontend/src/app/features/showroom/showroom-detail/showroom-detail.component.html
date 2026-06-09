@@ -1,0 +1,79 @@
+<section style="padding: 64px 0 96px 0;">
+  <div class="container">
+    @if (item(); as data) {
+      <!-- Breadcrumbs -->
+      <div style="margin-bottom: 40px; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-secondary);">
+        <a routerLink="/" style="color: var(--text-secondary);">Início</a>
+        <span style="margin: 0 8px;">/</span>
+        <a routerLink="/showroom" style="color: var(--text-secondary);">Showroom</a>
+        <span style="margin: 0 8px;">/</span>
+        <span style="color: var(--text-primary); font-weight: 500;">{{ data.title }}</span>
+      </div>
+
+      <!-- Detail Grid -->
+      <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 64px; align-items: start;">
+        <!-- Left: Image Gallery -->
+        <div>
+          <!-- Hero Image -->
+          <div style="height: 520px; overflow: hidden; background-color: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 24px;">
+            @if (selectedPhotoUrl()) {
+              <img [src]="selectedPhotoUrl()" [alt]="selectedPhotoCaption()" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition-smooth);">
+            } @else {
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                <span>Nenhuma foto disponível</span>
+              </div>
+            }
+          </div>
+
+          <!-- Thumbnails Row -->
+          @if (data.photos.length > 1) {
+            <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px;">
+              @for (photo of data.photos; track photo.id) {
+                <button 
+                  (click)="selectPhoto(photo)" 
+                  [class]="selectedPhotoUrl() === photo.url ? 'thumb-btn active-thumb' : 'thumb-btn'">
+                  <img [src]="photo.url" [alt]="photo.caption" style="width: 100%; height: 100%; object-fit: cover;">
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Right: Description Details -->
+        <div style="display: flex; flex-direction: column; gap: 32px;">
+          <div>
+            <span class="badge badge-gold" style="margin-bottom: 16px;">{{ data.category }}</span>
+            <h1 style="font-size: 44px; line-height: 1.2; color: var(--text-primary); margin-bottom: 12px;">
+              {{ data.title }}
+            </h1>
+            <div style="font-family: var(--font-sans); font-size: 28px; font-weight: 600; color: var(--accent-gold);">
+              {{ data.price | currency }}
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 32px 0;">
+            <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600;">Descrição</h4>
+            <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.8; white-space: pre-line;">
+              {{ data.description }}
+            </p>
+          </div>
+
+          <!-- CTA Area -->
+          <div style="background-color: var(--bg-secondary); border-radius: var(--radius-md); padding: 32px; border: 1px solid var(--border-color);">
+            <h3 style="font-size: 20px; margin-bottom: 8px; color: var(--text-primary);">Interessado nesta peça?</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+              Por favor, solicite um orçamento ou entre em contato com nossa equipe de vendas para discutir acabamentos, frete e dimensões personalizadas.
+            </p>
+            <a href="mailto:showroom@galvao.design?subject=Inquiry: {{ data.title }}" class="btn btn-primary" style="width: 100%;">
+              Solicitar Orçamento
+            </a>
+          </div>
+        </div>
+      </div>
+    @} @else {
+      <div style="text-align: center; padding: 120px 0; color: var(--text-secondary);">
+        <p style="font-size: 16px;">Carregando detalhes do produto...</p>
+      </div>
+    }
+  </div>
+</section>

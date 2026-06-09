@@ -1,0 +1,80 @@
+<div class="layout-container">
+  <!-- Premium Header / Navbar -->
+  <header class="premium-navbar">
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; height: 80px;">
+        <!-- Brand -->
+        <a routerLink="/" style="font-family: var(--font-serif); font-size: 24px; font-weight: 600; letter-spacing: 0.1em; color: var(--text-primary);">
+          GALVÃO
+        </a>
+
+        <!-- Navigation Links -->
+        <nav style="display: flex; align-items: center; gap: 32px; font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500;">
+          <a routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Início</a>
+          <a routerLink="/showroom" routerLinkActive="active-link">Showroom</a>
+          <a routerLink="/articles" routerLinkActive="active-link">Artigos</a>
+          
+          @if (authService.isAdmin()) {
+            <a routerLink="/admin" routerLinkActive="active-link" style="color: var(--accent-gold); font-weight: 600;">Painel Admin</a>
+          }
+        </nav>
+
+        <!-- Auth Actions -->
+        <div style="display: flex; align-items: center; gap: 16px;">
+          @if (authService.isAuthenticated()) {
+            <span style="font-size: 13px; color: var(--text-secondary);">
+              Olá, <strong>{{ authService.currentUser()?.email }}</strong>
+            </span>
+            <button (click)="logout()" class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 11px;">
+              Sair
+            </button>
+          } @else {
+            <a routerLink="/login" class="btn btn-secondary btn-sm" style="padding: 6px 16px; font-size: 11px; border-radius: var(--radius-sm);">
+              Entrar
+            </a>
+            <a routerLink="/register" class="btn btn-primary btn-sm" style="padding: 6px 16px; font-size: 11px; border-radius: var(--radius-sm);">
+              Cadastrar-se
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Router Outlet Main Content -->
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Premium Footer -->
+  <footer style="background-color: var(--bg-dark); color: var(--text-light); padding: 64px 0; font-size: 14px; border-top: 1px solid var(--border-color-light);">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 48px; margin-bottom: 48px;">
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: 20px; color: var(--accent-gold); margin-bottom: 16px; letter-spacing: 0.05em;">GALVÃO</h3>
+          <p style="color: rgba(250, 249, 246, 0.6); font-size: 13px; line-height: 1.8;">
+            Móveis de design curados e artigos de decoração para casa. Combinando a simplicidade nórdica com elegância atemporal.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-gold); margin-bottom: 16px;">Explorar</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; padding: 0;">
+            <li><a routerLink="/showroom" style="color: rgba(250, 249, 246, 0.75);">Showroom de Móveis</a></li>
+            <li><a routerLink="/articles" style="color: rgba(250, 249, 246, 0.75);">Artigos de Decoração</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-gold); margin-bottom: 16px;">Contato</h4>
+          <p style="color: rgba(250, 249, 246, 0.6); font-size: 13px;">
+            E-mail: info&#64;galvao.design<br>
+            Telefone: +55 (11) 98765-4321
+          </p>
+        </div>
+      </div>
+      <div style="border-top: 1px solid var(--border-color-light); padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; color: rgba(250, 249, 246, 0.4); font-size: 12px;">
+        <p>&copy; 2026 GALVÃO. Todos os direitos reservados.</p>
+        <p>Estética & Perfeição Funcional</p>
+      </div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,76 @@
+<section style="padding: 64px 0 96px 0;">
+  <div class="container">
+    <!-- Header -->
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 48px auto;">
+      <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; color: var(--accent-gold); display: block; margin-bottom: 8px;">Showroom</span>
+      <h2 style="font-size: 40px; margin-bottom: 16px; color: var(--text-primary);">A Coleção de Design</h2>
+      <p style="color: var(--text-secondary); font-size: 15px; line-height: 1.7;">
+        Móveis de design arquitetônico que equilibram forma, detalhe e estrutura material. Feitos à mão para se integrarem perfeitamente em espaços modernos.
+      </p>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 48px; flex-wrap: wrap;">
+      @for (cat of categories(); track cat) {
+        <button 
+          (click)="selectCategory(cat)" 
+          [class]="selectedCategory() === cat ? 'filter-pill active-pill' : 'filter-pill'">
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <!-- Items Grid -->
+    <div class="grid-cols-3">
+      @for (item of filteredItems(); track item.id) {
+        <div class="premium-card" style="display: flex; flex-direction: column; height: 100%;">
+          <div style="height: 320px; overflow: hidden; background-color: var(--bg-secondary); position: relative;">
+            <img [src]="getPrimaryPhotoUrl(item)" [alt]="item.title" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition-smooth);" class="card-image">
+            <span class="badge badge-dark" style="position: absolute; top: 16px; right: 16px;">{{ item.category }}</span>
+          </div>
+          <div style="padding: 24px; display: flex; flex-direction: column; flex: 1; justify-content: space-between;">
+            <div>
+              <h3 style="font-size: 22px; margin-bottom: 8px; color: var(--text-primary);">{{ item.title }}</h3>
+              <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.6;">
+                {{ item.description }}
+              </p>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 16px;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 18px; color: var(--accent-gold);">
+                {{ item.price | currency }}
+              </span>
+              <a [routerLink]="['/showroom', item.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); border-bottom: 1px solid transparent; padding-bottom: 2px;">
+                Ver Detalhes &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div style="grid-column: span 3; text-align: center; padding: 96px 0; color: var(--text-secondary);">
+          <p style="font-size: 16px;">Nenhum item corresponde a esta categoria de filtro.</p>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-container">
+        <button 
+          (click)="changePage(currentPage() - 1)" 
+          [disabled]="currentPage() === 1" 
+          class="pagination-btn">
+          &larr;
+        </button>
+        <span style="font-size: 14px; letter-spacing: 0.05em; color: var(--text-secondary);">
+          Página <strong>{{ currentPage() }}</strong> de {{ totalPages() }}
+        </span>
+        <button 
+          (click)="changePage(currentPage() + 1)" 
+          [disabled]="currentPage() === totalPages()" 
+          class="pagination-btn">
+          &rarr;
+        </button>
+      </div>
+    }
+  </div>
+</section>

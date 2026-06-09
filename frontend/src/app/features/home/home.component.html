@@ -1,0 +1,119 @@
+<!-- Hero Banner Section -->
+<section style="background-color: var(--bg-secondary); padding: 120px 0; border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden;">
+  <div class="container" style="display: grid; grid-template-columns: 1.2fr 0.8fr; align-items: center; gap: 48px; position: relative; z-index: 2;">
+    <div>
+      <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; color: var(--accent-gold); display: block; margin-bottom: 16px;">Estética Atemporal</span>
+      <h1 style="font-size: 56px; line-height: 1.15; margin-bottom: 24px; color: var(--text-primary);">
+        Simplicidade Esculpida <br>Para Seu Espaço
+      </h1>
+      <p style="font-size: 16px; color: var(--text-secondary); margin-bottom: 40px; max-width: 500px; line-height: 1.8;">
+        Explore nossa coleção curada de móveis arquitetônicos e artigos de decoração. Projetados para trazer equilíbrio funcional e luxo ao seu dia a dia.
+      </p>
+      <div style="display: flex; gap: 16px;">
+        <a routerLink="/showroom" class="btn btn-primary">Ver Showroom</a>
+        <a routerLink="/articles" class="btn btn-secondary">Ler Artigos</a>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: center; position: relative;">
+      <!-- Elegant abstract card representing furniture showroom design -->
+      <div style="width: 320px; height: 420px; background-color: var(--bg-dark); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 32px; border: 1px solid var(--border-color-light);">
+        <span style="font-size: 11px; text-transform: uppercase; color: var(--accent-gold); letter-spacing: 0.1em; margin-bottom: 8px;">Seleção em Destaque</span>
+        <h3 style="color: var(--text-light); font-size: 24px; margin-bottom: 16px;">O Aparador de Carvalho</h3>
+        <p style="color: rgba(250, 249, 246, 0.6); font-size: 13px; margin-bottom: 24px; line-height: 1.6;">Unidade de armazenamento minimalista feita à mão a partir de carvalho europeu.</p>
+        <a routerLink="/showroom" style="color: var(--accent-gold); font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 8px;">
+          Explorar coleção &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Abstract background circle -->
+  <div style="position: absolute; right: -100px; top: -100px; width: 500px; height: 500px; border-radius: 50%; background-color: rgba(197, 168, 128, 0.04); z-index: 1;"></div>
+</section>
+
+<!-- Featured Showroom Items Section -->
+<section style="padding: 96px 0;">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px;">
+      <div>
+        <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: var(--accent-gold); display: block; margin-bottom: 8px;">Showroom</span>
+        <h2 style="font-size: 36px; color: var(--text-primary);">Itens em Destaque</h2>
+      </div>
+      <a routerLink="/showroom" style="color: var(--text-primary); font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--text-primary); padding-bottom: 2px;">
+        Ver Todos os Itens &rarr;
+      </a>
+    </div>
+
+    <div class="grid-cols-3">
+      @for (item of featuredItems(); track item.id) {
+        <div class="premium-card" style="display: flex; flex-direction: column; height: 100%;">
+          <div style="height: 280px; overflow: hidden; background-color: var(--bg-secondary); position: relative;">
+            <img [src]="getPrimaryPhotoUrl(item)" [alt]="item.title" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition-smooth);" class="card-image">
+            <span class="badge badge-dark" style="position: absolute; top: 16px; right: 16px;">{{ item.category }}</span>
+          </div>
+          <div style="padding: 24px; display: flex; flex-direction: column; flex: 1; justify-content: space-between;">
+            <div>
+              <h3 style="font-size: 22px; margin-bottom: 8px; color: var(--text-primary);">{{ item.title }}</h3>
+              <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                {{ item.description }}
+              </p>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 18px; color: var(--accent-gold);">
+                {{ item.price | currency }}
+              </span>
+              <a [routerLink]="['/showroom', item.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary);">
+                Detalhes &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div style="grid-column: span 3; text-align: center; padding: 48px 0; color: var(--text-secondary);">
+          <p>Nenhum item de showroom encontrado. Visite novamente mais tarde.</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Latest Articles Section -->
+<section style="background-color: var(--bg-secondary); padding: 96px 0;">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px;">
+      <div>
+        <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: var(--accent-gold); display: block; margin-bottom: 8px;">Revista</span>
+        <h2 style="font-size: 36px; color: var(--text-primary);">Artigos de Decoração</h2>
+      </div>
+      <a routerLink="/articles" style="color: var(--text-primary); font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--text-primary); padding-bottom: 2px;">
+        Ler todos os artigos &rarr;
+      </a>
+    </div>
+
+    <div class="grid-cols-3">
+      @for (article of latestArticles(); track article.id) {
+        <div class="premium-card" style="background-color: var(--bg-primary); display: flex; flex-direction: column; justify-content: space-between; padding: 32px; height: 100%;">
+          <div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px; font-size: 12px; color: var(--text-secondary);">
+              <span>Por <strong>{{ article.author }}</strong></span>
+              <span>&bull;</span>
+              <span>{{ article.publishedAt | date:'mediumDate' }}</span>
+            </div>
+            <h3 style="font-size: 24px; margin-bottom: 16px; color: var(--text-primary); line-height: 1.3;">
+              {{ article.title }}
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.7;">
+              {{ article.content }}
+            </p>
+          </div>
+          <a [routerLink]="['/articles', article.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 2px; align-self: flex-start;">
+            Ler artigo &rarr;
+          </a>
+        </div>
+      } @empty {
+        <div style="grid-column: span 3; text-align: center; padding: 48px 0; color: var(--text-secondary);">
+          <p>Nenhum artigo publicado ainda.</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

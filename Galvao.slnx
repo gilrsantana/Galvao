@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Galvao.Application/Galvao.Application.csproj" />
+    <Project Path="src/Galvao.Domain/Galvao.Domain.csproj" />
+    <Project Path="src/Galvao.Infrastructure/Galvao.Infrastructure.csproj" />
+    <Project Path="src/Galvao.Presentation/Galvao.Presentation.csproj" />
+    <Project Path="src/Galvao.Shared/Galvao.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Galvao.UnitTests/Galvao.UnitTests.csproj" />
+  </Folder>
+</Solution>

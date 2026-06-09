@@ -1,0 +1,6 @@
+@Galvao.Presentation_HostAddress = http://localhost:5147
+
+GET {{Galvao.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

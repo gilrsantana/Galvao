@@ -1,0 +1,27 @@
+.filter-pill {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.filter-pill:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.active-pill {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-light) !important;
+  border-color: var(--bg-dark) !important;
+}
+
+.premium-card:hover .card-image {
+  transform: scale(1.05);
+}

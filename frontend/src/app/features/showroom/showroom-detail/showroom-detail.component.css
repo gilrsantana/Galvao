@@ -1,0 +1,21 @@
+.thumb-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.thumb-btn:hover {
+  border-color: var(--accent-gold);
+}
+
+.active-thumb {
+  border-color: var(--accent-gold) !important;
+  box-shadow: 0 0 0 2px var(--accent-gold);
+}

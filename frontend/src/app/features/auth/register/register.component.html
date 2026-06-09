@@ -1,0 +1,101 @@
+<section style="padding: 96px 0; display: flex; align-items: center; justify-content: center; min-height: 70vh;">
+  <div class="premium-card" style="max-width: 420px; width: 100%; padding: 40px; background-color: var(--bg-primary);">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h2 style="font-size: 32px; color: var(--text-primary); margin-bottom: 8px;">Cadastrar-se</h2>
+      <p style="color: var(--text-secondary); font-size: 14px;">Crie sua conta de membro.</p>
+    </div>
+
+    <!-- Error message -->
+    @if (errorMessage()) {
+      <div style="background-color: rgba(220, 53, 69, 0.08); border: 1px solid rgba(220, 53, 69, 0.2); color: #dc3545; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 24px;">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="firstName">Nome</label>
+          <input 
+            type="text" 
+            id="firstName" 
+            name="firstName"
+            [ngModel]="firstName()"
+            (ngModelChange)="firstName.set($event)"
+            required 
+            class="form-control" 
+            placeholder="Maria">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="lastName">Sobrenome</label>
+          <input 
+            type="text" 
+            id="lastName" 
+            name="lastName"
+            [ngModel]="lastName()"
+            (ngModelChange)="lastName.set($event)"
+            required 
+            class="form-control" 
+            placeholder="Silva">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="displayName">Nome de Exibição</label>
+        <input 
+          type="text" 
+          id="displayName" 
+          name="displayName"
+          [ngModel]="displayName()"
+          (ngModelChange)="displayName.set($event)"
+          required 
+          class="form-control" 
+          placeholder="Maria Silva">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Endereço de E-mail</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          required 
+          class="form-control" 
+          placeholder="seu-nome@dominio.com">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 32px;">
+        <label class="form-label" for="password">Senha</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          required 
+          class="form-control" 
+          placeholder="Escolha uma senha forte">
+      </div>
+
+      <button 
+        type="submit" 
+        [disabled]="isSubmitting()" 
+        class="btn btn-primary" 
+        style="width: 100%; margin-bottom: 24px;">
+        @if (isSubmitting()) { Cadastrando... } @else { Criar Conta }
+      </button>
+    </form>
+
+    <!-- Footer link -->
+    <div style="text-align: center; font-size: 13px; color: var(--text-secondary);">
+      Já tem uma conta? 
+      <a routerLink="/login" style="color: var(--accent-gold); font-weight: 550; border-bottom: 1px solid transparent; padding-bottom: 1px;">
+        Entre aqui
+      </a>
+    </div>
+  </div>
+</section>

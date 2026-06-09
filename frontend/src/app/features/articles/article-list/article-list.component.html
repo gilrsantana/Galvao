@@ -1,0 +1,61 @@
+<section style="padding: 64px 0 96px 0;">
+  <div class="container">
+    <!-- Header -->
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 48px auto;">
+      <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; color: var(--accent-gold); display: block; margin-bottom: 8px;">Revista</span>
+      <h2 style="font-size: 40px; margin-bottom: 16px; color: var(--text-primary);">Decoração & Inspirações</h2>
+      <p style="color: var(--text-secondary); font-size: 15px; line-height: 1.7;">
+        Descubra guias de estilo, entrevistas com designers e insights sobre como integrar materiais naturais em sua casa moderna.
+      </p>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="grid-cols-2">
+      @for (article of articles(); track article.id) {
+        <div class="premium-card" style="background-color: var(--bg-primary); display: flex; flex-direction: column; justify-content: space-between; padding: 40px; height: 100%;">
+          <div>
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; font-size: 12px; color: var(--text-secondary);">
+              <span>Por <strong>{{ article.author }}</strong></span>
+              <span>&bull;</span>
+              <span>{{ article.publishedAt | date:'mediumDate' }}</span>
+            </div>
+            <h3 style="font-size: 28px; margin-bottom: 16px; color: var(--text-primary); line-height: 1.3;">
+              {{ article.title }}
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 28px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.75;">
+              {{ article.content }}
+            </p>
+          </div>
+          <a [routerLink]="['/articles', article.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); border-bottom: 1px solid var(--text-primary); padding-bottom: 2px; align-self: flex-start;">
+            Ler artigo completo &rarr;
+          </a>
+        </div>
+      } @empty {
+        <div style="grid-column: span 2; text-align: center; padding: 96px 0; color: var(--text-secondary);">
+          <p style="font-size: 16px;">Nenhum artigo publicado ainda.</p>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-container">
+        <button 
+          (click)="changePage(currentPage() - 1)" 
+          [disabled]="currentPage() === 1" 
+          class="pagination-btn">
+          &larr;
+        </button>
+        <span style="font-size: 14px; letter-spacing: 0.05em; color: var(--text-secondary);">
+          Página <strong>{{ currentPage() }}</strong> de {{ totalPages() }}
+        </span>
+        <button 
+          (click)="changePage(currentPage() + 1)" 
+          [disabled]="currentPage() === totalPages()" 
+          class="pagination-btn">
+          &rarr;
+        </button>
+      </div>
+    }
+  </div>
+</section>
