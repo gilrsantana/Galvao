@@ -18,6 +18,7 @@ export class AuthService {
     if (!response) return null;
     return this.decodeJwt(response.accessToken);
   });
+  readonly currentUserId = computed(() => this.currentUser()?.[ 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier' ] || null);
 
   readonly userRoles = computed<string[]>(() => {
     const user = this.currentUser();

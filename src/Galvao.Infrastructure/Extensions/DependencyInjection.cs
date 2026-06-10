@@ -56,7 +56,8 @@ public static class DependencyInjection
         {
             var settings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ResendSettings>>().Value;
             client.BaseAddress = new Uri("https://api.resend.com/");
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.ApiKey);
+            client.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.ManagerApiKey);
         });
 
         return services;

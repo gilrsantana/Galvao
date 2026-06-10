@@ -4,17 +4,13 @@ namespace Galvao.Infrastructure.Services.Emails.Resend.Models;
 
 public class Segment
 {
-    [JsonPropertyName("object")]
-    public string Object { get; set; } = "segment";
-
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
 
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
-    [JsonPropertyName("created_at")]
-    public DateTime CreatedAt { get; set; }
+    [JsonPropertyName("created_at")] public string CreatedAt { get; set; } = string.Empty;
 }
 
 public class Contact
@@ -108,6 +104,9 @@ public class ListSegmentsResponse
 {
     [JsonPropertyName("object")]
     public string Object { get; set; } = string.Empty;
+    
+    [JsonPropertyName("has_more")]
+    public bool HasMore { get; set; }
 
     [JsonPropertyName("data")]
     public List<Segment> Data { get; set; } = new();

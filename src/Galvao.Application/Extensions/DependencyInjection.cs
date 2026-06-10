@@ -27,6 +27,9 @@ public static class DependencyInjection
     {
         // Commands
         services.AddScoped<ICommandHandler<UpdateMemberProfileCommand>, UpdateMemberProfileCommandHandler>();
+        services.AddScoped<ICommandHandler<ChangeEmailCommand>, ChangeEmailCommandHandler>();
+        services.AddScoped<ICommandHandler<ChangePasswordCommand>, ChangePasswordCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateMarketingPreferencesCommand>, UpdateMarketingPreferencesCommandHandler>();
         services.AddScoped<ICommandHandler<CreateShowroomItemCommand, Guid>, CreateShowroomItemCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateShowroomItemCommand>, UpdateShowroomItemCommandHandler>();
         services.AddScoped<ICommandHandler<AddShowroomItemPhotoCommand, Guid>, AddShowroomItemPhotoCommandHandler>();

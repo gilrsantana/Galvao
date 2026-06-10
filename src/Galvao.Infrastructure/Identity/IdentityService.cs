@@ -49,10 +49,10 @@ public class IdentityService : IIdentityService
         bool acceptPromo,
         CancellationToken cancellationToken = default)
     {
-        var existingAccount = await _userManager.FindByEmailAsync(email);
-        if (existingAccount is not null)
+        var emailUniqueResult = await CheckEmailUniquenessAsync(email);
+        if (emailUniqueResult.IsFailure)
         {
-            return Result.Failure<Guid>(new Error("Auth.EmailNotUnique", "Email is already registered."));
+            return Result.Failure<Guid>(emailUniqueResult.Error);
         }
 
         var memberResult = Member.Create(email, displayName, firstName, lastName, acceptNews, acceptPromo);
@@ -61,18 +61,63 @@ public class IdentityService : IIdentityService
             return Result.Failure<Guid>(memberResult.Error);
         }
 
-        var userId = memberResult.Value.Id;
-        var account = Account.Create(userId, email);
+        var member = memberResult.Value;
+        var userId = member.Id;
 
+        var createAccountResult = await CreateIdentityAccountAsync(userId, email, password);
+        if (createAccountResult.IsFailure)
+        {
+            return Result.Failure<Guid>(createAccountResult.Error);
+        }
+
+        var account = createAccountResult.Value;
+
+        var assignRoleResult = await EnsureAndAssignUserRoleAsync(account);
+        if (assignRoleResult.IsFailure)
+        {
+            return Result.Failure<Guid>(assignRoleResult.Error);
+        }
+
+        await _memberRepository.AddAsync(member, cancellationToken);
+
+        var syncResult = await SyncRegistrationContactAsync(userId, email, firstName, lastName, acceptNews, acceptPromo, cancellationToken);
+        if (syncResult.IsFailure)
+        {
+            return Result.Failure<Guid>(syncResult.Error);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return userId;
+    }
+
+    private async Task<Result> CheckEmailUniquenessAsync(string email)
+    {
+        var existingAccount = await _userManager.FindByEmailAsync(email);
+        if (existingAccount is not null)
+        {
+            return Result.Failure(new Error("Auth.EmailNotUnique", "Email is already registered."));
+        }
+
+        return Result.Success();
+    }
+
+    private async Task<Result<Account>> CreateIdentityAccountAsync(Guid userId, string email, string password)
+    {
+        var account = Account.Create(userId, email);
         var identityResult = await _userManager.CreateAsync(account, password);
         if (!identityResult.Succeeded)
         {
             var errors = identityResult.Errors.Select(e => e.Description);
             var errorMessage = string.Join("; ", errors);
-            return Result.Failure<Guid>(new Error("Auth.RegistrationFailed", errorMessage));
+            return Result.Failure<Account>(new Error("Auth.RegistrationFailed", errorMessage));
         }
 
-        // Add user to "User" role automatically
+        return account;
+    }
+
+    private async Task<Result> EnsureAndAssignUserRoleAsync(Account account)
+    {
         if (!await _roleManager.RoleExistsAsync("User"))
         {
             var userRole = Role.Create("User", "Standard user role");
@@ -81,7 +126,7 @@ public class IdentityService : IIdentityService
             {
                 var errors = createRoleResult.Errors.Select(e => e.Description);
                 var errorMessage = string.Join("; ", errors);
-                return Result.Failure<Guid>(new Error("Auth.RoleCreationFailed", errorMessage));
+                return Result.Failure(new Error("Auth.RoleCreationFailed", errorMessage));
             }
         }
 
@@ -90,31 +135,47 @@ public class IdentityService : IIdentityService
         {
             var errors = roleResult.Errors.Select(e => e.Description);
             var errorMessage = string.Join("; ", errors);
-            return Result.Failure<Guid>(new Error("Auth.RoleAssignmentFailed", errorMessage));
+            return Result.Failure(new Error("Auth.RoleAssignmentFailed", errorMessage));
         }
 
-        await _memberRepository.AddAsync(memberResult.Value, cancellationToken);
+        return Result.Success();
+    }
 
-        if (acceptNews || acceptPromo)
+    private async Task<Result> SyncRegistrationContactAsync(
+        Guid userId,
+        string email,
+        string firstName,
+        string lastName,
+        bool acceptNews,
+        bool acceptPromo,
+        CancellationToken cancellationToken)
+    {
+        if (!acceptNews && !acceptPromo)
         {
-            var resendResult = await _emailContactService.CreateContactAsync(email, firstName, lastName, acceptNews, acceptPromo, cancellationToken);
-            if (resendResult.IsFailure)
-            {
-                return Result.Failure<Guid>(resendResult.Error);
-            }
-
-            var memberContactResult = MemberContact.Create(userId, resendResult.Value, email, unsubscribed: false);
-            if (memberContactResult.IsFailure)
-            {
-                return Result.Failure<Guid>(memberContactResult.Error);
-            }
-
-            await _memberContactRepository.AddAsync(memberContactResult.Value, cancellationToken);
+            return Result.Success();
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var resendResult = await _emailContactService.CreateContactAsync(
+            email,
+            firstName,
+            lastName,
+            acceptNews,
+            acceptPromo,
+            cancellationToken);
 
-        return userId;
+        if (resendResult.IsFailure)
+        {
+            return Result.Failure(resendResult.Error);
+        }
+
+        var memberContactResult = MemberContact.Create(userId, resendResult.Value, email, unsubscribed: false);
+        if (memberContactResult.IsFailure)
+        {
+            return Result.Failure(memberContactResult.Error);
+        }
+
+        await _memberContactRepository.AddAsync(memberContactResult.Value, cancellationToken);
+        return Result.Success();
     }
 
     public async Task<Result<TokenResponse>> LoginAsync(
@@ -161,13 +222,19 @@ public class IdentityService : IIdentityService
     private async Task<Result<TokenResponse>> GenerateTokensAsync(Account account, CancellationToken cancellationToken)
     {
         var roles = await _userManager.GetRolesAsync(account);
-        
+        var member = await _memberRepository.GetByIdAsync(account.Id, cancellationToken);
+
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, account.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, account.Email ?? string.Empty),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        if (member is not null && !string.IsNullOrWhiteSpace(member.DisplayName))
+        {
+            claims.Add(new Claim("displayName", member.DisplayName));
+        }
 
         foreach (var role in roles)
         {
@@ -229,5 +296,57 @@ public class IdentityService : IIdentityService
         {
             return Result.Failure<ClaimsPrincipal>(new Error("Auth.InvalidToken", "Failed to validate access token."));
         }
+    }
+
+    public async Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+    {
+        var account = await _userManager.FindByIdAsync(userId.ToString());
+        if (account is null)
+        {
+            return Result.Failure(new Error("Auth.AccountNotFound", "Account not found."));
+        }
+
+        var result = await _userManager.ChangePasswordAsync(account, currentPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            var errorMessage = string.Join("; ", errors);
+            return Result.Failure(new Error("Auth.ChangePasswordFailed", errorMessage));
+        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ChangeEmailAsync(Guid userId, string newEmail, CancellationToken cancellationToken = default)
+    {
+        var account = await _userManager.FindByIdAsync(userId.ToString());
+        if (account is null)
+        {
+            return Result.Failure(new Error("Auth.AccountNotFound", "Account not found."));
+        }
+
+        var existingAccount = await _userManager.FindByEmailAsync(newEmail);
+        if (existingAccount is not null && existingAccount.Id != userId)
+        {
+            return Result.Failure(new Error("Auth.EmailNotUnique", "Email is already registered."));
+        }
+
+        var setEmailResult = await _userManager.SetEmailAsync(account, newEmail);
+        if (!setEmailResult.Succeeded)
+        {
+            var errors = setEmailResult.Errors.Select(e => e.Description);
+            var errorMessage = string.Join("; ", errors);
+            return Result.Failure(new Error("Auth.ChangeEmailFailed", errorMessage));
+        }
+
+        var setUserNameResult = await _userManager.SetUserNameAsync(account, newEmail);
+        if (!setUserNameResult.Succeeded)
+        {
+            var errors = setUserNameResult.Errors.Select(e => e.Description);
+            var errorMessage = string.Join("; ", errors);
+            return Result.Failure(new Error("Auth.ChangeUsernameFailed", errorMessage));
+        }
+
+        return Result.Success();
     }
 }

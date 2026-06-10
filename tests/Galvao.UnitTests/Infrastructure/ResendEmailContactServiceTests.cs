@@ -20,7 +20,7 @@ public class ResendEmailContactServiceTests
     {
         _settings = new ResendSettings
         {
-            ApiKey = "re_test_key",
+            ManagerApiKey = "re_test_key",
             ClientName = "galvao"
         };
         _options = Options.Create(_settings);

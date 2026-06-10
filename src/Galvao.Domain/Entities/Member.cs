@@ -79,4 +79,15 @@ public class Member : BaseEntity
 
         return Result.Success();
     }
+
+    public Result UpdateEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
+            return Result.Failure(new Error("Member.InvalidEmail", "A valid email is required."));
+
+        Email = email;
+        Update();
+
+        return Result.Success();
+    }
 }

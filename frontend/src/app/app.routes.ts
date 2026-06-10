@@ -8,9 +8,12 @@ import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
 import { adminGuard } from './core/guards/admin.guard';
+import { SettingsComponent } from './features/settings/settings.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
   { path: 'showroom', component: ShowroomListComponent },
   { path: 'showroom/:id', component: ShowroomDetailComponent },
   { path: 'articles', component: ArticleListComponent },

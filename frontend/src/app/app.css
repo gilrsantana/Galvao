@@ -12,3 +12,15 @@ nav a:hover {
   color: var(--accent-gold) !important;
   border-bottom: 2px solid var(--accent-gold);
 }
+
+.settings-link {
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast), transform var(--transition-normal);
+}
+
+.settings-link:hover {
+  color: var(--text-primary);
+  transform: rotate(45deg);
+}

@@ -30,8 +30,10 @@ public class GetMemberByIdQueryHandler : IQueryHandler<GetMemberByIdQuery, Membe
             member.LastName,
             member.Active,
             member.CreatedAt,
-            member.UpdatedAt);
+            member.UpdatedAt,
+            member.AcceptNews,
+            member.AcceptPromo);
 
-        return response; // Implicit conversion to Result<MemberResponse>
+        return response; 
     }
 }

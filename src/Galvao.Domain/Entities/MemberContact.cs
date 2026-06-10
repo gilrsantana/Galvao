@@ -41,4 +41,19 @@ public class MemberContact : BaseEntity
         Unsubscribed = unsubscribed;
         Update();
     }
+
+    public Result UpdateContactDetails(string externalContactId, string email)
+    {
+        if (string.IsNullOrWhiteSpace(externalContactId))
+            return Result.Failure(new Error("MemberContact.InvalidExternalContactId", "External Contact ID cannot be empty."));
+
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
+            return Result.Failure(new Error("MemberContact.InvalidEmail", "A valid email is required."));
+
+        ExternalContactId = externalContactId;
+        Email = email;
+        Update();
+
+        return Result.Success();
+    }
 }
