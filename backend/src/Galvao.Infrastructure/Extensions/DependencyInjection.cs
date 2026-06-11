@@ -24,12 +24,12 @@ public static class DependencyInjection
 
         services.AddDbContext<GalvaoDbContext>(options =>
         {
-            options.UseSqlite(connectionString, sqliteOptions =>
+            options.UseMySQL(connectionString, mysqlOptions =>
             {
-                sqliteOptions.CommandTimeout(dbOptions.CommandTimeout);
+                mysqlOptions.CommandTimeout(dbOptions.CommandTimeout);
                 if (dbOptions.MaxBatchSize.HasValue)
                 {
-                    sqliteOptions.MaxBatchSize(dbOptions.MaxBatchSize.Value);
+                    mysqlOptions.MaxBatchSize(dbOptions.MaxBatchSize.Value);
                 }
             });
 

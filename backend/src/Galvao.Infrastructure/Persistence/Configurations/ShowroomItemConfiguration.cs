@@ -22,7 +22,7 @@ public class ShowroomItemConfiguration : IEntityTypeConfiguration<ShowroomItem>
 
         builder.Property(s => s.Price)
             .IsRequired()
-            .HasConversion<double>(); // SQLite doesn't natively support decimal with precision well, double or standard decimal is fine. But let's use default decimal mapping or HasColumnType("TEXT") or similar. SQLite default decimal works fine. Let's map it standard.
+            .HasColumnType("decimal(18,2)");
 
         builder.Property(s => s.Category)
             .IsRequired()
