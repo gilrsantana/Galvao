@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<ICommandHandler<UpdateShowroomItemCommand>, UpdateShowroomItemCommandHandler>();
         services.AddScoped<ICommandHandler<AddShowroomItemPhotoCommand, Guid>, AddShowroomItemPhotoCommandHandler>();
         services.AddScoped<ICommandHandler<RemoveShowroomItemPhotoCommand>, RemoveShowroomItemPhotoCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateShowroomItemPhotoCommand>, UpdateShowroomItemPhotoCommandHandler>();
         services.AddScoped<ICommandHandler<CreateArticleCommand, Guid>, CreateArticleCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateArticleCommand>, UpdateArticleCommandHandler>();
         services.AddScoped<ICommandHandler<PublishArticleCommand>, PublishArticleCommandHandler>();
