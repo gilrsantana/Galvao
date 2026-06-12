@@ -350,7 +350,12 @@
       } @else {
         <div class="admin-photo-grid">
           @for (photo of currentItemForPhotos()?.photos; track photo.id) {
-            <div class="admin-photo-card">
+            <div 
+              class="admin-photo-card" 
+              (click)="selectPhotoForEdit(photo)" 
+              [style.cursor]="'pointer'"
+              [style.outline]="editingPhotoId() === photo.id ? '2px solid var(--accent-gold)' : 'none'"
+              [style.outlineOffset]="'2px'">
               <img [src]="photo.url" [alt]="photo.caption || 'Foto do Item'">
               <div class="admin-photo-info">
                 <p style="font-size: 11px; font-weight: 500; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -362,7 +367,7 @@
                   } @else {
                     <span></span>
                   }
-                  <button (click)="removePhoto(photo.id)" class="delete-photo-btn">
+                  <button (click)="$event.stopPropagation(); removePhoto(photo.id)" class="delete-photo-btn">
                     Excluir
                   </button>
                 </div>
@@ -374,12 +379,12 @@
 
       <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
 
-      <!-- Add Photo Form -->
+      <!-- Add/Update Photo Form -->
       <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 16px;">
-        Adicionar Nova Foto
+        {{ editingPhotoId() ? 'Atualizar Foto' : 'Adicionar Nova Foto' }}
       </h4>
 
-      <form (ngSubmit)="addPhoto()">
+      <form (ngSubmit)="submitPhotoForm()">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">URL da Foto</label>
@@ -416,9 +421,16 @@
             Definir como Imagem Principal do Showroom
           </label>
           
-          <button type="submit" [disabled]="!photoUrl()" class="btn btn-gold btn-sm">
-            Adicionar Foto
-          </button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            @if (editingPhotoId()) {
+              <button type="button" (click)="cancelPhotoEdit()" class="btn btn-secondary btn-sm">
+                Cancelar
+              </button>
+            }
+            <button type="submit" [disabled]="!photoUrl()" class="btn btn-gold btn-sm">
+              {{ editingPhotoId() ? 'Atualizar Foto' : 'Adicionar Foto' }}
+            </button>
+          </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end;">

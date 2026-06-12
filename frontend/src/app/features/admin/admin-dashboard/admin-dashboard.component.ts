@@ -43,6 +43,7 @@ export class AdminDashboardComponent implements OnInit {
 
   // Form State - Photos
   readonly currentItemForPhotos = signal<ShowroomItemResponse | null>(null);
+  readonly editingPhotoId = signal<string | null>(null);
   readonly photoUrl = signal<string>('');
   readonly photoCaption = signal<string>('');
   readonly photoIsPrimary = signal<boolean>(false);
@@ -131,9 +132,7 @@ export class AdminDashboardComponent implements OnInit {
   // --- SHOWROOM PHOTOS ---
   openPhotosModal(item: ShowroomItemResponse) {
     this.currentItemForPhotos.set(item);
-    this.photoUrl.set('');
-    this.photoCaption.set('');
-    this.photoIsPrimary.set(false);
+    this.cancelPhotoEdit();
     this.showPhotoModal.set(true);
   }
 
@@ -142,27 +141,56 @@ export class AdminDashboardComponent implements OnInit {
     this.currentItemForPhotos.set(null);
   }
 
-  addPhoto() {
+  selectPhotoForEdit(photo: any) {
+    this.editingPhotoId.set(photo.id);
+    this.photoUrl.set(photo.url);
+    this.photoCaption.set(photo.caption || '');
+    this.photoIsPrimary.set(photo.isPrimary);
+  }
+
+  cancelPhotoEdit() {
+    this.editingPhotoId.set(null);
+    this.photoUrl.set('');
+    this.photoCaption.set('');
+    this.photoIsPrimary.set(false);
+  }
+
+  submitPhotoForm() {
     const item = this.currentItemForPhotos();
     if (!item) return;
 
-    this.showroomService.addPhoto(item.id, {
+    const photoId = this.editingPhotoId();
+    const request = {
       url: this.photoUrl(),
       caption: this.photoCaption(),
       isPrimary: this.photoIsPrimary()
-    }).subscribe({
-      next: () => {
-        // Refresh items to get updated photos collection
-        this.showroomService.getById(item.id).subscribe((updated) => {
-          this.currentItemForPhotos.set(updated);
-          this.loadShowroomItems();
-        });
-        this.photoUrl.set('');
-        this.photoCaption.set('');
-        this.photoIsPrimary.set(false);
-      },
-      error: (err) => console.error(err)
-    });
+    };
+
+    if (photoId) {
+      this.showroomService.updatePhoto(item.id, photoId, request).subscribe({
+        next: () => {
+          this.showroomService.getById(item.id).subscribe((updated) => {
+            this.currentItemForPhotos.set(updated);
+            this.loadShowroomItems();
+          });
+          this.cancelPhotoEdit();
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.showroomService.addPhoto(item.id, request).subscribe({
+        next: () => {
+          this.showroomService.getById(item.id).subscribe((updated) => {
+            this.currentItemForPhotos.set(updated);
+            this.loadShowroomItems();
+          });
+          this.photoUrl.set('');
+          this.photoCaption.set('');
+          this.photoIsPrimary.set(false);
+        },
+        error: (err) => console.error(err)
+      });
+    }
   }
 
   removePhoto(photoId: string) {
