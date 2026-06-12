@@ -125,4 +125,30 @@ public class ShowroomItem : BaseEntity
 
         return Result.Success();
     }
+
+    public Result UpdatePhoto(Guid photoId, string url, string caption, bool isPrimary)
+    {
+        var photo = _photos.FirstOrDefault(p => p.Id == photoId);
+        if (photo is null)
+            return Result.Failure(new Error("ShowroomItem.PhotoNotFound", "Photo not found in this item."));
+
+        if (string.IsNullOrWhiteSpace(url))
+            return Result.Failure(new Error("ShowroomItemPhoto.UrlRequired", "Photo URL is required."));
+
+        if (isPrimary)
+        {
+            foreach (var existingPhoto in _photos)
+            {
+                existingPhoto.ClearPrimary();
+            }
+        }
+
+        var updateResult = photo.UpdateDetails(url, caption, isPrimary);
+        if (updateResult.IsFailure)
+            return updateResult;
+
+        Update();
+
+        return Result.Success();
+    }
 }

@@ -14,6 +14,7 @@ public class ShowroomItemsController : ApiControllerBase
     private readonly ICommandHandler<UpdateShowroomItemCommand> _updateHandler;
     private readonly ICommandHandler<AddShowroomItemPhotoCommand, Guid> _addPhotoHandler;
     private readonly ICommandHandler<RemoveShowroomItemPhotoCommand> _removePhotoHandler;
+    private readonly ICommandHandler<UpdateShowroomItemPhotoCommand> _updatePhotoHandler;
     private readonly IQueryHandler<GetShowroomItemByIdQuery, ShowroomItemResponse> _getByIdHandler;
     private readonly IQueryHandler<GetPagedShowroomItemsQuery, PagedResponse<ShowroomItemResponse>> _getPagedHandler;
 
@@ -22,6 +23,7 @@ public class ShowroomItemsController : ApiControllerBase
         ICommandHandler<UpdateShowroomItemCommand> updateHandler,
         ICommandHandler<AddShowroomItemPhotoCommand, Guid> addPhotoHandler,
         ICommandHandler<RemoveShowroomItemPhotoCommand> removePhotoHandler,
+        ICommandHandler<UpdateShowroomItemPhotoCommand> updatePhotoHandler,
         IQueryHandler<GetShowroomItemByIdQuery, ShowroomItemResponse> getByIdHandler,
         IQueryHandler<GetPagedShowroomItemsQuery, PagedResponse<ShowroomItemResponse>> getPagedHandler)
     {
@@ -29,6 +31,7 @@ public class ShowroomItemsController : ApiControllerBase
         _updateHandler = updateHandler;
         _addPhotoHandler = addPhotoHandler;
         _removePhotoHandler = removePhotoHandler;
+        _updatePhotoHandler = updatePhotoHandler;
         _getByIdHandler = getByIdHandler;
         _getPagedHandler = getPagedHandler;
     }
@@ -84,6 +87,20 @@ public class ShowroomItemsController : ApiControllerBase
     {
         var result = await _removePhotoHandler.HandleAsync(
             new RemoveShowroomItemPhotoCommand(id, photoId), 
+            cancellationToken);
+        return HandleResult(result);
+    }
+
+    [HttpPut("{id:guid}/photos/{photoId:guid}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdatePhoto(Guid id, Guid photoId, [FromBody] UpdateShowroomItemPhotoRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _updatePhotoHandler.HandleAsync(
+            new UpdateShowroomItemPhotoCommand(id, photoId, request.Url, request.Caption, request.IsPrimary), 
             cancellationToken);
         return HandleResult(result);
     }

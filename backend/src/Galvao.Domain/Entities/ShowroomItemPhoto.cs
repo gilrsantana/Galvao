@@ -46,4 +46,17 @@ public class ShowroomItemPhoto : BaseEntity
         IsPrimary = false;
         Update();
     }
+
+    public Result UpdateDetails(string url, string caption, bool isPrimary)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return Result.Failure(new Error("ShowroomItemPhoto.UrlRequired", "Photo URL is required."));
+
+        Url = url;
+        Caption = caption ?? string.Empty;
+        IsPrimary = isPrimary;
+        Update();
+
+        return Result.Success();
+    }
 }

@@ -41,4 +41,8 @@ export class ShowroomService {
   removePhoto(itemId: string, photoId: string): Observable<void> {
     return this.http.delete<void>(`${API_BASE}/showroomitems/${itemId}/photos/${photoId}`);
   }
+
+  updatePhoto(itemId: string, photoId: string, request: AddShowroomItemPhotoRequest): Observable<void> {
+    return this.http.put<void>(`${API_BASE}/showroomitems/${itemId}/photos/${photoId}`, request);
+  }
 }
