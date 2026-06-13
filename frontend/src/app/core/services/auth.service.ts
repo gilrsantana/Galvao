@@ -1,4 +1,5 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { TokenResponse, LoginRequest, RegisterRequest } from '../models/auth.models';
 import { API_BASE } from '../constants/api.constants';
@@ -9,6 +10,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly platformId = inject(PLATFORM_ID);
 
   // Reactive State Signals
   readonly tokenResponse = signal<TokenResponse | null>(null);
@@ -35,6 +37,9 @@ export class AuthService {
   }
 
   private loadTokensFromStorage() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     const tokenStr = localStorage.getItem('galvao_tokens');
     if (tokenStr) {
       try {
@@ -76,12 +81,16 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('galvao_tokens');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('galvao_tokens');
+    }
     this.tokenResponse.set(null);
   }
 
   private saveTokens(tokens: TokenResponse) {
-    localStorage.setItem('galvao_tokens', JSON.stringify(tokens));
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('galvao_tokens', JSON.stringify(tokens));
+    }
     this.tokenResponse.set(tokens);
   }
 
