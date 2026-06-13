@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IShowroomItemRepository, ShowroomItemRepository>();
         services.AddScoped<IArticleRepository, ArticleRepository>();
         services.AddScoped<IRemovedUserRepository, RemovedUserRepository>();
+        services.AddScoped<IConsentLogRepository, ConsentLogRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<GalvaoDbContext>());
 
         // Identity Services

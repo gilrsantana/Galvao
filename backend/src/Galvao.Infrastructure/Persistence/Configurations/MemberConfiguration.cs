@@ -31,6 +31,10 @@ public class MemberConfiguration : IEntityTypeConfiguration<Member>
         builder.Property(m => m.AcceptPromo)
             .IsRequired();
 
+        builder.Property(m => m.PendingSync)
+            .IsRequired()
+            .HasDefaultValue(false);
+
         builder.Property(m => m.Email)
             .IsRequired()
             .HasMaxLength(256);
