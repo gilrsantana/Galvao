@@ -45,7 +45,34 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
             return updateMemberResult;
         }
 
-        // Determine Action for Consent Logging
+        var consentLogResult = await LogConsentAsync(member, command, cancellationToken);
+        if (consentLogResult.IsFailure)
+        {
+            return consentLogResult;
+        }
+
+        await SyncDownstreamSafelyAsync(member, command, cancellationToken);
+
+        return await SaveChangesSafelyAsync(member, cancellationToken);
+    }
+
+    private Result UpdateMemberMarketingPreferences(Member member, UpdateMarketingPreferencesCommand command)
+    {
+        var result = member.UpdateMarketingPreferences(command.AcceptNews, command.AcceptPromo);
+        if (result.IsFailure)
+        {
+            return result;
+        }
+
+        _memberRepository.Update(member);
+        return Result.Success();
+    }
+
+    private async Task<Result> LogConsentAsync(
+        Member member, 
+        UpdateMarketingPreferencesCommand command, 
+        CancellationToken cancellationToken)
+    {
         var action = (command.AcceptNews || command.AcceptPromo) ? "Opt-In" : "Opt-Out";
         var consentLogResult = ConsentLog.Create(
             member.Id,
@@ -60,8 +87,14 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
         }
 
         await _consentLogRepository.AddAsync(consentLogResult.Value, cancellationToken);
+        return Result.Success();
+    }
 
-        // Perform Downstream Synchronization safely
+    private async Task SyncDownstreamSafelyAsync(
+        Member member, 
+        UpdateMarketingPreferencesCommand command, 
+        CancellationToken cancellationToken)
+    {
         bool syncFailed = false;
         Result? syncError = null;
 
@@ -77,13 +110,11 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
         catch (Exception ex)
         {
             syncFailed = true;
-            // Prevent PII leak in error message
             syncError = Result.Failure(new Error("EmailContact.SyncException", $"An exception occurred during synchronization. Details: {ex.Message}"));
         }
 
         if (syncFailed)
         {
-            // Flag user profile as Pending Sync and log alert for admins
             member.MarkAsPendingSync();
             Console.Error.WriteLine($"[ALERT] Admin alert: Downstream marketing provider sync failed for Member ID '{member.Id}'. Logged as 'Pending Sync'. Error: {syncError?.Error.Message}");
         }
@@ -91,31 +122,20 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
         {
             member.ClearPendingSync();
         }
+    }
 
+    private async Task<Result> SaveChangesSafelyAsync(Member member, CancellationToken cancellationToken)
+    {
         try
         {
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            // Prevent raw PII or database details from being leaked in plain text error logs
             Console.Error.WriteLine($"[ERROR] Database save failed for Member ID '{member.Id}'. Details: {ex.Message}");
             return Result.Failure(new Error("Database.SaveFailed", "Failed to save marketing preferences locally."));
         }
-
-        return Result.Success();
-    }
-
-    private Result UpdateMemberMarketingPreferences(Member member, UpdateMarketingPreferencesCommand command)
-    {
-        var result = member.UpdateMarketingPreferences(command.AcceptNews, command.AcceptPromo);
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        _memberRepository.Update(member);
-        return Result.Success();
     }
 
     private async Task<Result> SyncContactPreferencesAsync(
