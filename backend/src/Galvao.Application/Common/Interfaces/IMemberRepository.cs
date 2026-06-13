@@ -12,4 +12,5 @@ public interface IMemberRepository
     Task<PagedResponse<Member>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     void Activate(Member member);
     void UnActivate(Member member);
+    void Remove(Member member);
 }

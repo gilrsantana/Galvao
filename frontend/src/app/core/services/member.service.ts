@@ -35,4 +35,8 @@ export class MemberService {
   updatePreferences(id: string, request: UpdateMarketingPreferencesRequest): Observable<void> {
     return this.http.put<void>(`${API_BASE}/members/${id}/preferences`, request);
   }
+
+  purgeUser(id: string, password: string): Observable<void> {
+    return this.http.delete<void>(`${API_BASE}/members/${id}`, { body: { password } });
+  }
 }

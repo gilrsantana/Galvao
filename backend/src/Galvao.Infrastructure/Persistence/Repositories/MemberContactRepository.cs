@@ -8,4 +8,9 @@ public class MemberContactRepository : BaseEntityRepository<MemberContact>, IMem
     public MemberContactRepository(GalvaoDbContext context) : base(context)
     {
     }
+
+    public void Remove(MemberContact memberContact)
+    {
+        DbSet.Remove(memberContact);
+    }
 }

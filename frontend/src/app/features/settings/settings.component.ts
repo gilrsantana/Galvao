@@ -199,4 +199,55 @@ export class SettingsComponent implements OnInit {
       this.isSavingPreferences.set(false);
     }
   }
+
+  // Purge User features
+  readonly purgePassword = signal<string>('');
+  readonly purgeStage = signal<number>(0);
+  readonly purgeError = signal<string>('');
+  readonly isPurging = signal<boolean>(false);
+
+  onStartPurge() {
+    this.purgeStage.set(1);
+    this.purgeError.set('');
+    this.purgePassword.set('');
+  }
+
+  onConfirmPurgeWarning() {
+    this.purgeStage.set(2);
+  }
+
+  onCancelPurge() {
+    this.purgeStage.set(0);
+    this.purgePassword.set('');
+    this.purgeError.set('');
+  }
+
+  async onPurgeUser() {
+    const userId = this.authService.currentUserId();
+    if (!userId) return;
+
+    if (!this.purgePassword()) {
+      this.purgeError.set('A senha é obrigatória.');
+      return;
+    }
+
+    this.purgeError.set('');
+    this.isPurging.set(true);
+
+    try {
+      await firstValueFrom(this.memberService.purgeUser(userId, this.purgePassword()));
+      // Reset state and logout
+      this.authService.logout();
+      this.purgeStage.set(0);
+      this.purgePassword.set('');
+      
+      // Redirect to home page
+      this.router.navigate(['/']);
+    } catch (err: any) {
+      console.error(err);
+      this.purgeError.set(err?.error?.detail || 'Erro ao excluir conta. Verifique sua senha.');
+    } finally {
+      this.isPurging.set(false);
+    }
+  }
 }

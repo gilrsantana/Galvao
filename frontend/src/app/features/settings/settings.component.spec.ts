@@ -3,7 +3,7 @@ import { SettingsComponent } from './settings.component';
 import { AuthService } from '../../core/services/auth.service';
 import { MemberService } from '../../core/services/member.service';
 import { of } from 'rxjs';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 
 describe('SettingsComponent', () => {
@@ -13,7 +13,8 @@ describe('SettingsComponent', () => {
   beforeEach(async () => {
     mockAuthService = {
       currentUserId: () => 'user-123',
-      refreshTokens: vi.fn().mockImplementation(() => Promise.resolve({}))
+      refreshTokens: vi.fn().mockImplementation(() => Promise.resolve({})),
+      logout: vi.fn().mockImplementation(() => undefined)
     };
 
     mockMemberService = {
@@ -29,7 +30,8 @@ describe('SettingsComponent', () => {
       updateProfile: vi.fn().mockReturnValue(of(undefined)),
       changeEmail: vi.fn().mockReturnValue(of(undefined)),
       changePassword: vi.fn().mockReturnValue(of(undefined)),
-      updatePreferences: vi.fn().mockReturnValue(of(undefined))
+      updatePreferences: vi.fn().mockReturnValue(of(undefined)),
+      purgeUser: vi.fn().mockReturnValue(of(undefined))
     };
 
     await TestBed.configureTestingModule({
@@ -78,5 +80,31 @@ describe('SettingsComponent', () => {
       lastName: 'Doe'
     });
     expect(mockAuthService.refreshTokens).toHaveBeenCalled();
+  });
+
+  it('should manage purge flow states and call purgeUser on confirm', async () => {
+    const fixture = TestBed.createComponent(SettingsComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    expect(component.purgeStage()).toBe(0);
+
+    component.onStartPurge();
+    expect(component.purgeStage()).toBe(1);
+
+    component.onConfirmPurgeWarning();
+    expect(component.purgeStage()).toBe(2);
+
+    component.purgePassword.set('secret-pass');
+    await component.onPurgeUser();
+
+    expect(mockMemberService.purgeUser).toHaveBeenCalledWith('user-123', 'secret-pass');
+    expect(mockAuthService.logout).toHaveBeenCalled();
+    expect(component.purgeStage()).toBe(0);
+    expect(navigateSpy).toHaveBeenCalledWith(['/']);
   });
 });

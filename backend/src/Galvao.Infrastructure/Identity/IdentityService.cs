@@ -349,4 +349,46 @@ public class IdentityService : IIdentityService
 
         return Result.Success();
     }
+
+    public async Task<Result> DeleteAccountAsync(Guid userId, string password, CancellationToken cancellationToken = default)
+    {
+        var account = await _userManager.FindByIdAsync(userId.ToString());
+        if (account is null)
+        {
+            return Result.Failure(new Error("Auth.AccountNotFound", "Account not found."));
+        }
+
+        var isPasswordValid = await _userManager.CheckPasswordAsync(account, password);
+        if (!isPasswordValid)
+        {
+            return Result.Failure(new Error("Auth.InvalidCredentials", "Incorrect password."));
+        }
+
+        var result = await _userManager.DeleteAsync(account);
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            var errorMessage = string.Join("; ", errors);
+            return Result.Failure(new Error("Auth.DeleteAccountFailed", errorMessage));
+        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default)
+    {
+        var account = await _userManager.FindByIdAsync(userId.ToString());
+        if (account is null)
+        {
+            return Result.Failure(new Error("Auth.AccountNotFound", "Account not found."));
+        }
+
+        var isPasswordValid = await _userManager.CheckPasswordAsync(account, password);
+        if (!isPasswordValid)
+        {
+            return Result.Failure(new Error("Auth.InvalidCredentials", "Incorrect password."));
+        }
+
+        return Result.Success();
+    }
 }
