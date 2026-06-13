@@ -1,8 +1,6 @@
 # Base image for running the app
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
-EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
 
 # Build image
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
@@ -30,4 +28,7 @@ RUN dotnet publish "Galvao.Presentation.csproj" -c Release -o /app/publish /p:Us
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+EXPOSE 8080
+
 ENTRYPOINT ["dotnet", "Galvao.Presentation.dll"]
