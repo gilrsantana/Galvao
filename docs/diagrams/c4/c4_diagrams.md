@@ -57,6 +57,9 @@ graph TB
     end
 
     subgraph Server ["Server Environment"]
+        subgraph NodeHost ["Node.js Host"]
+            Express["SSR Server (Express Host)"]
+        end
         subgraph WebAPI ["Backend Web API (.NET 10)"]
             API["API Application (.NET Core 10)"]
         end
@@ -67,7 +70,9 @@ graph TB
         Resend["Resend Email Service (REST API)"]
     end
 
-    User["User / Client"] -->|Interacts with| SPA
+    User["User / Client"] -->|Requests pages / Interacts with| Express
+    Express -->|Serves SSR/Prerendered HTML| SPA
+    Express -->|Queries data during SSR| API
     SPA -->|Sends HTTPS Requests| API
     API -->|Reads / Writes via EF Core| DB
     API -->|Syncs marketing contacts via HTTPS| Resend
@@ -76,6 +81,7 @@ graph TB
     style Server fill:none,stroke:#333,stroke-width:1px
     style External fill:none,stroke:#333,stroke-width:1px
     
+    style Express fill:#83cd29,stroke:#5c921c,color:#fff
     style SPA fill:#dd0031,stroke:#a6120d,color:#fff
     style API fill:#1168bd,stroke:#0b4c8a,color:#fff
     style DB fill:#4f5b66,stroke:#343d46,color:#fff
@@ -83,10 +89,11 @@ graph TB
 ```
 
 ### Containers Description
-1. **Frontend SPA**: An Angular (v22+) Single Page Application running in the user's browser. It uses Angular Signals for state management, reactive routing, and communicates with the backend via HTTP client interceptors (which automatically attach Bearer JWT and refresh expired tokens).
-2. **Backend Web API**: A cross-platform API built on .NET 10 using C# and Clean Architecture principles. It handles business logic, database mutations, role-based authorization, and external service communications.
-3. **MySQL Database**: A MySQL database storing application credentials (users, claims, roles), showroom item metadata (titles, captions, prices), image URLs, and article content. It is accessed via Entity Framework Core.
-4. **Resend API**: External transactional and marketing email service. The backend syncs member contact details, opt-in statuses, and segments to this container over HTTPS.
+1. **SSR Server (Express Host)**: A Node.js environment hosting the Express server. It intercepts page requests from the user, executes Server-Side Rendering (SSR) by invoking Angular's platform-server engine (which queries backend data during compile-time), and serves pre-rendered (SSG) static assets or dynamically built HTML to the client browser.
+2. **Frontend SPA**: An Angular (v22+) Single Page Application running in the user's browser after being hydrated from the SSR host. It uses Angular Signals for state management and communicates with the backend API via HTTP client interceptors.
+3. **Backend Web API**: A cross-platform API built on .NET 10 using C# and Clean Architecture principles. It handles business logic, database mutations, role-based authorization, and external service communications.
+4. **MySQL Database**: A MySQL database storing application credentials (users, claims, roles), showroom item metadata (titles, captions, prices), image URLs, article content, and compliant consent log ledgers. It is accessed via Entity Framework Core.
+5. **Resend API**: External transactional and marketing email service. The backend syncs member contact details, opt-in statuses, and segments to this container over HTTPS.
 
 ---
 
@@ -116,7 +123,7 @@ graph TB
     end
 
     subgraph Domain ["Domain Layer"]
-        Entities["Entities: Article, Member, ShowroomItem, BaseEntity"]
+        Entities["Entities: Article, Member, ConsentLog, ShowroomItem, BaseEntity"]
     end
 
     Ctrl -->|Invokes Commands / Queries| CQRS
@@ -146,10 +153,10 @@ graph TB
 * **Application Layer**:
   * **Command Handlers**: Implement mutations, calling domain factory methods and repositories.
   * **Query Handlers**: Execute read queries (often projecting directly to DTOs/Responses).
-  * **Interfaces**: Define the boundaries of data access, Identity service actions, and external integrations.
+  * **Interfaces**: Define the boundaries of data access, Identity service actions, and external integrations (including `IConsentLogRepository`).
 * **Domain Layer**:
-  * Contains enterprise business logic, model constraints, and pure domain rules. It has no dependencies on other layers or database providers.
+  * Contains enterprise business logic, model constraints (like `Member.UpdateMarketingPreferences`), and pure domain entities (`Article`, `Member`, `ConsentLog`, `ShowroomItem`, `ShowroomItemPhoto`, `BaseEntity`). It has no dependencies on other layers or database providers.
 * **Infrastructure Layer**:
-  * **GalvaoDbContext**: The EF Core database session, mapping entities to the MySQL schema and managing entity tracker states.
+  * **GalvaoDbContext**: The EF Core database session, mapping entities (including `ConsentLog`) to the MySQL schema and managing entity tracker states.
   * **IdentityService**: Implements user creation, password verification, and JWT generation/validation.
   * **ResendEmailContactService**: Invokes Resend HTTP endpoints to manage marketing segments and synchronize contact list statuses.

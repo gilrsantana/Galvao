@@ -36,9 +36,11 @@ Galvão is structured as a decoupled Single Page Application (SPA) frontend and 
 
 ### Frontend Client
 * **Framework**: Angular (v22+) using Standalone Components.
+* **Rendering Architecture**: Angular Server-Side Rendering (SSR) and static pre-rendering (SSG) powered by an Express Node.js host.
 * **State Management**: Angular Signals (fine-grained reactive signals).
-* **Styling**: Standard CSS with responsive design components.
-* **API Communication**: HttpClient with a functional auth interceptor (handles token injections and silent refreshes).
+* **Styling & UX**: Standard CSS with responsive design components, featuring skeletal loading shimmers and layout constraints to minimize Cumulative Layout Shift (CLS).
+* **SEO & Metadata**: Dynamic page titles, meta descriptions, and JSON-LD structured schemas (Article/Product) dynamically injected into the head.
+* **API Communication**: HttpClient with a functional auth interceptor (handles token injections and silent refreshes, built with platform checking compatibility).
 
 ### Backend Server
 * **Framework**: ASP.NET Core Web API (.NET Core 10).
@@ -46,7 +48,8 @@ Galvão is structured as a decoupled Single Page Application (SPA) frontend and 
 * **Data Access**: Entity Framework Core (EF Core) 10.
 * **Database**: MySQL Server database.
 * **Security & Identity**: ASP.NET Core Identity Core using Guid keys, combined with JWT Bearer Authentication and Refresh token rotation.
-* **External Integrations**: Resend REST API Client for lead capture and segment subscriptions.
+* **Consent Auditing**: Auditing ledger utilizing a `ConsentLog` repository to track Opt-In/Opt-Out actions for compliance.
+* **External Integrations**: Resend REST API Client for lead capture and segment subscriptions, decoupled via a robust local database sync-queue (`PendingSync`).
 
 ---
 

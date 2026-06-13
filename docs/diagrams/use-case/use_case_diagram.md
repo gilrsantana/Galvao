@@ -58,7 +58,7 @@ flowchart LR
 * **Actors**: Registered Member
 * **Description**: Allows an authenticated user to update their display name, contact email, and marketing subscription preferences (newsletters/promotions).
 * **Pre-conditions**: The user must be authenticated with a valid JWT token.
-* **Post-conditions**: The local profile is updated, and changes are synchronized with the Resend CRM service.
+* **Post-conditions**: The local profile is updated, the consent/preference change is recorded in the `ConsentLogs` compliance auditing database, and changes are synchronized with the Resend CRM service (or queued locally as `PendingSync = true` if the external sync fails).
 
 ### [UC-5]: Manage Showroom Items & Photos
 * **Actors**: System Administrator

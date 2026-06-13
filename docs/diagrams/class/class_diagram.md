@@ -30,12 +30,26 @@ classDiagram
         +string LastName
         +bool AcceptNews
         +bool AcceptPromo
+        +bool PendingSync
         -Member()
         -Member(email, displayName, firstName, lastName, acceptNews, acceptPromo)
         +Create(email, displayName, firstName, lastName, acceptNews, acceptPromo)$ Result~Member~
         +UpdateProfile(displayName, firstName, lastName) Result
         +UpdateMarketingPreferences(acceptNews, acceptPromo) Result
+        +MarkAsPendingSync()
+        +ClearPendingSync()
         +UpdateEmail(email) Result
+    }
+
+    class ConsentLog {
+        +Guid MemberId
+        +string Action
+        +string? IpAddress
+        +string? Source
+        +string? ConsentToken
+        -ConsentLog()
+        -ConsentLog(memberId, action, ipAddress, source, consentToken)
+        +Create(memberId, action, ipAddress, source, consentToken)$ Result~ConsentLog~
     }
 
     class MemberContact {
@@ -92,20 +106,21 @@ classDiagram
     }
 
     BaseEntity <|-- Member
+    BaseEntity <|-- ConsentLog
     BaseEntity <|-- MemberContact
     BaseEntity <|-- ShowroomItem
     BaseEntity <|-- ShowroomItemPhoto
     BaseEntity <|-- Article
 
     Member "1" *-- "1" MemberContact : Shares Identity Key / Cascade
+    Member "1" *-- "*" ConsentLog : Audits Consent
     ShowroomItem "1" *-- "*" ShowroomItemPhoto : Contains / Backing Field
 ```
 
 ### Class Model Specification
 * **BaseEntity**: The foundation class containing record identifiers and auditing fields (`CreatedAt`, `UpdatedAt`). It uses C# 12 `Guid.CreateVersion7()` to produce sequential, database-friendly UUIDs for primary keys.
-* **Member**: Holds profile details. Has a strict one-to-one relationship mapped in the database with both:
-  * The ASP.NET Core Identity `Account` (which holds username, email hash, and security tokens).
-  * The `MemberContact` (which records CRM newsletter segments and unsubscribe flag).
+* **Member**: Holds profile details. Has a strict one-to-one relationship mapped in the database with both the ASP.NET Core Identity `Account` and `MemberContact` tracking record. Exposes `PendingSync` to record unsynchronized CRM updates.
+* **ConsentLog**: Models user consent actions ("Opt-In" / "Opt-Out") for marketing preferences. Linked in a one-to-many relationship under `Member` to serve as a tamper-proof auditing ledger.
 * **MemberContact**: Tracks external marketing states. By sharing the primary key with `Member`, it guarantees integrity while avoiding composite navigation lookup overheads.
 * **ShowroomItem**: Exposes showroom items. Controls access to photos via an encapsulated read-only collection `IReadOnlyCollection<ShowroomItemPhoto>`, backed by a private list field `_photos`. Mapped in EF Core using `PropertyAccessMode.Field`.
 * **ShowroomItemPhoto**: Models image URLs. Mapped via cascade delete to their parent `ShowroomItem`.
