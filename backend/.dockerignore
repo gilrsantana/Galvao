@@ -1,0 +1,9 @@
+**/.git
+**/.bin
+**/.obj
+**/bin
+**/obj
+**/out
+**/.vs
+**/.vscode
+**/.idea
