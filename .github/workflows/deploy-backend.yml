@@ -41,6 +41,8 @@ jobs:
 
       - name: Build and Push Container
         run: |-
+          # Assuming the github workflow runs from the root of the repo
+          # and the Dockerfile is in the backend/ folder
           docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}" backend/
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}"
 
@@ -51,8 +53,7 @@ jobs:
           service: ${{ env.IMAGE }}
           region: ${{ env.REGION }}
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}
-          # We increased memory to 512Mi since .NET runtime typically runs more stably with >256Mi.
-          flags: '--min-instances=0 --max-instances=1 --memory=512Mi --allow-unauthenticated'
+          flags: '--min-instances=0 --max-instances=1 --memory=256Mi'
           
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
