@@ -39,7 +39,7 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
             return Result.Failure(new Error("Member.NotFound", $"Member with ID '{command.MemberId}' was not found."));
         }
 
-        var updateMemberResult = UpdateMemberMarketingPreferences(member, command);
+        var updateMemberResult = UpdateMemberMarketingPreferences(member, command, cancellationToken);
         if (updateMemberResult.IsFailure)
         {
             return updateMemberResult;
@@ -56,8 +56,13 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
         return await SaveChangesSafelyAsync(member, cancellationToken);
     }
 
-    private Result UpdateMemberMarketingPreferences(Member member, UpdateMarketingPreferencesCommand command)
+    private Result UpdateMemberMarketingPreferences(
+        Member member, 
+        UpdateMarketingPreferencesCommand command, 
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var result = member.UpdateMarketingPreferences(command.AcceptNews, command.AcceptPromo);
         if (result.IsFailure)
         {
@@ -192,7 +197,7 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
             return await CreateNewMemberContactAsync(member.Id, member.Email, resendResult.Value, cancellationToken);
         }
 
-        return RestoreExistingMemberContact(memberContact, resendResult.Value, member.Email);
+        return RestoreExistingMemberContact(memberContact, resendResult.Value, member.Email, cancellationToken);
     }
 
     private async Task<Result> CreateNewMemberContactAsync(
@@ -216,8 +221,14 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
         return Result.Success();
     }
 
-    private Result RestoreExistingMemberContact(MemberContact memberContact, string externalContactId, string email)
+    private Result RestoreExistingMemberContact(
+        MemberContact memberContact, 
+        string externalContactId, 
+        string email,
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var updateResult = memberContact.UpdateContactDetails(externalContactId, email);
         if (updateResult.IsFailure)
         {
