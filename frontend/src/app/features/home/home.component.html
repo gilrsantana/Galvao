@@ -43,34 +43,53 @@
       </a>
     </div>
 
-    <div class="grid-cols-3">
-      @for (item of featuredItems(); track item.id) {
-        <div class="premium-card" style="display: flex; flex-direction: column; height: 100%;">
-          <div style="height: 280px; overflow: hidden; background-color: var(--bg-secondary); position: relative;">
-            <img [src]="getPrimaryPhotoUrl(item)" [alt]="item.title" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition-smooth);" class="card-image">
-            <span class="badge badge-dark" style="position: absolute; top: 16px; right: 16px;">{{ item.category }}</span>
-          </div>
-          <div style="padding: 24px; display: flex; flex-direction: column; flex: 1; justify-content: space-between;">
-            <div>
-              <h3 style="font-size: 22px; margin-bottom: 8px; color: var(--text-primary);">{{ item.title }}</h3>
-              <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                {{ item.description }}
-              </p>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px;">
-              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 18px; color: var(--accent-gold);">
-                {{ item.price | currency }}
-              </span>
-              <a [routerLink]="['/showroom', item.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary);">
-                Detalhes &rarr;
-              </a>
+    <div class="grid-cols-3" style="min-height: 480px;">
+      @if (isLoading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="premium-card" style="display: flex; flex-direction: column; height: 100%; min-height: 480px;">
+            <div class="skeleton-shimmer" style="height: 280px; width: 100%;"></div>
+            <div style="padding: 24px; display: flex; flex-direction: column; flex: 1; justify-content: space-between;">
+              <div>
+                <div class="skeleton-shimmer" style="height: 24px; width: 60%; margin-bottom: 12px; border-radius: 4px;"></div>
+                <div class="skeleton-shimmer" style="height: 16px; width: 90%; margin-bottom: 8px; border-radius: 4px;"></div>
+                <div class="skeleton-shimmer" style="height: 16px; width: 80%; margin-bottom: 16px; border-radius: 4px;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <div class="skeleton-shimmer" style="height: 24px; width: 30%; border-radius: 4px;"></div>
+                <div class="skeleton-shimmer" style="height: 16px; width: 20%; border-radius: 4px;"></div>
+              </div>
             </div>
           </div>
-        </div>
-      } @empty {
-        <div style="grid-column: span 3; text-align: center; padding: 48px 0; color: var(--text-secondary);">
-          <p>Nenhum item de showroom encontrado. Visite novamente mais tarde.</p>
-        </div>
+        }
+      } @else {
+        @for (item of featuredItems(); track item.id) {
+          <div class="premium-card" style="display: flex; flex-direction: column; height: 100%;">
+            <div style="height: 280px; overflow: hidden; background-color: var(--bg-secondary); position: relative;">
+              <img [src]="getPrimaryPhotoUrl(item)" [alt]="item.title" style="width: 100%; height: 100%; aspect-ratio: 16/9; object-fit: cover; transition: var(--transition-smooth);" class="card-image">
+              <span class="badge badge-dark" style="position: absolute; top: 16px; right: 16px;">{{ item.category }}</span>
+            </div>
+            <div style="padding: 24px; display: flex; flex-direction: column; flex: 1; justify-content: space-between;">
+              <div>
+                <h3 style="font-size: 22px; margin-bottom: 8px; color: var(--text-primary); font-family: var(--font-serif);">{{ item.title }}</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                  {{ item.description }}
+                </p>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <span style="font-family: var(--font-sans); font-weight: 600; font-size: 18px; color: var(--accent-gold);">
+                  {{ item.price | currency }}
+                </span>
+                <a [routerLink]="['/showroom', item.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary);">
+                  Detalhes &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div style="grid-column: span 3; text-align: center; padding: 48px 0; color: var(--text-secondary);">
+            <p>Nenhum item de showroom encontrado. Visite novamente mais tarde.</p>
+          </div>
+        }
       }
     </div>
   </div>
@@ -89,30 +108,47 @@
       </a>
     </div>
 
-    <div class="grid-cols-3">
-      @for (article of latestArticles(); track article.id) {
-        <div class="premium-card" style="background-color: var(--bg-primary); display: flex; flex-direction: column; justify-content: space-between; padding: 32px; height: 100%;">
-          <div>
-            <div style="display: flex; gap: 8px; margin-bottom: 16px; font-size: 12px; color: var(--text-secondary);">
-              <span>Por <strong>{{ article.author }}</strong></span>
-              <span>&bull;</span>
-              <span>{{ article.publishedAt | date:'mediumDate' }}</span>
+    <div class="grid-cols-3" style="min-height: 280px;">
+      @if (isLoading()) {
+        @for (i of [1, 2, 3]; track i) {
+          <div class="premium-card" style="background-color: var(--bg-primary); display: flex; flex-direction: column; justify-content: space-between; padding: 32px; height: 100%; min-height: 280px;">
+            <div>
+              <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <div class="skeleton-shimmer" style="height: 12px; width: 40%; border-radius: 4px;"></div>
+              </div>
+              <div class="skeleton-shimmer" style="height: 24px; width: 80%; margin-bottom: 16px; border-radius: 4px;"></div>
+              <div class="skeleton-shimmer" style="height: 16px; width: 95%; margin-bottom: 8px; border-radius: 4px;"></div>
+              <div class="skeleton-shimmer" style="height: 16px; width: 90%; margin-bottom: 8px; border-radius: 4px;"></div>
+              <div class="skeleton-shimmer" style="height: 16px; width: 70%; margin-bottom: 24px; border-radius: 4px;"></div>
             </div>
-            <h3 style="font-size: 24px; margin-bottom: 16px; color: var(--text-primary); line-height: 1.3;">
-              {{ article.title }}
-            </h3>
-            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.7;">
-              {{ article.content }}
-            </p>
+            <div class="skeleton-shimmer" style="height: 16px; width: 25%; border-radius: 4px;"></div>
           </div>
-          <a [routerLink]="['/articles', article.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 2px; align-self: flex-start;">
-            Ler artigo &rarr;
-          </a>
-        </div>
-      } @empty {
-        <div style="grid-column: span 3; text-align: center; padding: 48px 0; color: var(--text-secondary);">
-          <p>Nenhum artigo publicado ainda.</p>
-        </div>
+        }
+      } @else {
+        @for (article of latestArticles(); track article.id) {
+          <div class="premium-card" style="background-color: var(--bg-primary); display: flex; flex-direction: column; justify-content: space-between; padding: 32px; height: 100%;">
+            <div>
+              <div style="display: flex; gap: 8px; margin-bottom: 16px; font-size: 12px; color: var(--text-secondary);">
+                <span>Por <strong>{{ article.author }}</strong></span>
+                <span>&bull;</span>
+                <span>{{ article.publishedAt | date:'mediumDate' }}</span>
+              </div>
+              <h3 style="font-size: 24px; margin-bottom: 16px; color: var(--text-primary); line-height: 1.3; font-family: var(--font-serif);">
+                {{ article.title }}
+              </h3>
+              <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.7;">
+                {{ article.content }}
+              </p>
+            </div>
+            <a [routerLink]="['/articles', article.id]" style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 2px; align-self: flex-start;">
+              Ler artigo &rarr;
+            </a>
+          </div>
+        } @empty {
+          <div style="grid-column: span 3; text-align: center; padding: 48px 0; color: var(--text-secondary);">
+            <p>Nenhum artigo publicado ainda.</p>
+          </div>
+        }
       }
     </div>
   </div>
