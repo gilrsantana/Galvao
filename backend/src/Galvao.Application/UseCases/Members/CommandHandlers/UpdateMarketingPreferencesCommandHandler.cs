@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
@@ -11,17 +14,20 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
     private readonly IMemberRepository _memberRepository;
     private readonly IMemberContactRepository _memberContactRepository;
     private readonly IEmailContactService _emailContactService;
+    private readonly IConsentLogRepository _consentLogRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateMarketingPreferencesCommandHandler(
         IMemberRepository memberRepository,
         IMemberContactRepository memberContactRepository,
         IEmailContactService emailContactService,
+        IConsentLogRepository consentLogRepository,
         IUnitOfWork unitOfWork)
     {
         _memberRepository = memberRepository;
         _memberContactRepository = memberContactRepository;
         _emailContactService = emailContactService;
+        _consentLogRepository = consentLogRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -33,25 +39,30 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
             return Result.Failure(new Error("Member.NotFound", $"Member with ID '{command.MemberId}' was not found."));
         }
 
-        var updateMemberResult = UpdateMemberMarketingPreferences(member, command);
+        var updateMemberResult = UpdateMemberMarketingPreferences(member, command, cancellationToken);
         if (updateMemberResult.IsFailure)
         {
             return updateMemberResult;
         }
 
-        var syncResult = await SyncContactPreferencesAsync(member, command, cancellationToken);
-        if (syncResult.IsFailure)
+        var consentLogResult = await LogConsentAsync(member, command, cancellationToken);
+        if (consentLogResult.IsFailure)
         {
-            return syncResult;
+            return consentLogResult;
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await SyncDownstreamSafelyAsync(member, command, cancellationToken);
 
-        return Result.Success();
+        return await SaveChangesSafelyAsync(member, cancellationToken);
     }
 
-    private Result UpdateMemberMarketingPreferences(Member member, UpdateMarketingPreferencesCommand command)
+    private Result UpdateMemberMarketingPreferences(
+        Member member, 
+        UpdateMarketingPreferencesCommand command, 
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var result = member.UpdateMarketingPreferences(command.AcceptNews, command.AcceptPromo);
         if (result.IsFailure)
         {
@@ -60,6 +71,76 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
 
         _memberRepository.Update(member);
         return Result.Success();
+    }
+
+    private async Task<Result> LogConsentAsync(
+        Member member, 
+        UpdateMarketingPreferencesCommand command, 
+        CancellationToken cancellationToken)
+    {
+        var action = (command.AcceptNews || command.AcceptPromo) ? "Opt-In" : "Opt-Out";
+        var consentLogResult = ConsentLog.Create(
+            member.Id,
+            action,
+            command.IpAddress,
+            command.Source,
+            command.ConsentToken);
+
+        if (consentLogResult.IsFailure)
+        {
+            return Result.Failure(consentLogResult.Error);
+        }
+
+        await _consentLogRepository.AddAsync(consentLogResult.Value, cancellationToken);
+        return Result.Success();
+    }
+
+    private async Task SyncDownstreamSafelyAsync(
+        Member member, 
+        UpdateMarketingPreferencesCommand command, 
+        CancellationToken cancellationToken)
+    {
+        bool syncFailed = false;
+        Result? syncError = null;
+
+        try
+        {
+            var syncResult = await SyncContactPreferencesAsync(member, command, cancellationToken);
+            if (syncResult.IsFailure)
+            {
+                syncFailed = true;
+                syncError = syncResult;
+            }
+        }
+        catch (Exception ex)
+        {
+            syncFailed = true;
+            syncError = Result.Failure(new Error("EmailContact.SyncException", $"An exception occurred during synchronization. Details: {ex.Message}"));
+        }
+
+        if (syncFailed)
+        {
+            member.MarkAsPendingSync();
+            Console.Error.WriteLine($"[ALERT] Admin alert: Downstream marketing provider sync failed for Member ID '{member.Id}'. Logged as 'Pending Sync'. Error: {syncError?.Error.Message}");
+        }
+        else
+        {
+            member.ClearPendingSync();
+        }
+    }
+
+    private async Task<Result> SaveChangesSafelyAsync(Member member, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[ERROR] Database save failed for Member ID '{member.Id}'. Details: {ex.Message}");
+            return Result.Failure(new Error("Database.SaveFailed", "Failed to save marketing preferences locally."));
+        }
     }
 
     private async Task<Result> SyncContactPreferencesAsync(
@@ -116,7 +197,7 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
             return await CreateNewMemberContactAsync(member.Id, member.Email, resendResult.Value, cancellationToken);
         }
 
-        return RestoreExistingMemberContact(memberContact, resendResult.Value, member.Email);
+        return RestoreExistingMemberContact(memberContact, resendResult.Value, member.Email, cancellationToken);
     }
 
     private async Task<Result> CreateNewMemberContactAsync(
@@ -140,8 +221,14 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
         return Result.Success();
     }
 
-    private Result RestoreExistingMemberContact(MemberContact memberContact, string externalContactId, string email)
+    private Result RestoreExistingMemberContact(
+        MemberContact memberContact, 
+        string externalContactId, 
+        string email,
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var updateResult = memberContact.UpdateContactDetails(externalContactId, email);
         if (updateResult.IsFailure)
         {
@@ -183,20 +270,23 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
     {
         if (memberContact is not null && memberContact.ExternalContactId != "DELETED")
         {
-            memberContact.UpdateStatus(true);
-            _memberContactRepository.Update(memberContact);
-
-            var updateResult = await _emailContactService.UpdateContactAsync(
+            var deleteResult = await _emailContactService.DeleteContactAsync(
                 memberContact.ExternalContactId,
-                member.FirstName,
-                member.LastName,
-                unsubscribed: true,
                 cancellationToken);
 
-            if (updateResult.IsFailure)
+            if (deleteResult.IsFailure)
             {
-                return Result.Failure(updateResult.Error);
+                return Result.Failure(deleteResult.Error);
             }
+
+            var updateDetailsResult = memberContact.UpdateContactDetails("DELETED", memberContact.Email);
+            if (updateDetailsResult.IsFailure)
+            {
+                return updateDetailsResult;
+            }
+
+            memberContact.UpdateStatus(true);
+            _memberContactRepository.Update(memberContact);
         }
 
         return Result.Success();

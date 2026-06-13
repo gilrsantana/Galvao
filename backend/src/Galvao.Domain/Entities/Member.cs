@@ -10,6 +10,7 @@ public class Member : BaseEntity
     public string LastName { get; private set; }
     public bool AcceptNews { get; private set; }
     public bool AcceptPromo { get; private set; }
+    public bool PendingSync { get; private set; }
 
     // EF Core Constructor
     private Member() : base()
@@ -20,6 +21,7 @@ public class Member : BaseEntity
         LastName = string.Empty;
         AcceptNews = false;
         AcceptPromo = false;
+        PendingSync = false;
     }
 
     // Parameterized Constructor
@@ -31,6 +33,7 @@ public class Member : BaseEntity
         LastName = lastName;
         AcceptNews = acceptNews;
         AcceptPromo = acceptPromo;
+        PendingSync = false;
     }
 
     // Static Factory
@@ -75,9 +78,22 @@ public class Member : BaseEntity
     {
         AcceptNews = acceptNews;
         AcceptPromo = acceptPromo;
+        PendingSync = false;
         Update();
 
         return Result.Success();
+    }
+
+    public void MarkAsPendingSync()
+    {
+        PendingSync = true;
+        Update();
+    }
+
+    public void ClearPendingSync()
+    {
+        PendingSync = false;
+        Update();
     }
 
     public Result UpdateEmail(string email)
