@@ -80,8 +80,8 @@
           class="form-control"
           placeholder="Escolha uma senha forte">
       </div>
-      <div class="form-group" style="margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px;">
-        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-secondary); line-height: 1.4;">
+      <div class="form-group" style="margin-bottom: 24px; display: flex; flex-direction: column; gap: 16px;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-primary); line-height: 1.4;">
           <input
             type="checkbox"
             id="acceptNews"
@@ -89,9 +89,14 @@
             [ngModel]="acceptNews()"
             (ngModelChange)="acceptNews.set($event)"
             style="margin-top: 3px; accent-color: var(--accent-gold); cursor: pointer;">
-          <span>Não quero receber notícias e novidades (Newsletter)</span>
+          <div>
+            <strong>Quero receber notícias e novidades (Newsletter)</strong>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+              Desejo receber e-mails informativos sobre design e decoração. Seus dados serão sincronizados de forma segura com um provedor de e-mail marketing externo.
+            </div>
+          </div>
         </label>
-        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-secondary); line-height: 1.4;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-primary); line-height: 1.4;">
           <input
             type="checkbox"
             id="acceptPromo"
@@ -99,7 +104,12 @@
             [ngModel]="acceptPromo()"
             (ngModelChange)="acceptPromo.set($event)"
             style="margin-top: 3px; accent-color: var(--accent-gold); cursor: pointer;">
-          <span>Não quero receber ofertas e promoções de marketing</span>
+          <div>
+            <strong>Quero receber ofertas e promoções</strong>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+              Desejo receber promoções e cupons sazonais. Seus dados serão sincronizados de forma segura com um provedor de e-mail marketing externo.
+            </div>
+          </div>
         </label>
       </div>
       <button

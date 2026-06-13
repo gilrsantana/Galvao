@@ -36,8 +36,8 @@ export class RegisterComponent {
         displayName: this.displayName(),
         firstName: this.firstName(),
         lastName: this.lastName(),
-        acceptNews: !this.acceptNews(),
-        acceptPromo: !this.acceptPromo()
+        acceptNews: this.acceptNews(),
+        acceptPromo: this.acceptPromo()
       });
 
       // 2. Perform Automatic Login for a seamless user experience

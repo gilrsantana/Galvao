@@ -107,4 +107,23 @@ describe('SettingsComponent', () => {
     expect(component.purgeStage()).toBe(0);
     expect(navigateSpy).toHaveBeenCalledWith(['/']);
   });
+
+  it('should call updatePreferences with news, promo, consent token and timestamp when saving preferences', async () => {
+    const fixture = TestBed.createComponent(SettingsComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.acceptNews.set(true);
+    component.acceptPromo.set(false);
+
+    await component.onUpdatePreferences();
+
+    expect(mockMemberService.updatePreferences).toHaveBeenCalledWith('user-123', expect.objectContaining({
+      acceptNews: true,
+      acceptPromo: false,
+      consentToken: expect.any(String),
+      consentedAt: expect.any(String)
+    }));
+  });
 });

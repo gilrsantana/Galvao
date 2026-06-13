@@ -186,9 +186,14 @@ export class SettingsComponent implements OnInit {
     this.isSavingPreferences.set(true);
 
     try {
+      const consentToken = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'consent_token_' + Math.random().toString(36).substring(2, 15);
+      const consentedAt = new Date().toISOString();
+
       await firstValueFrom(this.memberService.updatePreferences(userId, {
         acceptNews: this.acceptNews(),
-        acceptPromo: this.acceptPromo()
+        acceptPromo: this.acceptPromo(),
+        consentToken,
+        consentedAt
       }));
 
       this.preferencesMessage.set('Preferências de marketing atualizadas!');
