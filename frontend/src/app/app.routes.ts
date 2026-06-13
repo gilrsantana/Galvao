@@ -12,18 +12,19 @@ import { SettingsComponent } from './features/settings/settings.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
-  { path: 'showroom', component: ShowroomListComponent },
-  { path: 'showroom/:id', component: ShowroomDetailComponent },
-  { path: 'articles', component: ArticleListComponent },
-  { path: 'articles/:id', component: ArticleDetailComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: '', component: HomeComponent, title: 'Início | Galvão Design' },
+  { path: 'settings', component: SettingsComponent, canActivate: [authGuard], title: 'Configurações | Galvão' },
+  { path: 'showroom', component: ShowroomListComponent, title: 'Showroom de Móveis Minimalistas | Galvão' },
+  { path: 'showroom/:id', component: ShowroomDetailComponent, title: 'Detalhes do Produto | Galvão' },
+  { path: 'articles', component: ArticleListComponent, title: 'Artigos & Revista de Decoração | Galvão' },
+  { path: 'articles/:id', component: ArticleDetailComponent, title: 'Detalhes do Artigo | Galvão' },
+  { path: 'login', component: LoginComponent, title: 'Entrar | Galvão' },
+  { path: 'register', component: RegisterComponent, title: 'Criar Conta | Galvão' },
   { 
     path: 'admin', 
     component: AdminDashboardComponent, 
-    canActivate: [adminGuard] 
+    canActivate: [adminGuard],
+    title: 'Painel Administrativo | Galvão'
   },
   { path: '**', redirectTo: '' }
 ];
