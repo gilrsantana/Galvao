@@ -15,6 +15,7 @@ export class ArticleListComponent implements OnInit {
   private readonly articleService = inject(ArticleService);
 
   readonly articles = signal<ArticleResponse[]>([]);
+  readonly isLoading = signal<boolean>(true);
 
   // Pagination
   readonly currentPage = signal<number>(1);
@@ -27,14 +28,19 @@ export class ArticleListComponent implements OnInit {
   }
 
   loadArticles() {
+    this.isLoading.set(true);
     // Public page fetches only published articles
     this.articleService.getPaged(this.currentPage(), this.pageSize(), true).subscribe({
       next: (res) => {
         this.articles.set(res.items);
         this.totalCount.set(res.totalCount);
         this.totalPages.set(res.totalPages);
+        this.isLoading.set(false);
       },
-      error: () => console.error('Failed to load articles')
+      error: () => {
+        console.error('Failed to load articles');
+        this.isLoading.set(false);
+      }
     });
   }
 

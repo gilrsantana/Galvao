@@ -19,16 +19,37 @@ export class HomeComponent implements OnInit {
 
   readonly featuredItems = signal<ShowroomItemResponse[]>([]);
   readonly latestArticles = signal<ArticleResponse[]>([]);
+  readonly isLoading = signal<boolean>(true);
 
   ngOnInit() {
+    let completedCount = 0;
+    const checkCompletion = () => {
+      completedCount++;
+      if (completedCount >= 2) {
+        this.isLoading.set(false);
+      }
+    };
+
     this.showroomService.getPaged(1, 3).subscribe({
-      next: (res) => this.featuredItems.set(res.items),
-      error: () => console.error('Failed to load featured showroom items')
+      next: (res) => {
+        this.featuredItems.set(res.items);
+        checkCompletion();
+      },
+      error: () => {
+        console.error('Failed to load featured showroom items');
+        checkCompletion();
+      }
     });
 
     this.articleService.getPaged(1, 3, true).subscribe({
-      next: (res) => this.latestArticles.set(res.items),
-      error: () => console.error('Failed to load latest decoration articles')
+      next: (res) => {
+        this.latestArticles.set(res.items);
+        checkCompletion();
+      },
+      error: () => {
+        console.error('Failed to load latest decoration articles');
+        checkCompletion();
+      }
     });
   }
 

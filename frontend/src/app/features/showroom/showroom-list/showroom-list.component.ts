@@ -18,6 +18,7 @@ export class ShowroomListComponent implements OnInit {
   readonly filteredItems = signal<ShowroomItemResponse[]>([]);
   readonly categories = signal<string[]>(['All']);
   readonly selectedCategory = signal<string>('All');
+  readonly isLoading = signal<boolean>(true);
 
   // Pagination signals
   readonly currentPage = signal<number>(1);
@@ -30,6 +31,7 @@ export class ShowroomListComponent implements OnInit {
   }
 
   loadItems() {
+    this.isLoading.set(true);
     this.showroomService.getPaged(this.currentPage(), this.pageSize()).subscribe({
       next: (res) => {
         this.items.set(res.items);
@@ -41,8 +43,12 @@ export class ShowroomListComponent implements OnInit {
         this.categories.set(['All', ...Array.from(uniqueCategories)]);
 
         this.applyFilter();
+        this.isLoading.set(false);
       },
-      error: () => console.error('Failed to load showroom items')
+      error: () => {
+        console.error('Failed to load showroom items');
+        this.isLoading.set(false);
+      }
     });
   }
 
