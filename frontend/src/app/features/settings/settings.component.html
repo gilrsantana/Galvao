@@ -222,6 +222,76 @@
           </form>
         </div>
 
+        <!-- Section 5: Purge User Data / Delete Account -->
+        <div class="premium-card" style="padding: 32px; background-color: var(--bg-primary); border: 1px solid rgba(220, 53, 69, 0.2);">
+          <h2 style="font-family: var(--font-serif); font-size: 22px; color: #dc3545; margin-bottom: 24px; border-bottom: 1px solid rgba(220, 53, 69, 0.2); padding-bottom: 12px;">Área de Perigo: Excluir Conta & Dados</h2>
+          
+          <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">
+            Ao realizar esta ação, todos os seus dados pessoais, conta e preferências de marketing serão permanentemente excluídos do nosso sistema. Esta ação é irreversível.
+          </p>
+
+          @if (purgeError()) {
+            <div style="background-color: rgba(220, 53, 69, 0.08); border: 1px solid rgba(220, 53, 69, 0.2); color: #dc3545; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 20px;">
+              {{ purgeError() }}
+            </div>
+          }
+
+          @if (purgeStage() === 0) {
+            <button type="button" (click)="onStartPurge()" class="btn" style="background-color: #dc3545; color: white; border: none; padding: 10px 24px; font-weight: bold; border-radius: var(--radius-sm); cursor: pointer;">
+              Excluir Todos os Meus Dados
+            </button>
+          } @else if (purgeStage() === 1) {
+            <div style="background-color: rgba(220, 53, 69, 0.04); padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+              <p style="color: #dc3545; font-weight: bold; margin-bottom: 12px; font-size: 14px;">
+                Atenção! Você está prestes a excluir todos os seus dados pessoais. Você não receberá mais newsletters, mensagens nem contatos de marketing da loja.
+              </p>
+              <p style="color: var(--text-primary); font-size: 14px; margin-bottom: 20px;">
+                Deseja realmente continuar? (Esta é a primeira confirmação de duas).
+              </p>
+              <div style="display: flex; gap: 12px;">
+                <button type="button" (click)="onConfirmPurgeWarning()" class="btn" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; font-weight: bold; cursor: pointer; border-radius: var(--radius-sm);">
+                  Sim, eu quero continuar
+                </button>
+                <button type="button" (click)="onCancelPurge()" class="btn" style="background-color: transparent; color: var(--text-primary); border: 1px solid var(--text-secondary); padding: 8px 16px; cursor: pointer; border-radius: var(--radius-sm);">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          } @else if (purgeStage() === 2) {
+            <div style="background-color: rgba(220, 53, 69, 0.04); padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+              <p style="color: #dc3545; font-weight: bold; margin-bottom: 12px; font-size: 14px;">
+                Confirmação Final: Digite sua senha para prosseguir.
+              </p>
+              <p style="color: var(--text-primary); font-size: 14px; margin-bottom: 16px;">
+                Todos os dados serão permanentemente excluídos. Esta ação não poderá ser desfeita.
+              </p>
+              
+              <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" for="purgePassword" style="color: var(--text-primary);">Sua Senha</label>
+                <input
+                  type="password"
+                  id="purgePassword"
+                  name="purgePassword"
+                  [ngModel]="purgePassword()"
+                  (ngModelChange)="purgePassword.set($event)"
+                  required
+                  class="form-control"
+                  style="max-width: 400px;"
+                  placeholder="Digite sua senha atual">
+              </div>
+
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <button type="button" (click)="onPurgeUser()" [disabled]="isPurging() || !purgePassword()" class="btn" style="background-color: #dc3545; color: white; border: none; padding: 10px 24px; font-weight: bold; cursor: pointer; border-radius: var(--radius-sm);">
+                  @if (isPurging()) { Excluindo dados... } @else { Sim, Excluir Minha Conta }
+                </button>
+                <button type="button" (click)="onCancelPurge()" [disabled]="isPurging()" class="btn" style="background-color: transparent; color: var(--text-primary); border: 1px solid var(--text-secondary); padding: 10px 24px; cursor: pointer; border-radius: var(--radius-sm);">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
       </div>
     }
   </div>

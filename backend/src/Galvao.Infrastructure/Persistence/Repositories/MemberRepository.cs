@@ -13,4 +13,9 @@ public class MemberRepository : BaseEntityRepository<Member>, IMemberRepository
 
     public async Task<Member?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
         await DbSet.FirstOrDefaultAsync(m => m.Email == email, cancellationToken);
+
+    public void Remove(Member member)
+    {
+        DbSet.Remove(member);
+    }
 }

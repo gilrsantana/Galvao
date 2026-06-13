@@ -11,4 +11,6 @@ public interface IIdentityService
     Task<Result<TokenResponse>> RefreshTokenAsync(string accessToken, string refreshToken, CancellationToken cancellationToken = default);
     Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
     Task<Result> ChangeEmailAsync(Guid userId, string newEmail, CancellationToken cancellationToken = default);
+    Task<Result> DeleteAccountAsync(Guid userId, string password, CancellationToken cancellationToken = default);
+    Task<Result> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default);
 }

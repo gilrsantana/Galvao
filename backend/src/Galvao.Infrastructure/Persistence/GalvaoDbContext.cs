@@ -13,6 +13,7 @@ public class GalvaoDbContext : IdentityDbContext<Account, Role, Guid>, IUnitOfWo
     public DbSet<MemberContact> MemberContacts => Set<MemberContact>();
     public DbSet<ShowroomItem> ShowroomItems => Set<ShowroomItem>();
     public DbSet<Article> Articles => Set<Article>();
+    public DbSet<RemovedUser> RemovedUsers => Set<RemovedUser>();
 
     public GalvaoDbContext(DbContextOptions<GalvaoDbContext> options) : base(options)
     {
