@@ -26,4 +26,6 @@ export interface ChangePasswordRequest {
 export interface UpdateMarketingPreferencesRequest {
   acceptNews: boolean;
   acceptPromo: boolean;
+  consentToken: string;
+  consentedAt: string;
 }

@@ -81,7 +81,7 @@ public class MembersController : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdatePreferences(Guid id, [FromBody] UpdateMarketingPreferencesRequest request, CancellationToken cancellationToken)
     {
-        var result = await _updatePreferencesHandler.HandleAsync(new UpdateMarketingPreferencesCommand(id, request.AcceptNews, request.AcceptPromo), cancellationToken);
+        var result = await _updatePreferencesHandler.HandleAsync(new UpdateMarketingPreferencesCommand(id, request.AcceptNews, request.AcceptPromo, request.ConsentToken, request.ConsentedAt), cancellationToken);
         return HandleResult(result);
     }
 
