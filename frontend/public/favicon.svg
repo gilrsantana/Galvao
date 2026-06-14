@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Deep charcoal background with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="#1F1F1C"/>
+  
+  <!-- Subtle circular accent line -->
+  <circle cx="256" cy="256" r="216" fill="none" stroke="#C5A880" stroke-width="4" opacity="0.25"/>
+  
+  <!-- Architectural Arch (representing the G monogram, portal, and chair backrest) -->
+  <path d="M 176 356 L 176 236 A 80 80 0 0 1 336 236 L 336 356" fill="none" stroke="#C5A880" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Horizontal bar forming the G crossbar / chair seat -->
+  <path d="M 232 296 L 336 296" fill="none" stroke="#C5A880" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Minimalist base line -->
+  <line x1="200" y1="356" x2="312" y2="356" stroke="#C5A880" stroke-width="16" stroke-linecap="round"/>
+  <line x1="220" y1="236" x2="292" y2="236" stroke="#C5A880" stroke-width="6" stroke-linecap="round" opacity="0.4"/>
+</svg>
