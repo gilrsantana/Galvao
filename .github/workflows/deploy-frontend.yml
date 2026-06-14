@@ -1,0 +1,45 @@
+name: Build and Deploy to Hostgator
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  deploy-frontend:
+    name: Build & Deploy Frontend (HostGator)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create environment.ts
+        run: |
+          mkdir -p src/environments
+          echo "export const environment = { production: true, apiUrl: '${{ secrets.API_URL }}' };" > src/environments/environment.ts
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: frontend/dist/galvao-frontend/browser/
+          server-dir: ./
+          state-name: .sync-state-v2.json

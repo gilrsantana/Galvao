@@ -8,34 +8,35 @@ import {
   UpdateArticleRequest, 
   PublishArticleRequest 
 } from '../models/article.models';
-import { API_BASE } from '../constants/api.constants';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ArticleService {
   private readonly http = inject(HttpClient);
+  private readonly apiBase = `${environment.apiUrl}/api`;
 
   getPaged(page: number = 1, pageSize: number = 10, onlyPublished: boolean = true): Observable<PagedResponse<ArticleResponse>> {
     return this.http.get<PagedResponse<ArticleResponse>>(
-      `${API_BASE}/articles?page=${page}&pageSize=${pageSize}&onlyPublished=${onlyPublished}`
+      `${this.apiBase}/articles?page=${page}&pageSize=${pageSize}&onlyPublished=${onlyPublished}`
     );
   }
 
   getById(id: string): Observable<ArticleResponse> {
-    return this.http.get<ArticleResponse>(`${API_BASE}/articles/${id}`);
+    return this.http.get<ArticleResponse>(`${this.apiBase}/articles/${id}`);
   }
 
   create(request: CreateArticleRequest): Observable<string> {
-    return this.http.post<string>(`${API_BASE}/articles`, request);
+    return this.http.post<string>(`${this.apiBase}/articles`, request);
   }
 
   update(id: string, request: UpdateArticleRequest): Observable<void> {
-    return this.http.put<void>(`${API_BASE}/articles/${id}`, request);
+    return this.http.put<void>(`${this.apiBase}/articles/${id}`, request);
   }
 
   publish(id: string, publish: boolean): Observable<void> {
     const request: PublishArticleRequest = { publish };
-    return this.http.put<void>(`${API_BASE}/articles/${id}/publish`, request);
+    return this.http.put<void>(`${this.apiBase}/articles/${id}/publish`, request);
   }
 }

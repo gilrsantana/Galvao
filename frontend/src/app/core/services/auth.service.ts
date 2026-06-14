@@ -2,7 +2,7 @@ import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { TokenResponse, LoginRequest, RegisterRequest } from '../models/auth.models';
-import { API_BASE } from '../constants/api.constants';
+import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly apiBase = `${environment.apiUrl}/api`;
 
   // Reactive State Signals
   readonly tokenResponse = signal<TokenResponse | null>(null);
@@ -55,14 +56,14 @@ export class AuthService {
 
   async login(credentials: LoginRequest): Promise<void> {
     const response = await firstValueFrom(
-      this.http.post<TokenResponse>(`${API_BASE}/auth/login`, credentials)
+      this.http.post<TokenResponse>(`${this.apiBase}/auth/login`, credentials)
     );
     this.saveTokens(response);
   }
 
   async register(request: RegisterRequest): Promise<void> {
     await firstValueFrom(
-      this.http.post<void>(`${API_BASE}/auth/register`, request)
+      this.http.post<void>(`${this.apiBase}/auth/register`, request)
     );
   }
 
@@ -71,7 +72,7 @@ export class AuthService {
     if (!currentTokens) throw new Error('No refresh token available');
 
     const response = await firstValueFrom(
-      this.http.post<TokenResponse>(`${API_BASE}/auth/refresh`, {
+      this.http.post<TokenResponse>(`${this.apiBase}/auth/refresh`, {
         accessToken: currentTokens.accessToken,
         refreshToken: currentTokens.refreshToken
       })

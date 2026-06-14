@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_BASE } from '../constants/api.constants';
+import { environment } from '../../../environments/environment';
 import {
   MemberResponse,
   UpdateProfileRequest,
@@ -15,28 +15,29 @@ import {
 })
 export class MemberService {
   private readonly http = inject(HttpClient);
+  private readonly apiBase = `${environment.apiUrl}/api`;
 
   getById(id: string): Observable<MemberResponse> {
-    return this.http.get<MemberResponse>(`${API_BASE}/members/${id}`);
+    return this.http.get<MemberResponse>(`${this.apiBase}/members/${id}`);
   }
 
   updateProfile(id: string, request: UpdateProfileRequest): Observable<void> {
-    return this.http.put<void>(`${API_BASE}/members/${id}/profile`, request);
+    return this.http.put<void>(`${this.apiBase}/members/${id}/profile`, request);
   }
 
   changeEmail(id: string, request: ChangeEmailRequest): Observable<void> {
-    return this.http.put<void>(`${API_BASE}/members/${id}/email`, request);
+    return this.http.put<void>(`${this.apiBase}/members/${id}/email`, request);
   }
 
   changePassword(id: string, request: ChangePasswordRequest): Observable<void> {
-    return this.http.put<void>(`${API_BASE}/members/${id}/password`, request);
+    return this.http.put<void>(`${this.apiBase}/members/${id}/password`, request);
   }
 
   updatePreferences(id: string, request: UpdateMarketingPreferencesRequest): Observable<void> {
-    return this.http.put<void>(`${API_BASE}/members/${id}/preferences`, request);
+    return this.http.put<void>(`${this.apiBase}/members/${id}/preferences`, request);
   }
 
   purgeUser(id: string, password: string): Observable<void> {
-    return this.http.delete<void>(`${API_BASE}/members/${id}`, { body: { password } });
+    return this.http.delete<void>(`${this.apiBase}/members/${id}`, { body: { password } });
   }
 }
