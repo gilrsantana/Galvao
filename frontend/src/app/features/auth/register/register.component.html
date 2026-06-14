@@ -1,8 +1,8 @@
-<section style="padding: 96px 0; display: flex; align-items: center; justify-content: center; min-height: 70vh;">
-  <div class="premium-card" style="max-width: 420px; width: 100%; padding: 40px; background-color: var(--bg-primary);">
+<section class="auth-section">
+  <div class="premium-card auth-card">
     <!-- Header -->
-    <div style="text-align: center; margin-bottom: 32px;">
-      <h2 style="font-size: 32px; color: var(--text-primary); margin-bottom: 8px;">Cadastrar-se</h2>
+    <div class="auth-header">
+      <h2>Cadastrar-se</h2>
       <p style="color: var(--text-secondary); font-size: 14px;">Crie sua conta de membro.</p>
     </div>
 
@@ -15,7 +15,7 @@
 
     <!-- Form -->
     <form (ngSubmit)="onSubmit()">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+      <div class="name-grid">
         <div class="form-group" style="margin-bottom: 0;">
           <label class="form-label" for="firstName">Nome</label>
           <input
@@ -115,14 +115,13 @@
       <button
         type="submit"
         [disabled]="isSubmitting()"
-        class="btn btn-primary"
-        style="width: 100%; margin-bottom: 24px;">
+        class="btn btn-primary auth-submit-btn">
         @if (isSubmitting()) { Cadastrando... } @else { Criar Conta }
       </button>
     </form>
 
     <!-- Footer link -->
-    <div style="text-align: center; font-size: 13px; color: var(--text-secondary);">
+    <div class="auth-footer">
       Já tem uma conta?
       <a routerLink="/login" style="color: var(--accent-gold); font-weight: 550; border-bottom: 1px solid transparent; padding-bottom: 1px;">
         Entre aqui

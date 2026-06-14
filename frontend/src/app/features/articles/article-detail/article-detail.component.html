@@ -1,4 +1,4 @@
-<section style="padding: 64px 0 96px 0;">
+<section class="article-detail-section">
   <div class="container">
     @if (article(); as data) {
       <!-- Breadcrumbs -->
@@ -11,10 +11,10 @@
       </div>
 
       <!-- Article Reader -->
-      <article style="max-width: 760px; margin: 0 auto;">
+      <article class="article-container">
         <!-- Header -->
         <header style="border-bottom: 1px solid var(--border-color); padding-bottom: 32px; margin-bottom: 40px;">
-          <h1 style="font-size: 48px; line-height: 1.2; color: var(--text-primary); margin-bottom: 24px;">
+          <h1 class="article-detail-title">
             {{ data.title }}
           </h1>
           <div style="display: flex; align-items: center; gap: 16px; font-size: 14px; color: var(--text-secondary);">
@@ -29,7 +29,7 @@
         </header>
 
         <!-- Body Content -->
-        <div style="font-family: var(--font-serif); font-size: 18px; line-height: 1.85; color: var(--text-primary); white-space: pre-line; letter-spacing: -0.003em;">
+        <div class="article-body">
           {{ data.content }}
         </div>
 

@@ -1,9 +1,9 @@
-<div class="container" style="padding: 48px 0; min-height: 80vh;">
+<div class="container admin-container">
   <!-- Dashboard Header -->
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border-color); padding-bottom: 24px; margin-bottom: 40px; gap: 24px; flex-wrap: wrap;">
+  <div class="admin-header">
     <div>
       <span class="badge badge-gold" style="margin-bottom: 8px;">Portal Administrativo</span>
-      <h1 style="font-size: 40px; color: var(--text-primary); line-height: 1.1;">Painel de Controle</h1>
+      <h1 class="admin-title">Painel de Controle</h1>
       <p style="color: var(--text-secondary); font-size: 15px; margin-top: 4px;">Controle a galeria do showroom, publique artigos de decoração e gerencie perfis de usuários.</p>
     </div>
 
@@ -30,14 +30,14 @@
   <!-- SHOWROOM TAB CONTENT -->
   @if (activeTab() === 'showroom') {
     <div style="animation: fadeIn 0.4s ease-out;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div class="admin-sub-header">
         <div>
           <h2 style="font-size: 24px; color: var(--text-primary);">Catálogo do Showroom</h2>
           <p style="color: var(--text-secondary); font-size: 14px;">Total de {{ showroomItems().length }} peças de design cadastradas.</p>
         </div>
-        <button (click)="openNewItemModal()" class="btn btn-primary btn-sm">
+        <app-admin-button variant="primary" (btnClick)="openNewItemModal()">
           + Adicionar Item ao Showroom
-        </button>
+        </app-admin-button>
       </div>
 
       @if (showroomItems().length === 0) {
@@ -51,8 +51,8 @@
               <tr>
                 <th>Título</th>
                 <th>Categoria</th>
-                <th>Preço</th>
-                <th>Fotos</th>
+                <th class="hidden sm:table-cell">Preço</th>
+                <th class="hidden sm:table-cell">Fotos</th>
                 <th style="text-align: right;">Ações</th>
               </tr>
             </thead>
@@ -61,19 +61,17 @@
                 <tr>
                   <td style="font-weight: 550; color: var(--text-primary);">{{ item.title }}</td>
                   <td><span class="badge badge-dark" style="font-size: 10px;">{{ item.category }}</span></td>
-                  <td>{{ item.price | currency:'USD':'symbol':'1.2-2' }}</td>
-                  <td>
+                  <td class="hidden sm:table-cell">{{ item.price | currency:'USD':'symbol':'1.2-2' }}</td>
+                  <td class="hidden sm:table-cell">
                     <span style="font-size: 13px; font-weight: 500;">
                       {{ item.photos.length }} foto(s)
                     </span>
                   </td>
                   <td style="text-align: right;">
-                    <button (click)="openPhotosModal(item)" class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 11px; margin-right: 8px;">
-                      Gerenciar Fotos
-                    </button>
-                    <button (click)="openEditItemModal(item)" class="btn btn-gold btn-sm" style="padding: 6px 12px; font-size: 11px;">
-                      Editar
-                    </button>
+                    <div class="flex flex-col sm:flex-row justify-end items-end sm:items-center gap-2">
+                      <app-admin-button variant="secondary" size="xs" widthClass="w-20" (btnClick)="openPhotosModal(item)">Fotos</app-admin-button>
+                      <app-admin-button variant="gold" size="xs" widthClass="w-20" (btnClick)="openEditItemModal(item)">Editar</app-admin-button>
+                    </div>
                   </td>
                 </tr>
               }
@@ -87,14 +85,14 @@
   <!-- ARTICLES TAB CONTENT -->
   @if (activeTab() === 'articles') {
     <div style="animation: fadeIn 0.4s ease-out;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div class="admin-sub-header">
         <div>
           <h2 style="font-size: 24px; color: var(--text-primary);">Artigos de Decoração</h2>
           <p style="color: var(--text-secondary); font-size: 14px;">Gerencie histórias publicadas e dicas de decoração.</p>
         </div>
-        <button (click)="openNewArticleModal()" class="btn btn-primary btn-sm">
+        <app-admin-button variant="primary" (btnClick)="openNewArticleModal()">
           + Escrever Novo Artigo
-        </button>
+        </app-admin-button>
       </div>
 
       @if (articles().length === 0) {
@@ -108,8 +106,8 @@
               <tr>
                 <th>Título</th>
                 <th>Autor</th>
-                <th>Data de Publicação</th>
-                <th>Status</th>
+                <th class="hidden sm:table-cell">Data de Publicação</th>
+                <th class="hidden sm:table-cell">Status</th>
                 <th style="text-align: right;">Ações</th>
               </tr>
             </thead>
@@ -118,14 +116,14 @@
                 <tr>
                   <td style="font-weight: 550; color: var(--text-primary);">{{ art.title }}</td>
                   <td>{{ art.author }}</td>
-                  <td>
+                  <td class="hidden sm:table-cell">
                     @if (art.publishedAt) {
                       {{ art.publishedAt | date:'mediumDate' }}
                     } @else {
                       <span style="color: var(--text-secondary); font-style: italic;">Não Publicado</span>
                     }
                   </td>
-                  <td>
+                  <td class="hidden sm:table-cell">
                     @if (art.isPublished) {
                       <span class="badge badge-gold" style="background-color: rgba(197,168,128,0.2); color: #8c6e40; font-weight: 600;">Publicado</span>
                     } @else {
@@ -133,15 +131,22 @@
                     }
                   </td>
                   <td style="text-align: right;">
-                    <button 
-                      (click)="togglePublish(art)" 
-                      [class]="art.isPublished ? 'btn btn-secondary btn-sm' : 'btn btn-gold btn-sm'" 
-                      style="padding: 6px 12px; font-size: 11px; margin-right: 8px;">
-                      {{ art.isPublished ? 'Despublicar' : 'Publicar' }}
-                    </button>
-                    <button (click)="openEditArticleModal(art)" class="btn btn-primary btn-sm" style="padding: 6px 12px; font-size: 11px;">
-                      Editar
-                    </button>
+                    <div class="flex flex-col sm:flex-row justify-end items-end sm:items-center gap-2">
+                      <app-admin-button 
+                        [variant]="art.isPublished ? 'secondary' : 'gold'" 
+                        size="xs" 
+                        widthClass="w-24" 
+                        (btnClick)="togglePublish(art)">
+                        {{ art.isPublished ? 'Despublicar' : 'Publicar' }}
+                      </app-admin-button>
+                      <app-admin-button 
+                        variant="primary" 
+                        size="xs" 
+                        widthClass="w-20" 
+                        (btnClick)="openEditArticleModal(art)">
+                        Editar
+                      </app-admin-button>
+                    </div>
                   </td>
                 </tr>
               }
@@ -154,18 +159,18 @@
 
   <!-- ROLES TAB CONTENT -->
   @if (activeTab() === 'roles') {
-    <div style="animation: fadeIn 0.4s ease-out; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px;">
+    <div class="roles-grid">
       
       <!-- Available Roles Column -->
       <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div class="admin-sub-header">
           <div>
             <h2 style="font-size: 24px; color: var(--text-primary);">Perfis de Acesso</h2>
             <p style="color: var(--text-secondary); font-size: 14px;">Gerencie as categorias de permissão administrativa.</p>
           </div>
-          <button (click)="openRoleModal()" class="btn btn-primary btn-sm">
+          <app-admin-button variant="primary" (btnClick)="openRoleModal()">
             + Criar Perfil
-          </button>
+          </app-admin-button>
         </div>
 
         @if (roles().length === 0) {
@@ -229,21 +234,21 @@
             </select>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <button 
-              (click)="removeRole()" 
+          <div class="admin-form-actions">
+            <app-admin-button 
+              variant="secondary" 
+              [fullWidth]="true" 
               [disabled]="!assignUserId() || !assignRoleName()"
-              class="btn btn-secondary btn-sm"
-              style="width: 100%;">
+              (btnClick)="removeRole()">
               Remover Perfil
-            </button>
-            <button 
-              (click)="assignRole()" 
+            </app-admin-button>
+            <app-admin-button 
+              variant="primary" 
+              [fullWidth]="true" 
               [disabled]="!assignUserId() || !assignRoleName()"
-              class="btn btn-primary btn-sm"
-              style="width: 100%;">
+              (btnClick)="assignRole()">
               Atribuir Perfil
-            </button>
+            </app-admin-button>
           </div>
         </div>
       </div>
@@ -315,12 +320,12 @@
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 16px;">
-          <button type="button" (click)="closeItemModal()" class="btn btn-secondary btn-sm">
+          <app-admin-button type="button" variant="secondary" (btnClick)="closeItemModal()">
             Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary btn-sm">
+          </app-admin-button>
+          <app-admin-button type="submit" variant="primary">
             Salvar Item
-          </button>
+          </app-admin-button>
         </div>
       </form>
     </div>
@@ -385,7 +390,7 @@
       </h4>
 
       <form (ngSubmit)="submitPhotoForm()">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="modal-form-grid">
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">URL da Foto</label>
             <input 
@@ -423,20 +428,20 @@
           
           <div style="display: flex; align-items: center; gap: 8px;">
             @if (editingPhotoId()) {
-              <button type="button" (click)="cancelPhotoEdit()" class="btn btn-secondary btn-sm">
+              <app-admin-button type="button" variant="secondary" (btnClick)="cancelPhotoEdit()">
                 Cancelar
-              </button>
+              </app-admin-button>
             }
-            <button type="submit" [disabled]="!photoUrl()" class="btn btn-gold btn-sm">
+            <app-admin-button type="submit" variant="gold" [disabled]="!photoUrl()">
               {{ editingPhotoId() ? 'Atualizar Foto' : 'Adicionar Foto' }}
-            </button>
+            </app-admin-button>
           </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end;">
-          <button type="button" (click)="closePhotosModal()" class="btn btn-secondary btn-sm">
+          <app-admin-button type="button" variant="secondary" (btnClick)="closePhotosModal()">
             Fechar Gerenciador
-          </button>
+          </app-admin-button>
         </div>
       </form>
     </div>
@@ -452,7 +457,7 @@
       </h3>
 
       <form (ngSubmit)="saveArticle()">
-        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-bottom: 16px;">
+        <div class="modal-form-grid">
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">Título do Artigo</label>
             <input 
@@ -492,12 +497,12 @@
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 16px;">
-          <button type="button" (click)="closeArticleModal()" class="btn btn-secondary btn-sm">
+          <app-admin-button type="button" variant="secondary" (btnClick)="closeArticleModal()">
             Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary btn-sm">
+          </app-admin-button>
+          <app-admin-button type="submit" variant="primary">
             Salvar Artigo
-          </button>
+          </app-admin-button>
         </div>
       </form>
     </div>
@@ -539,12 +544,12 @@
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 16px;">
-          <button type="button" (click)="closeRoleModal()" class="btn btn-secondary btn-sm">
+          <app-admin-button type="button" variant="secondary" (btnClick)="closeRoleModal()">
             Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary btn-sm">
+          </app-admin-button>
+          <app-admin-button type="submit" variant="primary">
             Criar Perfil
-          </button>
+          </app-admin-button>
         </div>
       </form>
     </div>

@@ -1,4 +1,4 @@
-<section style="padding: 64px 0 96px 0;">
+<section class="detail-section">
   <div class="container">
     @if (item(); as data) {
       <!-- Breadcrumbs -->
@@ -11,11 +11,11 @@
       </div>
 
       <!-- Detail Grid -->
-      <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 64px; align-items: start;">
+      <div class="detail-grid">
         <!-- Left: Image Gallery -->
         <div>
           <!-- Hero Image -->
-          <div style="height: 520px; overflow: hidden; background-color: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 24px;">
+          <div class="detail-image-container">
             @if (selectedPhotoUrl()) {
               <img [src]="selectedPhotoUrl()" [alt]="selectedPhotoCaption()" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition-smooth);">
             } @else {
@@ -27,7 +27,7 @@
 
           <!-- Thumbnails Row -->
           @if (data.photos.length > 1) {
-            <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px;">
+            <div class="detail-thumbs">
               @for (photo of data.photos; track photo.id) {
                 <button 
                   (click)="selectPhoto(photo)" 
@@ -40,10 +40,10 @@
         </div>
 
         <!-- Right: Description Details -->
-        <div style="display: flex; flex-direction: column; gap: 32px;">
+        <div class="detail-info-column">
           <div>
             <span class="badge badge-gold" style="margin-bottom: 16px;">{{ data.category }}</span>
-            <h1 style="font-size: 44px; line-height: 1.2; color: var(--text-primary); margin-bottom: 12px;">
+            <h1 class="detail-title">
               {{ data.title }}
             </h1>
             <div style="font-family: var(--font-sans); font-size: 28px; font-weight: 600; color: var(--accent-gold);">
@@ -53,13 +53,13 @@
 
           <div style="border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 32px 0;">
             <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600;">Descrição</h4>
-            <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.8; white-space: pre-line;">
+            <p class="detail-description">
               {{ data.description }}
             </p>
           </div>
 
           <!-- CTA Area -->
-          <div style="background-color: var(--bg-secondary); border-radius: var(--radius-md); padding: 32px; border: 1px solid var(--border-color);">
+          <div class="detail-cta-card">
             <h3 style="font-size: 20px; margin-bottom: 8px; color: var(--text-primary);">Interessado nesta peça?</h3>
             <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
               Por favor, solicite um orçamento ou entre em contato com nossa equipe de vendas para discutir acabamentos, frete e dimensões personalizadas.

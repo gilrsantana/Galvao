@@ -1,26 +1,153 @@
+@reference "tailwindcss";
+
 nav a {
-  transition: var(--transition-fast);
-  padding: 4px 0;
-  border-bottom: 2px solid transparent;
+  @apply transition-colors duration-200 pb-1 border-b-2 border-transparent;
 }
 
 nav a:hover {
-  color: var(--accent-gold);
+  color: var(--color-accent-gold);
 }
 
 .active-link {
-  color: var(--accent-gold) !important;
-  border-bottom: 2px solid var(--accent-gold);
+  color: var(--color-accent-gold) !important;
+  border-bottom-color: var(--color-accent-gold) !important;
 }
 
 .settings-link {
-  display: flex;
-  align-items: center;
-  color: var(--text-secondary);
-  transition: color var(--transition-fast), transform var(--transition-normal);
+  @apply flex items-center;
+  color: var(--color-text-secondary);
+  @apply transition-colors duration-200;
 }
 
 .settings-link:hover {
-  color: var(--text-primary);
-  transform: rotate(45deg);
+  color: var(--color-text-primary);
+  @apply rotate-45 transform duration-300;
+}
+
+/* Navbar layout */
+.navbar-wrapper {
+  @apply flex justify-between items-center h-20;
+}
+
+.navbar-brand {
+  font-family: var(--font-serif);
+  color: var(--color-text-primary);
+  @apply text-2xl font-semibold tracking-widest;
+}
+
+.navbar-nav {
+  @apply flex items-center gap-8 text-sm tracking-wider uppercase font-medium;
+}
+
+.admin-link {
+  color: var(--color-accent-gold);
+  @apply font-semibold;
+}
+
+.navbar-actions {
+  @apply flex items-center gap-4;
+}
+
+.user-greeting {
+  color: var(--color-text-secondary);
+  @apply text-xs flex items-center gap-2;
+}
+
+.logout-btn, .login-btn, .register-btn {
+  @apply px-4 py-1.5 text-[11px] rounded;
+}
+
+/* Mobile Menu Toggle Button */
+.menu-toggle-btn {
+  @apply hidden bg-transparent border-none cursor-pointer p-2 z-[1001];
+  color: var(--color-text-primary);
+}
+
+/* Mobile Navigation Panel */
+.mobile-menu {
+  @apply hidden absolute top-20 left-0 w-full border-b border-black/5 shadow-md p-6 pb-8 z-[999];
+  background-color: var(--color-bg-primary);
+}
+
+.mobile-nav {
+  @apply flex flex-col gap-5;
+}
+
+.mobile-nav a {
+  @apply text-base font-medium uppercase tracking-wider py-2 border-b border-black/5;
+}
+
+.mobile-menu-divider {
+  @apply border-0 border-t border-black/10 my-2;
+}
+
+.mobile-auth-actions {
+  @apply flex flex-col gap-4 mt-2;
+}
+
+.mobile-user-info {
+  @apply flex flex-col gap-2 text-sm mb-2;
+  color: var(--color-text-secondary);
+}
+
+.btn-block {
+  @apply w-full py-3 text-center;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Media Query for responsive navigation */
+@media (max-width: 768px) {
+  .navbar-nav {
+    @apply hidden;
+  }
+  
+  .navbar-actions {
+    @apply hidden;
+  }
+  
+  .menu-toggle-btn {
+    @apply block;
+  }
+  
+  .mobile-menu {
+    @apply block;
+  }
+}
+
+/* Footer layout responsiveness */
+.footer-grid {
+  @apply grid gap-12 mb-12;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.footer-bottom {
+  @apply border-t border-white/10 pt-6 flex justify-between flex-wrap gap-4 text-white/40 text-xs;
+}
+
+@media (max-width: 576px) {
+  .footer-grid {
+    @apply grid-cols-1 gap-8 text-center;
+  }
+  
+  .footer-grid p {
+    @apply mx-auto;
+  }
+  
+  .footer-grid ul {
+    @apply items-center;
+  }
+  
+  .footer-bottom {
+    @apply flex-col items-center text-center;
+  }
 }

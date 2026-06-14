@@ -1,16 +1,16 @@
-<section style="padding: 64px 0 96px 0;">
+<section class="showroom-section">
   <div class="container">
     <!-- Header -->
-    <div style="text-align: center; max-width: 600px; margin: 0 auto 48px auto;">
+    <div class="showroom-header">
       <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; color: var(--accent-gold); display: block; margin-bottom: 8px;">Showroom</span>
-      <h2 style="font-size: 40px; margin-bottom: 16px; color: var(--text-primary);">A Coleção de Design</h2>
+      <h2 class="showroom-title">A Coleção de Design</h2>
       <p style="color: var(--text-secondary); font-size: 15px; line-height: 1.7;">
         Móveis de design arquitetônico que equilibram forma, detalhe e estrutura material. Feitos à mão para se integrarem perfeitamente em espaços modernos.
       </p>
     </div>
 
     <!-- Category Filter Pills -->
-    <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 48px; flex-wrap: wrap;">
+    <div class="showroom-filter-wrapper">
       @for (cat of categories(); track cat) {
         <button 
           (click)="selectCategory(cat)" 

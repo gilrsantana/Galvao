@@ -1,8 +1,8 @@
-<section style="padding: 64px 0; min-height: 80vh; background-color: var(--bg-secondary);">
-  <div class="container" style="max-width: 800px;">
+<section class="settings-section">
+  <div class="container settings-container">
     <!-- Title -->
-    <div style="margin-bottom: 40px;">
-      <h1 style="font-family: var(--font-serif); font-size: 36px; color: var(--text-primary); margin-bottom: 8px;">Configurações de Perfil</h1>
+    <div class="settings-header">
+      <h1 class="settings-title">Configurações de Perfil</h1>
       <p style="color: var(--text-secondary); font-size: 14px;">Gerencie suas informações pessoais, segurança e preferências.</p>
     </div>
 
@@ -14,7 +14,7 @@
       <div style="display: flex; flex-direction: column; gap: 40px;">
 
         <!-- LGPD Privacy Notice -->
-        <div class="premium-card" style="padding: 28px; background-color: var(--bg-primary); border-left: 4px solid var(--accent-gold);">
+        <div class="premium-card privacy-card">
           <h3 style="font-family: var(--font-serif); font-size: 18px; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
             ⚖️ Aviso de Privacidade & Transparência (LGPD)
           </h3>
@@ -30,7 +30,7 @@
         </div>
 
         <!-- Section 1: Profile Details -->
-        <div class="premium-card" style="padding: 32px; background-color: var(--bg-primary);">
+        <div class="premium-card settings-card">
           <h2 style="font-family: var(--font-serif); font-size: 22px; color: var(--text-primary); margin-bottom: 24px; border-bottom: 1px solid var(--border-color-light); padding-bottom: 12px;">Dados Pessoais</h2>
 
           @if (profileMessage()) {
@@ -45,7 +45,7 @@
           }
 
           <form (ngSubmit)="onUpdateProfile()">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="settings-grid">
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" for="firstName">Primeiro Nome</label>
                 <input
@@ -89,7 +89,7 @@
         </div>
 
         <!-- Section 2: Email Management -->
-        <div class="premium-card" style="padding: 32px; background-color: var(--bg-primary);">
+        <div class="premium-card settings-card">
           <h2 style="font-family: var(--font-serif); font-size: 22px; color: var(--text-primary); margin-bottom: 24px; border-bottom: 1px solid var(--border-color-light); padding-bottom: 12px;">Alterar Endereço de E-mail</h2>
 
           @if (emailMessage()) {
@@ -123,7 +123,7 @@
         </div>
 
         <!-- Section 3: Password Settings -->
-        <div class="premium-card" style="padding: 32px; background-color: var(--bg-primary);">
+        <div class="premium-card settings-card">
           <h2 style="font-family: var(--font-serif); font-size: 22px; color: var(--text-primary); margin-bottom: 24px; border-bottom: 1px solid var(--border-color-light); padding-bottom: 12px;">Segurança & Senha</h2>
 
           @if (passwordMessage()) {
@@ -151,7 +151,7 @@
                 placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+            <div class="settings-grid" style="margin-bottom: 24px;">
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" for="newPassword">Nova Senha</label>
                 <input
@@ -185,7 +185,7 @@
         </div>
 
         <!-- Section 4: Marketing Preferences -->
-        <div class="premium-card" style="padding: 32px; background-color: var(--bg-primary);">
+        <div class="premium-card settings-card">
           <h2 style="font-family: var(--font-serif); font-size: 22px; color: var(--text-primary); margin-bottom: 24px; border-bottom: 1px solid var(--border-color-light); padding-bottom: 12px;">Preferências de Comunicação</h2>
 
           @if (preferencesMessage()) {
@@ -239,7 +239,7 @@
         </div>
 
         <!-- Section 5: Purge User Data / Delete Account -->
-        <div class="premium-card" style="padding: 32px; background-color: var(--bg-primary); border: 1px solid rgba(220, 53, 69, 0.2);">
+        <div class="premium-card danger-card">
           <h2 style="font-family: var(--font-serif); font-size: 22px; color: #dc3545; margin-bottom: 24px; border-bottom: 1px solid rgba(220, 53, 69, 0.2); padding-bottom: 12px;">Área de Perigo: Excluir Conta & Dados</h2>
           
           <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">
@@ -264,7 +264,7 @@
               <p style="color: var(--text-primary); font-size: 14px; margin-bottom: 20px;">
                 Deseja realmente continuar? (Esta é a primeira confirmação de duas).
               </p>
-              <div style="display: flex; gap: 12px;">
+              <div class="settings-actions-row">
                 <button type="button" (click)="onConfirmPurgeWarning()" class="btn" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; font-weight: bold; cursor: pointer; border-radius: var(--radius-sm);">
                   Sim, eu quero continuar
                 </button>
@@ -296,7 +296,7 @@
                   placeholder="Digite sua senha atual">
               </div>
 
-              <div style="display: flex; gap: 12px; align-items: center;">
+              <div class="settings-actions-row">
                 <button type="button" (click)="onPurgeUser()" [disabled]="isPurging() || !purgePassword()" class="btn" style="background-color: #dc3545; color: white; border: none; padding: 10px 24px; font-weight: bold; cursor: pointer; border-radius: var(--radius-sm);">
                   @if (isPurging()) { Excluindo dados... } @else { Sim, Excluir Minha Conta }
                 </button>

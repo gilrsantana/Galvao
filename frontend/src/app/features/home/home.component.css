@@ -1,3 +1,146 @@
 .premium-card:hover .card-image {
   transform: scale(1.05);
 }
+
+/* Hero Section */
+.hero-section {
+  background-color: var(--bg-secondary);
+  padding: 120px 0;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 48px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: 56px;
+  line-height: 1.15;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+}
+
+.hero-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  max-width: 500px;
+  line-height: 1.8;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.hero-card-wrapper {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-featured-card {
+  width: 320px;
+  height: 420px;
+  background-color: var(--bg-dark);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 32px;
+  border: 1px solid var(--border-color-light);
+  text-align: left;
+}
+
+/* Sections */
+.page-section {
+  padding: 96px 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 48px;
+  gap: 24px;
+}
+
+.section-title {
+  font-size: 36px;
+  color: var(--text-primary);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 64px 0;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-desc {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-card-wrapper {
+    margin-top: 16px;
+  }
+
+  .page-section {
+    padding: 56px 0;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .hero-featured-card {
+    width: 100%;
+    max-width: 320px;
+    height: 380px;
+    padding: 24px;
+  }
+}

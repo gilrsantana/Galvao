@@ -1,1 +1,50 @@
-/* Login Component styles */
+.auth-section {
+  padding: 96px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.auth-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 40px;
+  background-color: var(--bg-primary);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-header h2 {
+  font-size: 32px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+  .auth-section {
+    padding: 48px 16px;
+  }
+  
+  .auth-card {
+    padding: 24px;
+  }
+
+  .auth-header h2 {
+    font-size: 28px;
+  }
+}

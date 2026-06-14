@@ -7,11 +7,12 @@ import { ArticleResponse } from '../../../core/models/article.models';
 import { RoleResponse } from '../../../core/models/role.models';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { AdminButtonComponent } from '../components/admin-button.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [FormsModule, CurrencyPipe, DatePipe],
+  imports: [FormsModule, CurrencyPipe, DatePipe, AdminButtonComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
