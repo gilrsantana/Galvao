@@ -49,6 +49,11 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<GalvaoDbContext>());
 
         // Identity Services
+        services.Configure<IdentityOptions>(configuration.GetSection("IdentityOptions"));
+        services.AddIdentityCore<Account>()
+            .AddRoles<Role>()
+            .AddEntityFrameworkStores<GalvaoDbContext>();
+        
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRoleService, RoleService>();
 
