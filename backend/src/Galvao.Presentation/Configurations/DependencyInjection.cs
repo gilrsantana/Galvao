@@ -29,11 +29,6 @@ public static class DependencyInjection
             .AddRoles<Role>()
             .AddEntityFrameworkStores<GalvaoDbContext>()
             .AddDefaultTokenProviders();
-
-        services.Configure<DataProtectionTokenProviderOptions>(options =>
-        {
-            options.TokenLifespan = TimeSpan.FromHours(24);
-        });
         
         // JWT Settings & Authentication
         SetJwtConfiguration(services, configuration)

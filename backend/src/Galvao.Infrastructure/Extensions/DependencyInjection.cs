@@ -51,6 +51,7 @@ public static class DependencyInjection
 
         // Identity Services
         services.Configure<IdentityOptions>(configuration.GetSection("IdentityOptions"));
+        services.Configure<DataProtectionTokenProviderOptions>(configuration.GetSection("DataProtectionTokenProviderOptions"));
         
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRoleService, RoleService>();
