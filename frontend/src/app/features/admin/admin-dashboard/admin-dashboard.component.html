@@ -24,6 +24,13 @@
         [class]="activeTab() === 'roles' ? 'tab-btn active' : 'tab-btn'">
         Perfis & Acesso
       </button>
+      <button 
+        (click)="openHangfire()" 
+        class="tab-btn hangfire-btn"
+        title="Abrir o painel de agendamento em nova aba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px; display: inline-block; vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Agendador
+      </button>
     </div>
   </div>
 

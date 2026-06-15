@@ -2,12 +2,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ShowroomService } from '../../../core/services/showroom.service';
 import { ArticleService } from '../../../core/services/article.service';
 import { RoleService } from '../../../core/services/role.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ShowroomItemResponse } from '../../../core/models/showroom.models';
 import { ArticleResponse } from '../../../core/models/article.models';
 import { RoleResponse } from '../../../core/models/role.models';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { AdminButtonComponent } from '../components/admin-button.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -20,6 +22,7 @@ export class AdminDashboardComponent implements OnInit {
   private readonly showroomService = inject(ShowroomService);
   private readonly articleService = inject(ArticleService);
   private readonly roleService = inject(RoleService);
+  private readonly authService = inject(AuthService);
 
   // Active Tab
   readonly activeTab = signal<'showroom' | 'articles' | 'roles'>('showroom');
@@ -329,5 +332,15 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: (err) => alert('Failed to remove role.')
     });
+  }
+
+  openHangfire() {
+    const tokens = this.authService.tokenResponse();
+    if (tokens?.accessToken) {
+      const url = `${environment.apiUrl}/api/admin/hangfire-redirect?token=${encodeURIComponent(tokens.accessToken)}`;
+      window.open(url, '_blank');
+    } else {
+      alert('Authentication token is missing. Please log in again.');
+    }
   }
 }

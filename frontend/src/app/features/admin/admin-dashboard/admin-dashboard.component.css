@@ -249,3 +249,14 @@ select.form-control {
     width: 100%;
   }
 }
+
+.tab-btn.hangfire-btn {
+  border: 1px dashed transparent;
+  transition: all var(--transition-fast) ease;
+}
+
+.tab-btn.hangfire-btn:hover {
+  color: #d4af37 !important;
+  background-color: rgba(212, 175, 55, 0.08) !important;
+  border-color: rgba(212, 175, 55, 0.3) !important;
+}
