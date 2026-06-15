@@ -25,10 +25,18 @@ public static class DependencyInjection
         services.ConfigureCors(configuration)
             .ConfigureOpenApi()
             // Identity Core Services
-            .AddIdentityCore<Account>()
+            .AddIdentityCore<Account>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+            })
             .AddRoles<Role>()
             .AddEntityFrameworkStores<GalvaoDbContext>()
             .AddDefaultTokenProviders();
+
+        services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(24);
+        });
         
         // JWT Settings & Authentication
         SetJwtConfiguration(services, configuration)

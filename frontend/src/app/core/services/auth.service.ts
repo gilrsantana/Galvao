@@ -67,6 +67,18 @@ export class AuthService {
     );
   }
 
+  async confirmEmail(userId: string, token: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post<void>(`${this.apiBase}/auth/confirm-email`, { userId, token })
+    );
+  }
+
+  async resendConfirmationEmail(email: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post<void>(`${this.apiBase}/auth/resend-confirmation-email`, { email })
+    );
+  }
+
   async refreshTokens(): Promise<TokenResponse> {
     const currentTokens = this.tokenResponse();
     if (!currentTokens) throw new Error('No refresh token available');

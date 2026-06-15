@@ -79,6 +79,14 @@ public class IdentityService : IIdentityService
 
         await _memberRepository.AddAsync(member, cancellationToken);
 
+        // Generate email confirmation token and enqueue Hangfire job
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(account);
+        var encodedToken = System.Net.WebUtility.UrlEncode(token);
+        var confirmationLink = $"http://localhost:4200/confirm-email?userId={userId}&token={encodedToken}";
+
+        _backgroundJobClient.Enqueue<ISendEmailConfirmationJob>(job =>
+            job.SendConfirmationEmailAsync(userId, confirmationLink, CancellationToken.None));
+
         if (acceptNews || acceptPromo)
         {
             _backgroundJobClient.Enqueue<ICrmSyncJob>(job =>
@@ -352,6 +360,48 @@ public class IdentityService : IIdentityService
         {
             return Result.Failure(new Error("Auth.InvalidCredentials", "Incorrect password."));
         }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ConfirmEmailAsync(Guid userId, string token)
+    {
+        var account = await _userManager.FindByIdAsync(userId.ToString());
+        if (account is null)
+        {
+            return Result.Failure(new Error("Auth.AccountNotFound", "Account not found."));
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(account, token);
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            var errorMessage = string.Join("; ", errors);
+            return Result.Failure(new Error("Auth.ConfirmEmailFailed", errorMessage));
+        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ResendConfirmationEmailAsync(string email)
+    {
+        var account = await _userManager.FindByEmailAsync(email);
+        if (account is null)
+        {
+            return Result.Failure(new Error("Auth.AccountNotFound", "Account not found."));
+        }
+
+        if (await _userManager.IsEmailConfirmedAsync(account))
+        {
+            return Result.Failure(new Error("Auth.EmailAlreadyConfirmed", "Email is already confirmed."));
+        }
+
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(account);
+        var encodedToken = System.Net.WebUtility.UrlEncode(token);
+        var confirmationLink = $"http://localhost:4200/confirm-email?userId={account.Id}&token={encodedToken}";
+
+        _backgroundJobClient.Enqueue<ISendEmailConfirmationJob>(job =>
+            job.SendConfirmationEmailAsync(account.Id, confirmationLink, CancellationToken.None));
 
         return Result.Success();
     }

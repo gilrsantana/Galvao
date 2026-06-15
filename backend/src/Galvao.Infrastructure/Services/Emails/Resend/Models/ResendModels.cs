@@ -123,3 +123,24 @@ public class ListContactsResponse
     [JsonPropertyName("data")]
     public List<Contact> Data { get; set; } = new();
 }
+
+public class SendEmailRequest
+{
+    [JsonPropertyName("from")]
+    public string From { get; set; } = string.Empty;
+
+    [JsonPropertyName("to")]
+    public List<string> To { get; set; } = new();
+
+    [JsonPropertyName("subject")]
+    public string Subject { get; set; } = string.Empty;
+
+    [JsonPropertyName("html")]
+    public string Html { get; set; } = string.Empty;
+}
+
+public class SendEmailResponse
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+}

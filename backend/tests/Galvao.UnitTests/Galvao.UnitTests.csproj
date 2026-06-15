@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -24,6 +24,11 @@
     <ProjectReference Include="..\..\src\Galvao.Domain\Galvao.Domain.csproj" />
     <ProjectReference Include="..\..\src\Galvao.Infrastructure\Galvao.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Galvao.Shared\Galvao.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Galvao.Presentation\Galvao.Presentation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>

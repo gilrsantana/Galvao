@@ -55,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ICrmSyncJob, CrmSyncJob>();
+        services.AddScoped<ISendEmailConfirmationJob, SendEmailConfirmationJob>();
 
         // Resend Email Integration
         services.Configure<ResendSettings>(configuration.GetSection(ResendSettings.SectionName));
@@ -77,6 +78,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IResendHttpClientFactory, ResendHttpClientFactory>();
         services.AddScoped<IEmailContactService, ResendEmailContactService>();
+        services.AddScoped<IEmailSender, ResendEmailSender>();
 
         return services;
     }

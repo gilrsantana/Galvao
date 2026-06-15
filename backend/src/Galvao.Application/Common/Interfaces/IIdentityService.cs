@@ -13,4 +13,6 @@ public interface IIdentityService
     Task<Result> ChangeEmailAsync(Guid userId, string newEmail, CancellationToken cancellationToken = default);
     Task<Result> DeleteAccountAsync(Guid userId, string password, CancellationToken cancellationToken = default);
     Task<Result> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default);
+    Task<Result> ConfirmEmailAsync(Guid userId, string token);
+    Task<Result> ResendConfirmationEmailAsync(string email);
 }

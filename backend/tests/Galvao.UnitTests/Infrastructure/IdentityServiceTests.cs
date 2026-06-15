@@ -28,6 +28,10 @@ public class IdentityServiceTests
         var userStoreMock = new Mock<IUserStore<Account>>();
         _userManagerMock = new Mock<UserManager<Account>>(userStoreMock.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
+        _userManagerMock
+            .Setup(x => x.GenerateEmailConfirmationTokenAsync(It.IsAny<Account>()))
+            .ReturnsAsync("dummy-token");
+
         var roleStoreMock = new Mock<IRoleStore<Role>>();
         _roleManagerMock = new Mock<RoleManager<Role>>(roleStoreMock.Object, null!, null!, null!, null!);
 
@@ -166,7 +170,15 @@ public class IdentityServiceTests
         Assert.NotEqual(Guid.Empty, result.Value);
 
         _memberRepositoryMock.Verify(x => x.AddAsync(It.Is<Member>(m => m.Email == email), It.IsAny<CancellationToken>()), Times.Once);
-        _backgroundJobClientMock.Verify(x => x.Create(It.IsAny<Job>(), It.IsAny<IState>()), Times.Never);
+        
+        // Verify email confirmation job was enqueued
+        _backgroundJobClientMock.Verify(x => x.Create(
+            It.Is<Job>(job => job.Method.Name == nameof(ISendEmailConfirmationJob.SendConfirmationEmailAsync) &&
+                              (Guid)job.Args[0] == result.Value &&
+                              ((string)job.Args[1]).Contains("confirm-email") &&
+                              ((string)job.Args[1]).Contains("dummy-token")),
+            It.IsAny<EnqueuedState>()), Times.Once);
+
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -204,6 +216,14 @@ public class IdentityServiceTests
         Assert.True(result.IsSuccess);
 
         _memberRepositoryMock.Verify(x => x.AddAsync(It.Is<Member>(m => m.Email == email), It.IsAny<CancellationToken>()), Times.Once);
+        
+        // Verify email confirmation job was enqueued
+        _backgroundJobClientMock.Verify(x => x.Create(
+            It.Is<Job>(job => job.Method.Name == nameof(ISendEmailConfirmationJob.SendConfirmationEmailAsync) &&
+                              (Guid)job.Args[0] == result.Value),
+            It.IsAny<EnqueuedState>()), Times.Once);
+
+        // Verify CRM sync job was enqueued
         _backgroundJobClientMock.Verify(x => x.Create(
             It.Is<Job>(job => job.Method.Name == nameof(ICrmSyncJob.SyncContactAsync) &&
                               (Guid)job.Args[0] == result.Value &&
@@ -213,6 +233,142 @@ public class IdentityServiceTests
                               (bool)job.Args[4] == true &&
                               (bool)job.Args[5] == false),
             It.IsAny<EnqueuedState>()), Times.Once);
+
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ShouldReturnFailure_WhenAccountNotFound()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        _userManagerMock
+            .Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync((Account?)null);
+
+        // Act
+        var result = await _service.ConfirmEmailAsync(userId, "token");
+
+        // Assert
+        Assert.True(result.IsFailure);
+        Assert.Equal("Auth.AccountNotFound", result.Error.Code);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ShouldReturnFailure_WhenConfirmEmailFails()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var account = Account.Create(userId, "test@galvao.com");
+        _userManagerMock
+            .Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(account);
+
+        var identityError = new IdentityError { Description = "Invalid token" };
+        _userManagerMock
+            .Setup(x => x.ConfirmEmailAsync(account, "token"))
+            .ReturnsAsync(IdentityResult.Failed(identityError));
+
+        // Act
+        var result = await _service.ConfirmEmailAsync(userId, "token");
+
+        // Assert
+        Assert.True(result.IsFailure);
+        Assert.Equal("Auth.ConfirmEmailFailed", result.Error.Code);
+        Assert.Contains("Invalid token", result.Error.Message);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ShouldReturnSuccess_WhenEmailConfirmedSuccessfully()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var account = Account.Create(userId, "test@galvao.com");
+        _userManagerMock
+            .Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(account);
+
+        _userManagerMock
+            .Setup(x => x.ConfirmEmailAsync(account, "token"))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await _service.ConfirmEmailAsync(userId, "token");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task ResendConfirmationEmailAsync_ShouldReturnFailure_WhenAccountNotFound()
+    {
+        // Arrange
+        var email = "notfound@galvao.com";
+        _userManagerMock
+            .Setup(x => x.FindByEmailAsync(email))
+            .ReturnsAsync((Account?)null);
+
+        // Act
+        var result = await _service.ResendConfirmationEmailAsync(email);
+
+        // Assert
+        Assert.True(result.IsFailure);
+        Assert.Equal("Auth.AccountNotFound", result.Error.Code);
+    }
+
+    [Fact]
+    public async Task ResendConfirmationEmailAsync_ShouldReturnFailure_WhenEmailAlreadyConfirmed()
+    {
+        // Arrange
+        var email = "test@galvao.com";
+        var account = Account.Create(Guid.NewGuid(), email);
+        _userManagerMock
+            .Setup(x => x.FindByEmailAsync(email))
+            .ReturnsAsync(account);
+
+        _userManagerMock
+            .Setup(x => x.IsEmailConfirmedAsync(account))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _service.ResendConfirmationEmailAsync(email);
+
+        // Assert
+        Assert.True(result.IsFailure);
+        Assert.Equal("Auth.EmailAlreadyConfirmed", result.Error.Code);
+    }
+
+    [Fact]
+    public async Task ResendConfirmationEmailAsync_ShouldGenerateTokenAndEnqueueJob_WhenNotYetConfirmed()
+    {
+        // Arrange
+        var email = "test@galvao.com";
+        var userId = Guid.NewGuid();
+        var account = Account.Create(userId, email);
+        _userManagerMock
+            .Setup(x => x.FindByEmailAsync(email))
+            .ReturnsAsync(account);
+
+        _userManagerMock
+            .Setup(x => x.IsEmailConfirmedAsync(account))
+            .ReturnsAsync(false);
+
+        _userManagerMock
+            .Setup(x => x.GenerateEmailConfirmationTokenAsync(account))
+            .ReturnsAsync("new-dummy-token");
+
+        // Act
+        var result = await _service.ResendConfirmationEmailAsync(email);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+
+        _userManagerMock.Verify(x => x.GenerateEmailConfirmationTokenAsync(account), Times.Once);
+        _backgroundJobClientMock.Verify(x => x.Create(
+            It.Is<Job>(job => job.Method.Name == nameof(ISendEmailConfirmationJob.SendConfirmationEmailAsync) &&
+                              (Guid)job.Args[0] == userId &&
+                              ((string)job.Args[1]).Contains("confirm-email") &&
+                              ((string)job.Args[1]).Contains("new-dummy-token")),
+            It.IsAny<EnqueuedState>()), Times.Once);
     }
 }

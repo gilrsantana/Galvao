@@ -40,8 +40,28 @@ public class AuthController : ApiControllerBase
         var result = await _identityService.RefreshTokenAsync(request.AccessToken, request.RefreshToken, cancellationToken);
         return HandleResult(result);
     }
+
+    [HttpPost("confirm-email")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request)
+    {
+        var result = await _identityService.ConfirmEmailAsync(request.UserId, request.Token);
+        return HandleResult(result);
+    }
+
+    [HttpPost("resend-confirmation-email")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest request)
+    {
+        var result = await _identityService.ResendConfirmationEmailAsync(request.Email);
+        return HandleResult(result);
+    }
 }
 
 public record RegisterRequest(string Email, string Password, string DisplayName, string FirstName, string LastName, bool AcceptNews, bool AcceptPromo);
 public record LoginRequest(string Email, string Password);
 public record RefreshRequest(string AccessToken, string RefreshToken);
+public record ConfirmEmailRequest(Guid UserId, string Token);
+public record ResendConfirmationEmailRequest(string Email);
