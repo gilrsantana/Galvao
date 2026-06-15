@@ -5,6 +5,7 @@ using Moq;
 using Xunit;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Presentation.Controllers;
+using Galvao.Presentation.Requests.Auth;
 using Galvao.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

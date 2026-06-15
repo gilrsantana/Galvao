@@ -1,4 +1,5 @@
 using Galvao.Application.Common.Interfaces;
+using Galvao.Presentation.Requests.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,9 +60,3 @@ public class AuthController : ApiControllerBase
         return HandleResult(result);
     }
 }
-
-public record RegisterRequest(string Email, string Password, string DisplayName, string FirstName, string LastName, bool AcceptNews, bool AcceptPromo);
-public record LoginRequest(string Email, string Password);
-public record RefreshRequest(string AccessToken, string RefreshToken);
-public record ConfirmEmailRequest(Guid UserId, string Token);
-public record ResendConfirmationEmailRequest(string Email);
