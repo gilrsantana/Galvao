@@ -25,10 +25,7 @@ public static class DependencyInjection
         services.ConfigureCors(configuration)
             .ConfigureOpenApi()
             // Identity Core Services
-            .AddIdentityCore<Account>(options =>
-            {
-                options.SignIn.RequireConfirmedEmail = true;
-            })
+            .AddIdentityCore<Account>()
             .AddRoles<Role>()
             .AddEntityFrameworkStores<GalvaoDbContext>()
             .AddDefaultTokenProviders();
