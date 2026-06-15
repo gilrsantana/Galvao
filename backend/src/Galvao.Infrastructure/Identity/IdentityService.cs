@@ -148,8 +148,6 @@ public class IdentityService : IIdentityService
         return Result.Success();
     }
 
-
-
     public async Task<Result<TokenResponse>> LoginAsync(
         string email, 
         string password, 
@@ -179,13 +177,17 @@ public class IdentityService : IIdentityService
         var userIdString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
         {
-            return Result.Failure<TokenResponse>(new Error("Auth.InvalidToken", "Invalid token claim identifier."));
+            return Result.Failure<TokenResponse>(new Error("Auth.InvalidToken", 
+                "Invalid token claim identifier."));
         }
 
         var account = await _userManager.FindByIdAsync(userIdString);
-        if (account is null || account.RefreshToken != refreshToken || account.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        if (account is null || 
+            account.RefreshToken != refreshToken || 
+            account.RefreshTokenExpiryTime <= DateTime.UtcNow)
         {
-            return Result.Failure<TokenResponse>(new Error("Auth.InvalidRefreshToken", "Invalid or expired refresh token."));
+            return Result.Failure<TokenResponse>(new Error("Auth.InvalidRefreshToken", 
+                "Invalid or expired refresh token."));
         }
 
         return await GenerateTokensAsync(account, cancellationToken);
@@ -233,7 +235,7 @@ public class IdentityService : IIdentityService
         rng.GetBytes(randomNumber);
         var newRefreshToken = Convert.ToBase64String(randomNumber);
 
-        account.UpdateRefreshToken(newRefreshToken, DateTime.UtcNow.AddDays(7));
+        account.UpdateRefreshToken(newRefreshToken, DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpireInDays));
         await _userManager.UpdateAsync(account);
 
         return new TokenResponse(accessToken, newRefreshToken, expiration);
