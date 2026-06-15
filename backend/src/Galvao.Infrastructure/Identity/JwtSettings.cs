@@ -6,5 +6,9 @@ public class JwtSettings
     public string Issuer { get; set; } = string.Empty;
     public string Audience { get; set; } = string.Empty;
     public int ExpiryInMinutes { get; set; }
+    public bool ValidateIssuer { get; set; } = true;
+    public bool ValidateAudience { get; set; } = true;
+    public bool ValidateLifetime { get; set; } = true;
+    public bool ValidateIssuerSigningKey { get; set; } = true;
     public int RefreshTokenExpireInDays { get; set; }
 }

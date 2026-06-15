@@ -37,10 +37,10 @@ public class HangfireAdminAuthorizationFilter : IDashboardAuthorizationFilter
         {
             var validationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
+                ValidateIssuer = _jwtSettings.ValidateIssuer,
+                ValidateAudience = _jwtSettings.ValidateAudience,
+                ValidateLifetime = _jwtSettings.ValidateLifetime,
+                ValidateIssuerSigningKey = _jwtSettings.ValidateIssuerSigningKey,
                 ValidIssuer = _jwtSettings.Issuer,
                 ValidAudience = _jwtSettings.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),

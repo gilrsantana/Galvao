@@ -245,11 +245,11 @@ public class IdentityService : IIdentityService
     {
         var tokenValidationParameters = new TokenValidationParameters
         {
-            ValidateAudience = true,
-            ValidateIssuer = true,
+            ValidateAudience = _jwtSettings.ValidateAudience,
+            ValidateIssuer = _jwtSettings.ValidateIssuer,
             ValidAudience = _jwtSettings.Audience,
             ValidIssuer = _jwtSettings.Issuer,
-            ValidateIssuerSigningKey = true,
+            ValidateIssuerSigningKey = _jwtSettings.ValidateIssuerSigningKey,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
             ValidateLifetime = false // Retrieve claims from expired token
         };
