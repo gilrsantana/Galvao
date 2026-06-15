@@ -56,13 +56,25 @@ public static class DependencyInjection
 
         // Resend Email Integration
         services.Configure<ResendSettings>(configuration.GetSection(ResendSettings.SectionName));
-        services.AddHttpClient<IEmailContactService, ResendEmailContactService>((sp, client) =>
+        
+        services.AddHttpClient("ResendManagerClient", (sp, client) =>
         {
             var settings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ResendSettings>>().Value;
             client.BaseAddress = new Uri("https://api.resend.com/");
             client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.ManagerApiKey);
         });
+
+        services.AddHttpClient("ResendSenderClient", (sp, client) =>
+        {
+            var settings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ResendSettings>>().Value;
+            client.BaseAddress = new Uri("https://api.resend.com/");
+            client.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.SenderApiKey);
+        });
+
+        services.AddSingleton<IResendHttpClientFactory, ResendHttpClientFactory>();
+        services.AddScoped<IEmailContactService, ResendEmailContactService>();
 
         return services;
     }

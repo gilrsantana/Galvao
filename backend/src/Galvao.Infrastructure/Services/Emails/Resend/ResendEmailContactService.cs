@@ -12,9 +12,9 @@ public class ResendEmailContactService : IEmailContactService
     private readonly HttpClient _httpClient;
     private readonly ResendSettings _settings;
 
-    public ResendEmailContactService(HttpClient httpClient, IOptions<ResendSettings> settings)
+    public ResendEmailContactService(IResendHttpClientFactory httpClientFactory, IOptions<ResendSettings> settings)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient(ResendClientType.Administrative);
         _settings = settings.Value;
     }
 
