@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Infrastructure.Configurations;
 using Galvao.Infrastructure.Identity;
+using Galvao.Infrastructure.Identity.Jobs;
 using Galvao.Infrastructure.Persistence;
 using Galvao.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -53,6 +54,7 @@ public static class DependencyInjection
         
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<ICrmSyncJob, CrmSyncJob>();
 
         // Resend Email Integration
         services.Configure<ResendSettings>(configuration.GetSection(ResendSettings.SectionName));

@@ -10,6 +10,7 @@
     <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.23" />
   </ItemGroup>
 
   <PropertyGroup>

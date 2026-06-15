@@ -5,6 +5,8 @@ using System.Text;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Domain.Entities;
 using Galvao.Shared;
+using Hangfire;
+using Galvao.Infrastructure.Identity.Jobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -18,8 +20,7 @@ public class IdentityService : IIdentityService
     private readonly IMemberRepository _memberRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly JwtSettings _jwtSettings;
-    private readonly IEmailContactService _emailContactService;
-    private readonly IMemberContactRepository _memberContactRepository;
+    private readonly IBackgroundJobClient _backgroundJobClient;
 
     public IdentityService(
         UserManager<Account> userManager,
@@ -27,16 +28,14 @@ public class IdentityService : IIdentityService
         IMemberRepository memberRepository,
         IUnitOfWork unitOfWork,
         IOptions<JwtSettings> jwtSettings,
-        IEmailContactService emailContactService,
-        IMemberContactRepository memberContactRepository)
+        IBackgroundJobClient backgroundJobClient)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _memberRepository = memberRepository;
         _unitOfWork = unitOfWork;
         _jwtSettings = jwtSettings.Value;
-        _emailContactService = emailContactService;
-        _memberContactRepository = memberContactRepository;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     public async Task<Result<Guid>> RegisterAsync(
@@ -80,10 +79,10 @@ public class IdentityService : IIdentityService
 
         await _memberRepository.AddAsync(member, cancellationToken);
 
-        var syncResult = await SyncRegistrationContactAsync(userId, email, firstName, lastName, acceptNews, acceptPromo, cancellationToken);
-        if (syncResult.IsFailure)
+        if (acceptNews || acceptPromo)
         {
-            return Result.Failure<Guid>(syncResult.Error);
+            _backgroundJobClient.Enqueue<ICrmSyncJob>(job =>
+                job.SyncContactAsync(userId, email, firstName, lastName, acceptNews, acceptPromo, CancellationToken.None));
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -141,42 +140,7 @@ public class IdentityService : IIdentityService
         return Result.Success();
     }
 
-    private async Task<Result> SyncRegistrationContactAsync(
-        Guid userId,
-        string email,
-        string firstName,
-        string lastName,
-        bool acceptNews,
-        bool acceptPromo,
-        CancellationToken cancellationToken)
-    {
-        if (!acceptNews && !acceptPromo)
-        {
-            return Result.Success();
-        }
 
-        var resendResult = await _emailContactService.CreateContactAsync(
-            email,
-            firstName,
-            lastName,
-            acceptNews,
-            acceptPromo,
-            cancellationToken);
-
-        if (resendResult.IsFailure)
-        {
-            return Result.Failure(resendResult.Error);
-        }
-
-        var memberContactResult = MemberContact.Create(userId, resendResult.Value, email, unsubscribed: false);
-        if (memberContactResult.IsFailure)
-        {
-            return Result.Failure(memberContactResult.Error);
-        }
-
-        await _memberContactRepository.AddAsync(memberContactResult.Value, cancellationToken);
-        return Result.Success();
-    }
 
     public async Task<Result<TokenResponse>> LoginAsync(
         string email, 

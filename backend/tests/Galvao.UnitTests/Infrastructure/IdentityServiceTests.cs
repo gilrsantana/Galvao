@@ -6,6 +6,10 @@ using Galvao.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Xunit;
+using Hangfire;
+using Hangfire.Common;
+using Hangfire.States;
+using Galvao.Infrastructure.Identity.Jobs;
 
 namespace Galvao.UnitTests.Infrastructure;
 
@@ -14,9 +18,8 @@ public class IdentityServiceTests
     private readonly Mock<UserManager<Account>> _userManagerMock;
     private readonly Mock<RoleManager<Role>> _roleManagerMock;
     private readonly Mock<IMemberRepository> _memberRepositoryMock = new();
-    private readonly Mock<IMemberContactRepository> _memberContactRepositoryMock = new();
-    private readonly Mock<IEmailContactService> _emailContactServiceMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
+    private readonly Mock<IBackgroundJobClient> _backgroundJobClientMock = new();
     private readonly IOptions<JwtSettings> _jwtSettingsOptions;
     private readonly IdentityService _service;
 
@@ -43,8 +46,7 @@ public class IdentityServiceTests
             _memberRepositoryMock.Object,
             _unitOfWorkMock.Object,
             _jwtSettingsOptions,
-            _emailContactServiceMock.Object,
-            _memberContactRepositoryMock.Object);
+            _backgroundJobClientMock.Object);
     }
 
     [Fact]
@@ -164,7 +166,7 @@ public class IdentityServiceTests
         Assert.NotEqual(Guid.Empty, result.Value);
 
         _memberRepositoryMock.Verify(x => x.AddAsync(It.Is<Member>(m => m.Email == email), It.IsAny<CancellationToken>()), Times.Once);
-        _emailContactServiceMock.Verify(x => x.CreateContactAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+        _backgroundJobClientMock.Verify(x => x.Create(It.IsAny<Job>(), It.IsAny<IState>()), Times.Never);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -195,10 +197,6 @@ public class IdentityServiceTests
             .Setup(x => x.AddToRoleAsync(It.IsAny<Account>(), "User"))
             .ReturnsAsync(IdentityResult.Success);
 
-        _emailContactServiceMock
-            .Setup(x => x.CreateContactAsync(email, "First Name", "Last Name", true, false, It.IsAny<CancellationToken>()))
-            .ReturnsAsync("ext-contact-id");
-
         // Act
         var result = await _service.RegisterAsync(email, password, "Display Name", "First Name", "Last Name", true, false);
 
@@ -206,47 +204,15 @@ public class IdentityServiceTests
         Assert.True(result.IsSuccess);
 
         _memberRepositoryMock.Verify(x => x.AddAsync(It.Is<Member>(m => m.Email == email), It.IsAny<CancellationToken>()), Times.Once);
-        _emailContactServiceMock.Verify(x => x.CreateContactAsync(email, "First Name", "Last Name", true, false, It.IsAny<CancellationToken>()), Times.Once);
-        _memberContactRepositoryMock.Verify(x => x.AddAsync(It.Is<MemberContact>(c => c.ExternalContactId == "ext-contact-id" && c.Email == email), It.IsAny<CancellationToken>()), Times.Once);
+        _backgroundJobClientMock.Verify(x => x.Create(
+            It.Is<Job>(job => job.Method.Name == nameof(ICrmSyncJob.SyncContactAsync) &&
+                              (Guid)job.Args[0] == result.Value &&
+                              (string)job.Args[1] == email &&
+                              (string)job.Args[2] == "First Name" &&
+                              (string)job.Args[3] == "Last Name" &&
+                              (bool)job.Args[4] == true &&
+                              (bool)job.Args[5] == false),
+            It.IsAny<EnqueuedState>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task RegisterAsync_ShouldReturnFailure_WhenEmailContactServiceCreateFails()
-    {
-        // Arrange
-        var email = "test@galvao.com";
-        var password = "Password123!";
-        var expectedError = new Error("Service.Error", "Failed to create Resend contact");
-
-        _userManagerMock
-            .Setup(x => x.FindByEmailAsync(email))
-            .ReturnsAsync((Account?)null);
-
-        _userManagerMock
-            .Setup(x => x.CreateAsync(It.IsAny<Account>(), password))
-            .ReturnsAsync(IdentityResult.Success);
-
-        _roleManagerMock
-            .Setup(x => x.RoleExistsAsync("User"))
-            .ReturnsAsync(true);
-
-        _userManagerMock
-            .Setup(x => x.AddToRoleAsync(It.IsAny<Account>(), "User"))
-            .ReturnsAsync(IdentityResult.Success);
-
-        _emailContactServiceMock
-            .Setup(x => x.CreateContactAsync(email, "First Name", "Last Name", true, false, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<string>(expectedError));
-
-        // Act
-        var result = await _service.RegisterAsync(email, password, "Display Name", "First Name", "Last Name", true, false);
-
-        // Assert
-        Assert.True(result.IsFailure);
-        Assert.Equal(expectedError, result.Error);
-
-        _memberContactRepositoryMock.Verify(x => x.AddAsync(It.IsAny<MemberContact>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }
