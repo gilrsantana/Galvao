@@ -15,12 +15,14 @@ public class ResendEmailContactServiceTests
     private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new();
     private readonly ResendSettings _settings;
     private readonly IOptions<ResendSettings> _options;
+    private readonly Mock<IResendHttpClientFactory> _httpClientFactoryMock = new();
 
     public ResendEmailContactServiceTests()
     {
         _settings = new ResendSettings
         {
             ManagerApiKey = "re_test_key",
+            SenderApiKey =  "re_test_sender_key",
             ClientName = "galvao"
         };
         _options = Options.Create(_settings);
@@ -78,7 +80,11 @@ public class ResendEmailContactServiceTests
             BaseAddress = new Uri("https://api.resend.com/")
         };
 
-        var service = new ResendEmailContactService(httpClient, _options);
+        _httpClientFactoryMock
+            .Setup(f => f.CreateClient(It.IsAny<ResendClientType>()))
+            .Returns(httpClient);
+
+        var service = new ResendEmailContactService(_httpClientFactoryMock.Object, _options);
 
         // Act
         var result = await service.CreateContactAsync("test@gmail.com", "John", "Doe", acceptNews: true, acceptPromo: true);
