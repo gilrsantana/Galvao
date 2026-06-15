@@ -26,6 +26,7 @@ public class ShowroomItemRepository : BaseEntityRepository<ShowroomItem>, IShowr
         var totalCount = await DbSet.CountAsync(cancellationToken);
         var items = await DbSet
             .Include(x => x.Photos)
+            .OrderByDescending(item => item.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
