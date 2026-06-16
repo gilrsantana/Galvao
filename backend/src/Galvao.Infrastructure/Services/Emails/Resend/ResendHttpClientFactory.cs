@@ -1,7 +1,3 @@
-using System.Net.Http.Headers;
-using Galvao.Infrastructure.Configurations;
-using Microsoft.Extensions.Options;
-
 namespace Galvao.Infrastructure.Services.Emails.Resend;
 
 public enum ResendClientType

@@ -15,6 +15,7 @@ public class GalvaoDbContext : IdentityDbContext<Account, Role, Guid>, IUnitOfWo
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<RemovedUser> RemovedUsers => Set<RemovedUser>();
     public DbSet<ConsentLog> ConsentLogs => Set<ConsentLog>();
+    public DbSet<EmailAuditLog> EmailAuditLogs => Set<EmailAuditLog>();
 
     public GalvaoDbContext(DbContextOptions<GalvaoDbContext> options) : base(options)
     {

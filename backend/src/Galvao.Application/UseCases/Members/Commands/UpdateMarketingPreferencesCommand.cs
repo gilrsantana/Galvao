@@ -1,4 +1,3 @@
-using System;
 using Galvao.Application.Common.CQRS;
 
 namespace Galvao.Application.UseCases.Members.Commands;

@@ -1,4 +1,3 @@
-using System;
 using Galvao.Shared;
 
 namespace Galvao.Domain.Entities;

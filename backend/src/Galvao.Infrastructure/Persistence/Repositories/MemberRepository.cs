@@ -1,6 +1,5 @@
 using Galvao.Domain.Entities;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;

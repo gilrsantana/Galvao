@@ -4,10 +4,6 @@ using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Application.UseCases.Members.CommandHandlers;
 using Galvao.Domain.Entities;
 using Galvao.Shared;
-using Xunit;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Galvao.UnitTests.Application;
 

@@ -1,8 +1,15 @@
+using Galvao.Domain.Enums;
 using Galvao.Shared;
 
 namespace Galvao.Application.Common.Interfaces;
 
 public interface IEmailSender
 {
-    Task<Result> SendEmailAsync(string to, string subject, string htmlContent, CancellationToken cancellationToken = default);
+    Task<Result> SendEmailAsync(
+        List<string> to, 
+        string subject, 
+        string htmlContent, 
+        Guid? memberId = null, 
+        ETypeOfMessage? typeOfMessage = null, 
+        CancellationToken cancellationToken = default);
 }

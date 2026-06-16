@@ -3,8 +3,6 @@ using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Queries;
 using Galvao.Application.UseCases.Members.QueryHandlers;
 using Galvao.Domain.Entities;
-using Galvao.Shared;
-using Xunit;
 
 namespace Galvao.UnitTests.Application;
 

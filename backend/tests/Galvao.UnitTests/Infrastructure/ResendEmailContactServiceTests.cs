@@ -6,7 +6,6 @@ using Galvao.Infrastructure.Services.Emails.Resend.Models;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
-using Xunit;
 
 namespace Galvao.UnitTests.Infrastructure;
 

@@ -3,7 +3,6 @@ using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Roles.Commands;
 using Galvao.Application.UseCases.Roles.CommandHandlers;
 using Galvao.Shared;
-using Xunit;
 
 namespace Galvao.UnitTests.Application;
 

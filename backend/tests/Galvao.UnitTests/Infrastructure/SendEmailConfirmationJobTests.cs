@@ -1,9 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Moq;
-using Xunit;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Domain.Enums;
 using Galvao.Infrastructure.Identity;
 using Galvao.Infrastructure.Identity.Jobs;
 using Galvao.Shared;
@@ -41,7 +38,14 @@ public class SendEmailConfirmationJobTests
             _job.SendConfirmationEmailAsync(userId, "http://confirm", CancellationToken.None));
 
         Assert.Contains("not found", exception.Message);
-        _emailSenderMock.Verify(x => x.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _emailSenderMock.Verify(x => x.SendEmailAsync(
+            It.IsAny<List<string>>(), 
+            It.IsAny<string>(), 
+            It.IsAny<string>(), 
+            It.IsAny<Guid?>(), 
+            It.IsAny<ETypeOfMessage?>(), 
+            It.IsAny<CancellationToken>()), 
+            Times.Never);
     }
 
     [Fact]
@@ -59,7 +63,14 @@ public class SendEmailConfirmationJobTests
             _job.SendConfirmationEmailAsync(userId, "http://confirm", CancellationToken.None));
 
         Assert.Contains("does not have a valid email address", exception.Message);
-        _emailSenderMock.Verify(x => x.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _emailSenderMock.Verify(x => x.SendEmailAsync(
+            It.IsAny<List<string>>(), 
+            It.IsAny<string>(), 
+            It.IsAny<string>(), 
+            It.IsAny<Guid?>(), 
+            It.IsAny<ETypeOfMessage?>(), 
+            It.IsAny<CancellationToken>()), 
+            Times.Never);
     }
 
     [Fact]
@@ -77,7 +88,13 @@ public class SendEmailConfirmationJobTests
 
         var error = new Error("Email.Failed", "SMTP server down");
         _emailSenderMock
-            .Setup(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SendEmailAsync(
+                It.Is<List<string>>(l => l.Contains(email)), 
+                It.IsAny<string>(), 
+                It.IsAny<string>(), 
+                It.IsAny<Guid?>(), 
+                It.IsAny<ETypeOfMessage?>(), 
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(error));
 
         // Act & Assert
@@ -102,7 +119,13 @@ public class SendEmailConfirmationJobTests
             .ReturnsAsync(account);
 
         _emailSenderMock
-            .Setup(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SendEmailAsync(
+                It.Is<List<string>>(l => l.Contains(email)), 
+                It.IsAny<string>(), 
+                It.IsAny<string>(), 
+                It.IsAny<Guid?>(), 
+                It.IsAny<ETypeOfMessage?>(), 
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success());
 
         // Act
@@ -110,9 +133,11 @@ public class SendEmailConfirmationJobTests
 
         // Assert
         _emailSenderMock.Verify(x => x.SendEmailAsync(
-            email, 
+            It.Is<List<string>>(l => l.Contains(email)), 
             "Confirme seu endereço de e-mail", 
             It.Is<string>(html => html.Contains(confirmationLink)), 
+            userId,
+            ETypeOfMessage.EmailConfirmation,
             It.IsAny<CancellationToken>()), 
             Times.Once);
     }

@@ -4,7 +4,6 @@ using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Application.UseCases.Members.CommandHandlers;
 using Galvao.Domain.Entities;
 using Galvao.Shared;
-using Xunit;
 
 namespace Galvao.UnitTests.Application;
 

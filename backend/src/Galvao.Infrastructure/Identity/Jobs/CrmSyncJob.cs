@@ -1,9 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Domain.Entities;
-using Galvao.Shared;
 
 namespace Galvao.Infrastructure.Identity.Jobs;
 

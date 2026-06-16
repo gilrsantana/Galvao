@@ -3,8 +3,6 @@ using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Showroom.Commands;
 using Galvao.Application.UseCases.Showroom.CommandHandlers;
 using Galvao.Domain.Entities;
-using Galvao.Shared;
-using Xunit;
 
 namespace Galvao.UnitTests.Application;
 
