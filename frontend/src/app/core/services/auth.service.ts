@@ -21,7 +21,8 @@ export class AuthService {
     if (!response) return null;
     return this.decodeJwt(response.accessToken);
   });
-  readonly currentUserId = computed(() => this.currentUser()?.[ 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier' ] || null);
+  readonly currentUserId = computed(
+    ()=> this.currentUser()?.[ 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier' ] || null);
 
   readonly userRoles = computed<string[]>(() => {
     const user = this.currentUser();
@@ -111,8 +112,11 @@ export class AuthService {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return null;
-      const payload = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
-      return JSON.parse(payload);
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+      const jsonPayload = new TextDecoder().decode(bytes);
+      return JSON.parse(jsonPayload);
     } catch {
       return null;
     }
