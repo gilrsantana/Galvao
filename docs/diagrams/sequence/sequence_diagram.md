@@ -4,9 +4,18 @@ This document contains sequence diagrams showing the runtime interaction of comp
 
 ---
 
-## 1. Member Registration & CRM Sync Sequence Flow
+## 1. Member Registration & CRM Sync Flows
 
-This sequence diagram depicts the detailed step-by-step process of user registration (`RegisterAsync` in `IdentityService`), including credential setup, validation, profile saving, and Resend integration.
+To improve readability and usability, the user registration process is divided into three focused sequence flows:
+* **1.1. Registration Transaction & Job Enqueueing:** The synchronous HTTP registration phase that sets up the local user profile and queues background tasks.
+* **1.2. Email Confirmation Background Job:** Asynchronous execution of sending the verification email.
+* **1.3. CRM (Resend) Sync Background Job:** Asynchronous integration that synchronizes the subscriber information with Resend and updates tracking.
+
+---
+
+### 1.1. Registration Transaction & Job Enqueueing
+
+This diagram depicts the synchronous registration transaction, credential setup, local profile staging, token generation, and Hangfire job enqueueing.
 
 ```mermaid
 sequenceDiagram
@@ -17,14 +26,13 @@ sequenceDiagram
     participant UM as UserManager (Account)
     participant Dom as Member (Entity)
     participant Repo as MemberRepository
-    participant Resend as ResendEmailContactService
-    participant ContactRepo as MemberContactRepository
+    participant HF as Hangfire (IBackgroundJobClient)
     participant UoW as UnitOfWork (EF Context)
     participant DB as MySQL DB
 
     User->>Ctrl: POST /api/auth/register (RegisterRequest)
-    Note over Ctrl: RegisterRequest contains email, password,<br/>name, & newsletter choices
-    Ctrl->>Svc: RegisterAsync(email, password, name, preferences...)
+    Note over Ctrl: Request has Email, Password,<br/>Name, & Preferences
+    Ctrl->>Svc: RegisterAsync(...)
     
     Svc->>UM: FindByEmailAsync(email)
     UM->>DB: Query account by email
@@ -32,55 +40,128 @@ sequenceDiagram
     UM-->>Svc: Return null
     
     Svc->>Dom: Member.Create(email, name, preferences...)
-    Note over Dom: Runs business rules & validations
-    Dom-->>Svc: Return Result<Member> (Success, has GUID)
+    Dom-->>Svc: Return Result<Member>
 
-    Svc->>UM: CreateAsync(Account.Create(member.Id, email), password)
-    Note over UM: Hashes password & runs complexity rules
-    UM->>DB: INSERT INTO Accounts (Identity schema)
+    Svc->>UM: CreateAsync(Account, password)
+    UM->>DB: INSERT INTO Accounts
     DB-->>UM: Success
-    UM-->>Svc: Return IdentityResult (Succeeded)
+    UM-->>Svc: Return Succeeded
 
     Svc->>UM: AddToRoleAsync(account, "User")
     UM->>DB: INSERT INTO AccountRoles
     DB-->>UM: Success
-    UM-->>Svc: Return IdentityResult (Succeeded)
+    UM-->>Svc: Return Succeeded
 
     Svc->>Repo: AddAsync(member)
-    Note over Repo: Adds Member profile state to EF tracker
     
-    alt User accepted newsletters (AcceptNews or AcceptPromo is true)
-        Svc->>Resend: CreateContactAsync(email, name, preferences)
-        Note over Resend: Fetches/Creates newsletter marketing segments
-        Resend->>Resend: GetOrCreateSegmentAsync(segmentName)
-        Resend->>Resend: POST /contacts
-        Resend-->>Svc: Return Result<string> (Resend Contact ID)
-        
-        Svc->>ContactRepo: AddAsync(MemberContact)
-        Note over ContactRepo: Link Member ID to Resend Contact ID
+    Svc->>UM: GenerateEmailConfirmationTokenAsync(account)
+    UM-->>Svc: Return token
+    
+    Svc->>HF: Enqueue(SendEmailConfirmationJob)
+    HF->>DB: INSERT INTO Hangfire.Job (SendEmailConfirmationJob)
+    DB-->>HF: Success
+    
+    alt acceptNews or acceptPromo is true
+        Svc->>HF: Enqueue(CrmSyncJob)
+        HF->>DB: INSERT INTO Hangfire.Job (CrmSyncJob)
+        DB-->>HF: Success
     end
 
     Svc->>UoW: SaveChangesAsync()
-    UoW->>DB: COMMIT TRANSACTION (Inserts Members, MemberContacts, etc.)
+    UoW->>DB: COMMIT TRANSACTION (Inserts Members, etc.)
     DB-->>UoW: Transaction committed
-    UoW-->>Svc: Complete save
     
     Svc-->>Ctrl: Return Result<Guid> (Member ID)
     Ctrl-->>User: HTTP 200 OK (Guid)
 ```
 
-### Sequence Flow Description
-1. The client browser issues a `POST /api/auth/register` with JSON body payload containing member details.
-2. `AuthController` receives the DTO request and calls `RegisterAsync` on `IdentityService`.
-3. `IdentityService` checks for email duplicate in ASP.NET Core Identity.
-4. If unique, it calls the `Member.Create` static domain factory to validate name fields and preferences.
-5. It then attempts to register credentials using the ASP.NET Core Identity `UserManager`. The system hashes passwords and updates ASP.NET Core Identity database tables.
-6. The created user is assigned the default `"User"` role.
-7. The local profile (`Member`) is queued for database insertion via `IMemberRepository.AddAsync`.
-8. **Conditional CRM Sync**: If newsletter/marketing preferences are active, `ResendEmailContactService` sends an HTTP POST request to the external Resend API, returning the CRM's external contact identifier.
-9. A `MemberContact` tracking record (linking the local account ID to the Resend ID) is queued in EF Core.
-10. `UnitOfWork.SaveChangesAsync` is called, executing a MySQL write transaction, persisting both the user profile and the external sync tracking details.
-11. A successful HTTP response is returned to the frontend.
+**Description:**
+1. The SPA client calls `POST /api/auth/register` with signup details.
+2. `IdentityService.RegisterAsync` validates email uniqueness and runs domain entity validations (`Member.Create`).
+3. An Identity `Account` is registered with the default `"User"` role.
+4. The service generates a verification token and schedules a `SendEmailConfirmationJob` with Hangfire.
+5. If the user opted into marketing/newsletters, it also schedules a `CrmSyncJob` with Hangfire.
+6. The transaction is committed locally, returning the Member ID to the client instantly.
+
+---
+
+### 1.2. Email Confirmation Background Job
+
+This diagram shows how the Hangfire server processes the enqueued email job in the background.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant HFS as Hangfire Server (Processor)
+    participant DB as MySQL DB
+    participant ConfJob as SendEmailConfirmationJob
+    participant UM as UserManager (Account)
+    participant Resend as ResendEmailSender
+
+    loop Polling
+        HFS->>DB: Fetch enqueued jobs
+        DB-->>HFS: Return SendEmailConfirmationJob
+    end
+    
+    HFS->>ConfJob: SendConfirmationEmailAsync(userId, link)
+    ConfJob->>UM: FindByIdAsync(userId)
+    UM->>DB: Query user account
+    DB-->>UM: Return account details
+    
+    ConfJob->>Resend: SendEmailAsync(email, subject, htmlContent)
+    Resend-->>ConfJob: Success
+    
+    ConfJob-->>HFS: Job Complete
+    HFS->>DB: Update job state to Succeeded
+```
+
+**Description:**
+1. A background worker from the Hangfire pool pulls `SendEmailConfirmationJob` from the database queue.
+2. The job checks user presence via `UserManager`.
+3. It sends a stylized HTML validation email via `ResendEmailSender` and marks the job as successfully completed.
+
+---
+
+### 1.3. CRM (Resend) Sync Background Job
+
+This diagram depicts how the Hangfire server processes the enqueued CRM contact sync to Resend.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant HFS as Hangfire Server (Processor)
+    participant DB as MySQL DB
+    participant SyncJob as CrmSyncJob
+    participant Resend as ResendEmailContactService
+    participant ContactRepo as MemberContactRepository
+    participant UoW as UnitOfWork (EF Context)
+
+    loop Polling
+        HFS->>DB: Fetch enqueued jobs
+        DB-->>HFS: Return CrmSyncJob
+    end
+    
+    HFS->>SyncJob: SyncContactAsync(userId, email, name, preferences)
+    SyncJob->>Resend: CreateContactAsync(email, name, preferences)
+    Note over Resend: POST /contacts (creates contact in CRM)
+    Resend-->>SyncJob: Return Result<string> (Resend Contact ID)
+    
+    SyncJob->>ContactRepo: AddAsync(MemberContact)
+    Note over ContactRepo: Link Member ID to Resend Contact ID
+    
+    SyncJob->>UoW: SaveChangesAsync()
+    UoW->>DB: COMMIT (INSERT INTO MemberContacts)
+    DB-->>UoW: Success
+    
+    SyncJob-->>HFS: Job Complete
+    HFS->>DB: Update job state to Succeeded
+```
+
+**Description:**
+1. The background worker pulls `CrmSyncJob` from the database queue.
+2. The job triggers `ResendEmailContactService.CreateContactAsync` which calls Resend API's `/contacts` endpoint.
+3. Upon receiving the external Contact ID from Resend, the job instantiates a `MemberContact` entity.
+4. It persists this mapping to the database, completing the task. If any API errors occur, Hangfire automatically retries the task later.
 
 ---
 
