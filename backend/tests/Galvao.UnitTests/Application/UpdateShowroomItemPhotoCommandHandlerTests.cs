@@ -2,7 +2,7 @@ using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Showroom.Commands;
 using Galvao.Application.UseCases.Showroom.CommandHandlers;
-using Galvao.Domain.Entities;
+using Galvao.Domain.ShowroomAggregate.Entities;
 
 namespace Galvao.UnitTests.Application;
 

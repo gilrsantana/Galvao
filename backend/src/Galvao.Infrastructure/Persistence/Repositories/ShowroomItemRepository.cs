@@ -1,5 +1,5 @@
 using Galvao.Application.Common.Interfaces;
-using Galvao.Domain.Entities;
+using Galvao.Domain.ShowroomAggregate.Entities;
 using Galvao.Shared;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +19,8 @@ public class ShowroomItemRepository : BaseEntityRepository<ShowroomItem>, IShowr
     }
 
     public override async Task<PagedResponse<ShowroomItem>> GetPagedAsync(
-        int page, 
-        int pageSize, 
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         var totalCount = await DbSet.CountAsync(cancellationToken);

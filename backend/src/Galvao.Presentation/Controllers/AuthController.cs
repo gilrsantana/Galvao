@@ -1,4 +1,6 @@
+using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Presentation.Requests.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +11,14 @@ namespace Galvao.Presentation.Controllers;
 public class AuthController : ApiControllerBase
 {
     private readonly IIdentityService _identityService;
+    private readonly ICommandHandler<RegisterMemberCommand, Guid> _registerMemberHandler;
 
-    public AuthController(IIdentityService identityService)
+    public AuthController(
+        IIdentityService identityService,
+        ICommandHandler<RegisterMemberCommand, Guid> registerMemberHandler)
     {
         _identityService = identityService;
+        _registerMemberHandler = registerMemberHandler;
     }
 
     [HttpPost("register")]
@@ -20,7 +26,16 @@ public class AuthController : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
-        var result = await _identityService.RegisterAsync(request.Email, request.Password, request.DisplayName, request.FirstName, request.LastName, request.AcceptNews, request.AcceptPromo, cancellationToken);
+        var result = await _registerMemberHandler.HandleAsync(
+            new RegisterMemberCommand(
+                request.Email,
+                request.Password,
+                request.DisplayName,
+                request.FirstName,
+                request.LastName,
+                request.AcceptNews,
+                request.AcceptPromo),
+            cancellationToken);
         return HandleResult(result);
     }
 

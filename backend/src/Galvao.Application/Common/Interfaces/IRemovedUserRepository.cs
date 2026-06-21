@@ -1,4 +1,4 @@
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberUserAggregate.Entities;
 
 namespace Galvao.Application.Common.Interfaces;
 

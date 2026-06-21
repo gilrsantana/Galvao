@@ -2,7 +2,8 @@ using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Application.UseCases.Members.CommandHandlers;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.UnitTests.Application;
@@ -83,7 +84,7 @@ public class PurgeUserCommandHandlerTests
         // Arrange
         var member = Member.Create("test@galvao.com", "DisplayName", "First", "Last", true, false).Value;
         var command = new PurgeUserCommand(member.Id, "Password123!");
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", null).Value;
 
         _memberRepositoryMock
             .Setup(x => x.GetByIdAsync(member.Id, It.IsAny<CancellationToken>()))
@@ -115,9 +116,9 @@ public class PurgeUserCommandHandlerTests
         _memberContactRepositoryMock.Verify(x => x.Remove(memberContact), Times.Once);
         _memberRepositoryMock.Verify(x => x.Remove(member), Times.Once);
         _identityServiceMock.Verify(x => x.DeleteAccountAsync(member.Id, "Password123!", It.IsAny<CancellationToken>()), Times.Once);
-        
-        _removedUserRepositoryMock.Verify(x => x.AddAsync(It.Is<RemovedUser>(ru => 
-            ru.Name == "First Last" && 
+
+        _removedUserRepositoryMock.Verify(x => x.AddAsync(It.Is<RemovedUser>(ru =>
+            ru.Name == "First Last" &&
             ru.Email == "test@galvao.com" &&
             ru.RemovedPersonalInformation == true &&
             ru.RemovedAccountData == true &&
@@ -161,9 +162,9 @@ public class PurgeUserCommandHandlerTests
         _memberContactRepositoryMock.Verify(x => x.Remove(It.IsAny<MemberContact>()), Times.Never);
         _memberRepositoryMock.Verify(x => x.Remove(member), Times.Once);
         _identityServiceMock.Verify(x => x.DeleteAccountAsync(member.Id, "Password123!", It.IsAny<CancellationToken>()), Times.Once);
-        
-        _removedUserRepositoryMock.Verify(x => x.AddAsync(It.Is<RemovedUser>(ru => 
-            ru.Name == "First Last" && 
+
+        _removedUserRepositoryMock.Verify(x => x.AddAsync(It.Is<RemovedUser>(ru =>
+            ru.Name == "First Last" &&
             ru.Email == "test@galvao.com" &&
             ru.RemovedPersonalInformation == true &&
             ru.RemovedAccountData == true &&

@@ -1,7 +1,7 @@
 using Moq;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Infrastructure.Identity;
-using Galvao.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Hangfire;
@@ -46,7 +46,6 @@ public class IdentityServiceTests
             _userManagerMock.Object,
             _roleManagerMock.Object,
             _memberRepositoryMock.Object,
-            _unitOfWorkMock.Object,
             _jwtSettingsOptions,
             _backgroundJobClientMock.Object);
     }
@@ -63,14 +62,13 @@ public class IdentityServiceTests
             .ReturnsAsync(account);
 
         // Act
-        var result = await _service.RegisterAsync(email, "Password123!", "Display", "First", "Last", false, false);
+        var result = await _service.RegisterAsync(Guid.NewGuid(), email, "Password123!");
 
         // Assert
         Assert.True(result.IsFailure);
         Assert.Equal("Auth.EmailNotUnique", result.Error.Code);
-        
+
         _userManagerMock.Verify(x => x.CreateAsync(It.IsAny<Account>(), It.IsAny<string>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -90,7 +88,7 @@ public class IdentityServiceTests
             .ReturnsAsync(IdentityResult.Failed(identityError));
 
         // Act
-        var result = await _service.RegisterAsync(email, password, "Display", "First", "Last", false, false);
+        var result = await _service.RegisterAsync(Guid.NewGuid(), email, password);
 
         // Assert
         Assert.True(result.IsFailure);
@@ -98,7 +96,6 @@ public class IdentityServiceTests
         Assert.Contains("Password too short", result.Error.Message);
 
         _memberRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Member>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -126,7 +123,7 @@ public class IdentityServiceTests
             .ReturnsAsync(IdentityResult.Failed(identityError));
 
         // Act
-        var result = await _service.RegisterAsync(email, password, "Display", "First", "Last", false, false);
+        var result = await _service.RegisterAsync(Guid.NewGuid(), email, password);
 
         // Assert
         Assert.True(result.IsFailure);
@@ -134,15 +131,15 @@ public class IdentityServiceTests
         Assert.Contains("Role assignment failed", result.Error.Message);
 
         _memberRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Member>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task RegisterAsync_ShouldRegisterSuccessfully_WhenNoMarketingPreferencesAccepted()
+    public async Task RegisterAsync_ShouldRegisterSuccessfully()
     {
         // Arrange
         var email = "test@galvao.com";
         var password = "Password123!";
+        var userId = Guid.NewGuid();
 
         _userManagerMock
             .Setup(x => x.FindByEmailAsync(email))
@@ -161,78 +158,21 @@ public class IdentityServiceTests
             .ReturnsAsync(IdentityResult.Success);
 
         // Act
-        var result = await _service.RegisterAsync(email, password, "Display Name", "First Name", "Last Name", false, false);
+        var result = await _service.RegisterAsync(userId, email, password);
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotEqual(Guid.Empty, result.Value);
+        Assert.Equal(userId, result.Value);
 
-        _memberRepositoryMock.Verify(x => x.AddAsync(It.Is<Member>(m => m.Email == email), It.IsAny<CancellationToken>()), Times.Once);
-        
+        _userManagerMock.Verify(x => x.CreateAsync(It.Is<Account>(a => a.Id == userId && a.Email == email), password), Times.Once);
+
         // Verify email confirmation job was enqueued
         _backgroundJobClientMock.Verify(x => x.Create(
             It.Is<Job>(job => job.Method.Name == nameof(ISendEmailConfirmationJob.SendConfirmationEmailAsync) &&
-                              (Guid)job.Args[0] == result.Value &&
+                              (Guid)job.Args[0] == userId &&
                               ((string)job.Args[1]).Contains("confirm-email") &&
                               ((string)job.Args[1]).Contains("dummy-token")),
             It.IsAny<EnqueuedState>()), Times.Once);
-
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task RegisterAsync_ShouldRegisterAndSyncContact_WhenMarketingPreferencesAreAccepted()
-    {
-        // Arrange
-        var email = "test@galvao.com";
-        var password = "Password123!";
-
-        _userManagerMock
-            .Setup(x => x.FindByEmailAsync(email))
-            .ReturnsAsync((Account?)null);
-
-        _userManagerMock
-            .Setup(x => x.CreateAsync(It.IsAny<Account>(), password))
-            .ReturnsAsync(IdentityResult.Success);
-
-        _roleManagerMock
-            .Setup(x => x.RoleExistsAsync("User"))
-            .ReturnsAsync(false);
-
-        _roleManagerMock
-            .Setup(x => x.CreateAsync(It.IsAny<Role>()))
-            .ReturnsAsync(IdentityResult.Success);
-
-        _userManagerMock
-            .Setup(x => x.AddToRoleAsync(It.IsAny<Account>(), "User"))
-            .ReturnsAsync(IdentityResult.Success);
-
-        // Act
-        var result = await _service.RegisterAsync(email, password, "Display Name", "First Name", "Last Name", true, false);
-
-        // Assert
-        Assert.True(result.IsSuccess);
-
-        _memberRepositoryMock.Verify(x => x.AddAsync(It.Is<Member>(m => m.Email == email), It.IsAny<CancellationToken>()), Times.Once);
-        
-        // Verify email confirmation job was enqueued
-        _backgroundJobClientMock.Verify(x => x.Create(
-            It.Is<Job>(job => job.Method.Name == nameof(ISendEmailConfirmationJob.SendConfirmationEmailAsync) &&
-                              (Guid)job.Args[0] == result.Value),
-            It.IsAny<EnqueuedState>()), Times.Once);
-
-        // Verify CRM sync job was enqueued
-        _backgroundJobClientMock.Verify(x => x.Create(
-            It.Is<Job>(job => job.Method.Name == nameof(ICrmSyncJob.SyncContactAsync) &&
-                              (Guid)job.Args[0] == result.Value &&
-                              (string)job.Args[1] == email &&
-                              (string)job.Args[2] == "First Name" &&
-                              (string)job.Args[3] == "Last Name" &&
-                              (bool)job.Args[4] == true &&
-                              (bool)job.Args[5] == false),
-            It.IsAny<EnqueuedState>()), Times.Once);
-
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

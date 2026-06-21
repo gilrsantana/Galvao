@@ -53,20 +53,20 @@ public static class DependencyInjection
         // Identity Services
         services.Configure<IdentityOptions>(configuration.GetSection("IdentityOptions"));
         services.Configure<DataProtectionTokenProviderOptions>(configuration.GetSection("DataProtectionTokenProviderOptions"));
-        
+
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRoleService, RoleService>();
-        services.AddScoped<ICrmSyncJob, CrmSyncJob>();
         services.AddScoped<ISendEmailConfirmationJob, SendEmailConfirmationJob>();
+        services.AddScoped<IBackgroundJobService, Galvao.Infrastructure.Services.BackgroundJobService>();
 
         // Resend Email Integration
         services.Configure<ResendSettings>(configuration.GetSection(ResendSettings.SectionName));
-        
+
         services.AddHttpClient("ResendManagerClient", (sp, client) =>
         {
             var settings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ResendSettings>>().Value;
             client.BaseAddress = new Uri("https://api.resend.com/");
-            client.DefaultRequestHeaders.Authorization = 
+            client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.ManagerApiKey);
         });
 
@@ -74,7 +74,7 @@ public static class DependencyInjection
         {
             var settings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ResendSettings>>().Value;
             client.BaseAddress = new Uri("https://api.resend.com/");
-            client.DefaultRequestHeaders.Authorization = 
+            client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.SenderApiKey);
         });
 

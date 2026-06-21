@@ -38,7 +38,7 @@ public class RolesController : ApiControllerBase
     public async Task<IActionResult> Create([FromBody] CreateRoleRequest request, CancellationToken cancellationToken)
     {
         var result = await _createRoleHandler.HandleAsync(
-            new CreateRoleCommand(request.RoleName, request.Description), 
+            new CreateRoleCommand(request.RoleName, request.Description),
             cancellationToken);
         return HandleResult(result);
     }
@@ -52,7 +52,7 @@ public class RolesController : ApiControllerBase
     public async Task<IActionResult> Assign([FromBody] AssignRoleRequest request, CancellationToken cancellationToken)
     {
         var result = await _assignRoleHandler.HandleAsync(
-            new AssignRoleCommand(request.UserId, request.RoleName), 
+            new AssignRoleCommand(request.UserId, request.RoleName),
             cancellationToken);
         return HandleResult(result);
     }
@@ -66,7 +66,7 @@ public class RolesController : ApiControllerBase
     public async Task<IActionResult> Remove([FromBody] AssignRoleRequest request, CancellationToken cancellationToken)
     {
         var result = await _removeRoleHandler.HandleAsync(
-            new RemoveRoleCommand(request.UserId, request.RoleName), 
+            new RemoveRoleCommand(request.UserId, request.RoleName),
             cancellationToken);
         return HandleResult(result);
     }

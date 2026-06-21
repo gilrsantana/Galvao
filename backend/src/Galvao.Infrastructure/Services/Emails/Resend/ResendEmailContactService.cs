@@ -19,11 +19,11 @@ public class ResendEmailContactService : IEmailContactService
     }
 
     public async Task<Result<string>> CreateContactAsync(
-        string email, 
-        string firstName, 
-        string lastName, 
-        bool acceptNews, 
-        bool acceptPromo, 
+        string email,
+        string firstName,
+        string lastName,
+        bool acceptNews,
+        bool acceptPromo,
         CancellationToken cancellationToken = default)
     {
         try
@@ -75,10 +75,10 @@ public class ResendEmailContactService : IEmailContactService
     }
 
     public async Task<Result> UpdateContactAsync(
-        string externalContactId, 
-        string firstName, 
-        string lastName, 
-        bool unsubscribed, 
+        string externalContactId,
+        string firstName,
+        string lastName,
+        bool unsubscribed,
         CancellationToken cancellationToken = default)
     {
         try
@@ -106,7 +106,7 @@ public class ResendEmailContactService : IEmailContactService
     }
 
     public async Task<Result> DeleteContactAsync(
-        string externalContactId, 
+        string externalContactId,
         CancellationToken cancellationToken = default)
     {
         try

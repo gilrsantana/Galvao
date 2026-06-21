@@ -1,4 +1,8 @@
-namespace Galvao.Infrastructure.Identity.Jobs;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Galvao.Application.Jobs.Interfaces;
 
 public interface ICrmSyncJob
 {

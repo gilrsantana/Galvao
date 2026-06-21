@@ -1,6 +1,7 @@
+using Galvao.Domain.Base;
 using Galvao.Shared;
 
-namespace Galvao.Domain.Entities;
+namespace Galvao.Domain.MemberContactAggregate.Entities;
 
 public class ConsentLog : BaseEntity
 {

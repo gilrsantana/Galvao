@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Domain.Entities;
-using Galvao.Domain.Enums;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberContactAggregate.Enums;
 using Galvao.Infrastructure.Configurations;
 using Galvao.Infrastructure.Services.Emails.Resend.Models;
 using Galvao.Shared;
@@ -16,7 +16,7 @@ public class ResendEmailSender : IEmailSender
     private readonly IEmailAuditLogRepository _emailAuditLogRepository;
 
     public ResendEmailSender(
-        IResendHttpClientFactory httpClientFactory, 
+        IResendHttpClientFactory httpClientFactory,
         IOptions<ResendSettings> settings,
         IEmailAuditLogRepository emailAuditLogRepository)
     {
@@ -26,11 +26,11 @@ public class ResendEmailSender : IEmailSender
     }
 
     public async Task<Result> SendEmailAsync(
-        List<string> to, 
-        string subject, 
-        string htmlContent, 
-        Guid? memberId = null, 
-        ETypeOfMessage? typeOfMessage = null, 
+        List<string> to,
+        string subject,
+        string htmlContent,
+        Guid? memberId = null,
+        ETypeOfMessage? typeOfMessage = null,
         CancellationToken cancellationToken = default)
     {
         var recipientEmail = string.Join(",", to);
@@ -40,12 +40,16 @@ public class ResendEmailSender : IEmailSender
         int statusCode = 200;
         string? externalMessageId = null;
         string? errorMessage = null;
+        var name = "Onboarding";
+        var nameFrom = "onboarding";
+        var domain = "contato.gilmarsantana.com";
+        var from = $"{name} <{nameFrom}@{domain}>";
 
         try
         {
             var request = new SendEmailRequest
             {
-                From = _settings.FromEmail,
+                From = from,
                 To = to,
                 Subject = subject,
                 Html = htmlContent
@@ -98,15 +102,15 @@ public class ResendEmailSender : IEmailSender
         CancellationToken cancellationToken)
     {
         var log = EmailAuditLog.Create(
-            memberId, 
-            recipientEmail, 
-            subject, 
-            provider, 
-            messageType, 
-            statusCode, 
-            externalMessageId, 
+            memberId,
+            recipientEmail,
+            subject,
+            provider,
+            messageType,
+            statusCode,
+            externalMessageId,
             errorMessage);
-            
+
         await _emailAuditLogRepository.AddAsync(log, cancellationToken);
         await _emailAuditLogRepository.SaveChangesAsync(cancellationToken);
     }

@@ -104,7 +104,7 @@ public class ListSegmentsResponse
 {
     [JsonPropertyName("object")]
     public string Object { get; set; } = string.Empty;
-    
+
     [JsonPropertyName("has_more")]
     public bool HasMore { get; set; }
 

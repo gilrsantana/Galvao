@@ -44,7 +44,7 @@ public class ShowroomItemsController : ApiControllerBase
     public async Task<IActionResult> Create([FromBody] CreateShowroomItemRequest request, CancellationToken cancellationToken)
     {
         var result = await _createHandler.HandleAsync(
-            new CreateShowroomItemCommand(request.Title, request.Description, request.Price, request.Category), 
+            new CreateShowroomItemCommand(request.Title, request.Description, request.Price, request.Category),
             cancellationToken);
         return HandleResult(result);
     }
@@ -58,7 +58,7 @@ public class ShowroomItemsController : ApiControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateShowroomItemRequest request, CancellationToken cancellationToken)
     {
         var result = await _updateHandler.HandleAsync(
-            new UpdateShowroomItemCommand(id, request.Title, request.Description, request.Price, request.Category), 
+            new UpdateShowroomItemCommand(id, request.Title, request.Description, request.Price, request.Category),
             cancellationToken);
         return HandleResult(result);
     }
@@ -72,7 +72,7 @@ public class ShowroomItemsController : ApiControllerBase
     public async Task<IActionResult> AddPhoto(Guid id, [FromBody] AddShowroomItemPhotoRequest request, CancellationToken cancellationToken)
     {
         var result = await _addPhotoHandler.HandleAsync(
-            new AddShowroomItemPhotoCommand(id, request.Url, request.Caption, request.IsPrimary), 
+            new AddShowroomItemPhotoCommand(id, request.Url, request.Caption, request.IsPrimary),
             cancellationToken);
         return HandleResult(result);
     }
@@ -86,7 +86,7 @@ public class ShowroomItemsController : ApiControllerBase
     public async Task<IActionResult> RemovePhoto(Guid id, Guid photoId, CancellationToken cancellationToken)
     {
         var result = await _removePhotoHandler.HandleAsync(
-            new RemoveShowroomItemPhotoCommand(id, photoId), 
+            new RemoveShowroomItemPhotoCommand(id, photoId),
             cancellationToken);
         return HandleResult(result);
     }
@@ -100,7 +100,7 @@ public class ShowroomItemsController : ApiControllerBase
     public async Task<IActionResult> UpdatePhoto(Guid id, Guid photoId, [FromBody] UpdateShowroomItemPhotoRequest request, CancellationToken cancellationToken)
     {
         var result = await _updatePhotoHandler.HandleAsync(
-            new UpdateShowroomItemPhotoCommand(id, photoId, request.Url, request.Caption, request.IsPrimary), 
+            new UpdateShowroomItemPhotoCommand(id, photoId, request.Url, request.Caption, request.IsPrimary),
             cancellationToken);
         return HandleResult(result);
     }

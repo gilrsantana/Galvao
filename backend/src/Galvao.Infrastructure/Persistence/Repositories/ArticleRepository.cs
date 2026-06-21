@@ -1,5 +1,5 @@
 using Galvao.Application.Common.Interfaces;
-using Galvao.Domain.Entities;
+using Galvao.Domain.ArticleAggregate.Entities;
 using Galvao.Shared;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,8 +12,8 @@ public class ArticleRepository : BaseEntityRepository<Article>, IArticleReposito
     }
 
     public async Task<PagedResponse<Article>> GetPagedPublishedAsync(
-        int page, 
-        int pageSize, 
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         var query = DbSet.Where(x => x.IsPublished && x.Active);

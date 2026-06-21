@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Galvao.Infrastructure.Identity;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Domain.Entities;
+using Galvao.Domain.ArticleAggregate.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberUserAggregate.Entities;
+using Galvao.Domain.ShowroomAggregate.Entities;
 
 namespace Galvao.Infrastructure.Persistence;
 
@@ -24,7 +27,7 @@ public class GalvaoDbContext : IdentityDbContext<Account, Role, Guid>, IUnitOfWo
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+
         // Custom Identity table mappings
         builder.Entity<IdentityUserRole<Guid>>().ToTable("AccountRoles");
         builder.Entity<IdentityUserClaim<Guid>>().ToTable("AccountClaims");

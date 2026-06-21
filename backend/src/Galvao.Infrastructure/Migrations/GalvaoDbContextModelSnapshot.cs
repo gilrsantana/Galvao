@@ -16,10 +16,10 @@ namespace Galvao.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("Galvao.Domain.Entities.Article", b =>
+            modelBuilder.Entity("Galvao.Domain.ArticleAggregate.Entities.Article", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -59,7 +59,7 @@ namespace Galvao.Infrastructure.Migrations
                     b.ToTable("Articles", (string)null);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.ConsentLog", b =>
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.ConsentLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +99,7 @@ namespace Galvao.Infrastructure.Migrations
                     b.ToTable("ConsentLogs", (string)null);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.EmailAuditLog", b =>
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.EmailAuditLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -148,7 +148,84 @@ namespace Galvao.Infrastructure.Migrations
                     b.ToTable("EmailAuditLogs", (string)null);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.Member", b =>
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.EmailSegment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ESegmentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<Guid>("MemberContactId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("SubscriptionDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("UnSubscriptionDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberContactId");
+
+                    b.ToTable("EmailSegments", (string)null);
+                });
+
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.MemberContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("EmailProvider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("ExternalContactId")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MemberContacts", (string)null);
+                });
+
+            modelBuilder.Entity("Galvao.Domain.MemberUserAggregate.Entities.Member", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
@@ -201,39 +278,7 @@ namespace Galvao.Infrastructure.Migrations
                     b.ToTable("Members", (string)null);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.MemberContact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.Property<string>("ExternalContactId")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<bool>("Unsubscribed")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MemberContacts", (string)null);
-                });
-
-            modelBuilder.Entity("Galvao.Domain.Entities.RemovedUser", b =>
+            modelBuilder.Entity("Galvao.Domain.MemberUserAggregate.Entities.RemovedUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -275,7 +320,7 @@ namespace Galvao.Infrastructure.Migrations
                     b.ToTable("RemovedUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.ShowroomItem", b =>
+            modelBuilder.Entity("Galvao.Domain.ShowroomAggregate.Entities.ShowroomItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -313,7 +358,7 @@ namespace Galvao.Infrastructure.Migrations
                     b.ToTable("ShowroomItems", (string)null);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.ShowroomItemPhoto", b =>
+            modelBuilder.Entity("Galvao.Domain.ShowroomAggregate.Entities.ShowroomItemPhoto", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -553,35 +598,46 @@ namespace Galvao.Infrastructure.Migrations
                     b.ToTable("AccountTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.EmailAuditLog", b =>
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.EmailAuditLog", b =>
                 {
-                    b.HasOne("Galvao.Domain.Entities.Member", null)
+                    b.HasOne("Galvao.Domain.MemberUserAggregate.Entities.Member", null)
                         .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.Member", b =>
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.EmailSegment", b =>
+                {
+                    b.HasOne("Galvao.Domain.MemberContactAggregate.Entities.MemberContact", "MemberContact")
+                        .WithMany("EmailSegments")
+                        .HasForeignKey("MemberContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MemberContact");
+                });
+
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.MemberContact", b =>
+                {
+                    b.HasOne("Galvao.Domain.MemberUserAggregate.Entities.Member", null)
+                        .WithOne()
+                        .HasForeignKey("Galvao.Domain.MemberContactAggregate.Entities.MemberContact", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Galvao.Domain.MemberUserAggregate.Entities.Member", b =>
                 {
                     b.HasOne("Galvao.Infrastructure.Identity.Account", null)
                         .WithOne()
-                        .HasForeignKey("Galvao.Domain.Entities.Member", "Id")
+                        .HasForeignKey("Galvao.Domain.MemberUserAggregate.Entities.Member", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.MemberContact", b =>
+            modelBuilder.Entity("Galvao.Domain.ShowroomAggregate.Entities.ShowroomItemPhoto", b =>
                 {
-                    b.HasOne("Galvao.Domain.Entities.Member", null)
-                        .WithOne()
-                        .HasForeignKey("Galvao.Domain.Entities.MemberContact", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Galvao.Domain.Entities.ShowroomItemPhoto", b =>
-                {
-                    b.HasOne("Galvao.Domain.Entities.ShowroomItem", null)
+                    b.HasOne("Galvao.Domain.ShowroomAggregate.Entities.ShowroomItem", null)
                         .WithMany("Photos")
                         .HasForeignKey("ShowroomItemId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -639,7 +695,12 @@ namespace Galvao.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Galvao.Domain.Entities.ShowroomItem", b =>
+            modelBuilder.Entity("Galvao.Domain.MemberContactAggregate.Entities.MemberContact", b =>
+                {
+                    b.Navigation("EmailSegments");
+                });
+
+            modelBuilder.Entity("Galvao.Domain.ShowroomAggregate.Entities.ShowroomItem", b =>
                 {
                     b.Navigation("Photos");
                 });

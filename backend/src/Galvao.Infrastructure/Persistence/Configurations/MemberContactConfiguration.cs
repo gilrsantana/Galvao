@@ -1,4 +1,5 @@
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -20,12 +21,25 @@ public class MemberContactConfiguration : IEntityTypeConfiguration<MemberContact
             .IsRequired()
             .HasMaxLength(256);
 
-        builder.Property(mc => mc.Unsubscribed)
-            .IsRequired();
+        builder.Property(mc => mc.EmailProvider)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);
+
+        builder.Property(mc => mc.PhoneNumber)
+            .HasMaxLength(50);
 
         builder.HasOne<Member>()
             .WithOne()
             .HasForeignKey<MemberContact>(mc => mc.Id)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(mc => mc.EmailSegments)
+            .WithOne(es => es.MemberContact)
+            .HasForeignKey(es => es.MemberContactId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(mc => mc.EmailSegments)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

@@ -1,5 +1,5 @@
-using Galvao.Domain.Entities;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Domain.MemberContactAggregate.Entities;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 

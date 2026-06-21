@@ -2,7 +2,7 @@ using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Articles.Commands;
 using Galvao.Application.UseCases.Articles.CommandHandlers;
-using Galvao.Domain.Entities;
+using Galvao.Domain.ArticleAggregate.Entities;
 
 namespace Galvao.UnitTests.Application;
 
@@ -31,7 +31,7 @@ public class CreateArticleCommandHandlerTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotEqual(Guid.Empty, result.Value);
-        
+
         _articleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Article>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -48,7 +48,7 @@ public class CreateArticleCommandHandlerTests
         // Assert
         Assert.True(result.IsFailure);
         Assert.Equal("Article.TitleRequired", result.Error.Code);
-        
+
         _articleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Article>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }

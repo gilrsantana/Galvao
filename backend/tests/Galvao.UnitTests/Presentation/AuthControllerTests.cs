@@ -1,5 +1,7 @@
 using Moq;
+using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Presentation.Controllers;
 using Galvao.Presentation.Requests.Auth;
 using Galvao.Shared;
@@ -11,12 +13,13 @@ namespace Galvao.UnitTests.Presentation;
 public class AuthControllerTests
 {
     private readonly Mock<IIdentityService> _identityServiceMock = new();
+    private readonly Mock<ICommandHandler<RegisterMemberCommand, Guid>> _registerMemberHandlerMock = new();
     private readonly AuthController _controller;
 
     public AuthControllerTests()
     {
-        _controller = new AuthController(_identityServiceMock.Object);
-        
+        _controller = new AuthController(_identityServiceMock.Object, _registerMemberHandlerMock.Object);
+
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Path = "/api/auth";
         _controller.ControllerContext = new ControllerContext
@@ -64,10 +67,10 @@ public class AuthControllerTests
         // Assert
         var objectResult = Assert.IsType<ObjectResult>(response);
         Assert.Equal(StatusCodes.Status400BadRequest, objectResult.StatusCode);
-        
+
         var problemDetails = Assert.IsType<ProblemDetails>(objectResult.Value);
         Assert.Equal("Invalid token", problemDetails.Detail);
-        
+
         _identityServiceMock.Verify(x => x.ConfirmEmailAsync(userId, token), Times.Once);
     }
 

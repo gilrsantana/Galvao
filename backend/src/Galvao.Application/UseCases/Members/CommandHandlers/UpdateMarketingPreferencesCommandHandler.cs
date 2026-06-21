@@ -1,7 +1,9 @@
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberContactAggregate.Enums;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.Application.UseCases.Members.CommandHandlers;
@@ -54,8 +56,8 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
     }
 
     private Result UpdateMemberMarketingPreferences(
-        Member member, 
-        UpdateMarketingPreferencesCommand command, 
+        Member member,
+        UpdateMarketingPreferencesCommand command,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -71,8 +73,8 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
     }
 
     private async Task<Result> LogConsentAsync(
-        Member member, 
-        UpdateMarketingPreferencesCommand command, 
+        Member member,
+        UpdateMarketingPreferencesCommand command,
         CancellationToken cancellationToken)
     {
         var action = (command.AcceptNews || command.AcceptPromo) ? "Opt-In" : "Opt-Out";
@@ -93,8 +95,8 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
     }
 
     private async Task SyncDownstreamSafelyAsync(
-        Member member, 
-        UpdateMarketingPreferencesCommand command, 
+        Member member,
+        UpdateMarketingPreferencesCommand command,
         CancellationToken cancellationToken)
     {
         bool syncFailed = false;
@@ -191,48 +193,50 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
 
         if (memberContact is null)
         {
-            return await CreateNewMemberContactAsync(member.Id, member.Email, resendResult.Value, cancellationToken);
+            return await CreateNewMemberContactAsync(member, resendResult.Value, cancellationToken);
         }
 
-        return RestoreExistingMemberContact(memberContact, resendResult.Value, member.Email, cancellationToken);
+        return RestoreExistingMemberContact(member, memberContact, resendResult.Value, cancellationToken);
     }
 
     private async Task<Result> CreateNewMemberContactAsync(
-        Guid memberId,
-        string email,
+        Member member,
         string externalContactId,
         CancellationToken cancellationToken)
     {
         var newMemberContactResult = MemberContact.Create(
-            memberId,
+            member.Id,
             externalContactId,
-            email,
-            unsubscribed: false);
+            member.Email,
+            phoneNumber: null);
 
         if (newMemberContactResult.IsFailure)
         {
             return Result.Failure(newMemberContactResult.Error);
         }
 
-        await _memberContactRepository.AddAsync(newMemberContactResult.Value, cancellationToken);
+        var memberContact = newMemberContactResult.Value;
+        UpdateSegments(memberContact, member.AcceptNews, member.AcceptPromo);
+
+        await _memberContactRepository.AddAsync(memberContact, cancellationToken);
         return Result.Success();
     }
 
     private Result RestoreExistingMemberContact(
-        MemberContact memberContact, 
-        string externalContactId, 
-        string email,
+        Member member,
+        MemberContact memberContact,
+        string externalContactId,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var updateResult = memberContact.UpdateContactDetails(externalContactId, email);
+        var updateResult = memberContact.UpdateContactDetails(externalContactId, member.Email);
         if (updateResult.IsFailure)
         {
             return updateResult;
         }
 
-        memberContact.UpdateStatus(false);
+        UpdateSegments(memberContact, member.AcceptNews, member.AcceptPromo);
         _memberContactRepository.Update(memberContact);
         return Result.Success();
     }
@@ -242,7 +246,7 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
         MemberContact memberContact,
         CancellationToken cancellationToken)
     {
-        memberContact.UpdateStatus(false);
+        UpdateSegments(memberContact, member.AcceptNews, member.AcceptPromo);
         _memberContactRepository.Update(memberContact);
 
         var updateResult = await _emailContactService.UpdateContactAsync(
@@ -282,10 +286,62 @@ public class UpdateMarketingPreferencesCommandHandler : ICommandHandler<UpdateMa
                 return updateDetailsResult;
             }
 
-            memberContact.UpdateStatus(true);
+            UnsubscribeAllSegments(memberContact);
             _memberContactRepository.Update(memberContact);
         }
 
         return Result.Success();
+    }
+
+    private void UpdateSegments(MemberContact memberContact, bool acceptNews, bool acceptPromo)
+    {
+        if (acceptNews)
+        {
+            var segment = memberContact.AddEmailSegment(ESegmentType.News);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentSubscriptionDate(ESegmentType.News);
+            }
+        }
+        else
+        {
+            var segment = memberContact.GetEmailSegment(ESegmentType.News);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.News);
+            }
+        }
+
+        if (acceptPromo)
+        {
+            var segment = memberContact.AddEmailSegment(ESegmentType.Promo);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentSubscriptionDate(ESegmentType.Promo);
+            }
+        }
+        else
+        {
+            var segment = memberContact.GetEmailSegment(ESegmentType.Promo);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.Promo);
+            }
+        }
+    }
+
+    private void UnsubscribeAllSegments(MemberContact memberContact)
+    {
+        var newsSegment = memberContact.GetEmailSegment(ESegmentType.News);
+        if (newsSegment.IsSuccess)
+        {
+            memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.News);
+        }
+
+        var promoSegment = memberContact.GetEmailSegment(ESegmentType.Promo);
+        if (promoSegment.IsSuccess)
+        {
+            memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.Promo);
+        }
     }
 }

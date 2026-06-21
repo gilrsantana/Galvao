@@ -1,7 +1,9 @@
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberContactAggregate.Enums;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.Application.UseCases.Members.CommandHandlers;
@@ -128,13 +130,13 @@ public class ChangeEmailCommandHandler : ICommandHandler<ChangeEmailCommand>
             return Result.Failure(resendResult.Error);
         }
 
-        var updateDetailsResult = memberContact.UpdateContactDetails(resendResult.Value, newEmail);
+        var updateDetailsResult = memberContact.UpdateContactDetails(resendResult.Value, newEmail, null);
         if (updateDetailsResult.IsFailure)
         {
             return updateDetailsResult;
         }
 
-        memberContact.UpdateStatus(unsubscribed: false);
+        UpdateSegments(memberContact, member.AcceptNews, member.AcceptPromo);
         _memberContactRepository.Update(memberContact);
 
         return Result.Success();
@@ -142,13 +144,13 @@ public class ChangeEmailCommandHandler : ICommandHandler<ChangeEmailCommand>
 
     private Result UpdateLocalContactAsDeleted(MemberContact memberContact, string newEmail)
     {
-        var updateDetailsResult = memberContact.UpdateContactDetails("DELETED", newEmail);
+        var updateDetailsResult = memberContact.UpdateContactDetails("DELETED", newEmail, null);
         if (updateDetailsResult.IsFailure)
         {
             return updateDetailsResult;
         }
 
-        memberContact.UpdateStatus(unsubscribed: true);
+        UnsubscribeAllSegments(memberContact);
         _memberContactRepository.Update(memberContact);
 
         return Result.Success();
@@ -178,16 +180,71 @@ public class ChangeEmailCommandHandler : ICommandHandler<ChangeEmailCommand>
                 member.Id,
                 resendResult.Value,
                 newEmail,
-                unsubscribed: false);
+                phoneNumber: null);
 
             if (newMemberContactResult.IsFailure)
             {
                 return Result.Failure(newMemberContactResult.Error);
             }
 
-            await _memberContactRepository.AddAsync(newMemberContactResult.Value, cancellationToken);
+            var memberContact = newMemberContactResult.Value;
+            UpdateSegments(memberContact, member.AcceptNews, member.AcceptPromo);
+
+            await _memberContactRepository.AddAsync(memberContact, cancellationToken);
         }
 
         return Result.Success();
+    }
+
+    private void UpdateSegments(MemberContact memberContact, bool acceptNews, bool acceptPromo)
+    {
+        if (acceptNews)
+        {
+            var segment = memberContact.AddEmailSegment(ESegmentType.News);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentSubscriptionDate(ESegmentType.News);
+            }
+        }
+        else
+        {
+            var segment = memberContact.GetEmailSegment(ESegmentType.News);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.News);
+            }
+        }
+
+        if (acceptPromo)
+        {
+            var segment = memberContact.AddEmailSegment(ESegmentType.Promo);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentSubscriptionDate(ESegmentType.Promo);
+            }
+        }
+        else
+        {
+            var segment = memberContact.GetEmailSegment(ESegmentType.Promo);
+            if (segment.IsSuccess)
+            {
+                memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.Promo);
+            }
+        }
+    }
+
+    private void UnsubscribeAllSegments(MemberContact memberContact)
+    {
+        var newsSegment = memberContact.GetEmailSegment(ESegmentType.News);
+        if (newsSegment.IsSuccess)
+        {
+            memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.News);
+        }
+
+        var promoSegment = memberContact.GetEmailSegment(ESegmentType.Promo);
+        if (promoSegment.IsSuccess)
+        {
+            memberContact.SetEmailSegmentUnsubscriptionDate(ESegmentType.Promo);
+        }
     }
 }

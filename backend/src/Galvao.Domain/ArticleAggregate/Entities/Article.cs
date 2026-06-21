@@ -1,6 +1,7 @@
+using Galvao.Domain.Base;
 using Galvao.Shared;
 
-namespace Galvao.Domain.Entities;
+namespace Galvao.Domain.ArticleAggregate.Entities;
 
 public class Article : BaseEntity
 {

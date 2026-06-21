@@ -1,7 +1,7 @@
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.Application.UseCases.Members.CommandHandlers;
@@ -14,7 +14,7 @@ public class UpdateMemberProfileCommandHandler : ICommandHandler<UpdateMemberPro
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateMemberProfileCommandHandler(
-        IMemberRepository memberRepository, 
+        IMemberRepository memberRepository,
         IMemberContactRepository memberContactRepository,
         IEmailContactService emailContactService,
         IUnitOfWork unitOfWork)
@@ -81,13 +81,13 @@ public class UpdateMemberProfileCommandHandler : ICommandHandler<UpdateMemberPro
         }
 
         var memberContact = await _memberContactRepository.GetByIdAsync(memberId, cancellationToken);
-        if (memberContact is not null)
+        if (memberContact is not null && memberContact.ExternalContactId != "DELETED")
         {
             var updateContactResult = await _emailContactService.UpdateContactAsync(
                 memberContact.ExternalContactId,
                 command.FirstName,
                 command.LastName,
-                memberContact.Unsubscribed,
+                unsubscribed: false,
                 cancellationToken);
 
             if (updateContactResult.IsFailure)

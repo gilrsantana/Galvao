@@ -2,7 +2,9 @@ using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Application.UseCases.Members.CommandHandlers;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberContactAggregate.Enums;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.UnitTests.Application;
@@ -64,7 +66,7 @@ public class ChangeEmailCommandHandlerTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        
+
         _identityServiceMock.Verify(x => x.ChangeEmailAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -102,7 +104,7 @@ public class ChangeEmailCommandHandlerTests
         // Arrange
         var member = Member.Create("old@galvao.com", "Name", "First", "Last", true, false).Value;
         var command = new ChangeEmailCommand(member.Id, "new@galvao.com");
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", null).Value;
 
         _memberRepositoryMock
             .Setup(x => x.GetByIdAsync(member.Id, It.IsAny<CancellationToken>()))
@@ -132,7 +134,7 @@ public class ChangeEmailCommandHandlerTests
         Assert.Equal("new@galvao.com", member.Email);
         Assert.Equal("new@galvao.com", memberContact.Email);
         Assert.Equal("ext-456", memberContact.ExternalContactId);
-        Assert.False(memberContact.Unsubscribed);
+        Assert.Contains(memberContact.EmailSegments, s => s.ESegmentType == ESegmentType.News && s.UnSubscriptionDate == null);
 
         _identityServiceMock.Verify(x => x.ChangeEmailAsync(member.Id, "new@galvao.com", It.IsAny<CancellationToken>()), Times.Once);
         _emailContactServiceMock.Verify(x => x.DeleteContactAsync("ext-123", It.IsAny<CancellationToken>()), Times.Once);
@@ -146,7 +148,8 @@ public class ChangeEmailCommandHandlerTests
         // Arrange
         var member = Member.Create("old@galvao.com", "Name", "First", "Last", false, false).Value;
         var command = new ChangeEmailCommand(member.Id, "new@galvao.com");
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", null).Value;
+        memberContact.AddEmailSegment(ESegmentType.News);
 
         _memberRepositoryMock
             .Setup(x => x.GetByIdAsync(member.Id, It.IsAny<CancellationToken>()))
@@ -172,7 +175,7 @@ public class ChangeEmailCommandHandlerTests
         Assert.Equal("new@galvao.com", member.Email);
         Assert.Equal("new@galvao.com", memberContact.Email);
         Assert.Equal("DELETED", memberContact.ExternalContactId);
-        Assert.True(memberContact.Unsubscribed);
+        Assert.Contains(memberContact.EmailSegments, s => s.ESegmentType == ESegmentType.News && s.UnSubscriptionDate != null);
 
         _identityServiceMock.Verify(x => x.ChangeEmailAsync(member.Id, "new@galvao.com", It.IsAny<CancellationToken>()), Times.Once);
         _emailContactServiceMock.Verify(x => x.DeleteContactAsync("ext-123", It.IsAny<CancellationToken>()), Times.Once);
@@ -256,7 +259,7 @@ public class ChangeEmailCommandHandlerTests
         // Arrange
         var member = Member.Create("old@galvao.com", "Name", "First", "Last", true, false).Value;
         var command = new ChangeEmailCommand(member.Id, "new@galvao.com");
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", null).Value;
         var expectedError = new Error("Service.Error", "Failed to delete old contact");
 
         _memberRepositoryMock
@@ -291,7 +294,7 @@ public class ChangeEmailCommandHandlerTests
         // Arrange
         var member = Member.Create("old@galvao.com", "Name", "First", "Last", true, false).Value;
         var command = new ChangeEmailCommand(member.Id, "new@galvao.com");
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "old@galvao.com", null).Value;
         var expectedError = new Error("Service.Error", "Failed to create contact");
 
         _memberRepositoryMock

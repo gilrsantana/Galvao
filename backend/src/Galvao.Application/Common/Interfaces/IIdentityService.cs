@@ -6,7 +6,7 @@ public record TokenResponse(string AccessToken, string RefreshToken, DateTime Ex
 
 public interface IIdentityService
 {
-    Task<Result<Guid>> RegisterAsync(string email, string password, string displayName, string firstName, string lastName, bool acceptNews, bool acceptPromo, CancellationToken cancellationToken = default);
+    Task<Result<Guid>> RegisterAsync(Guid userId, string email, string password, CancellationToken cancellationToken = default);
     Task<Result<TokenResponse>> LoginAsync(string email, string password, CancellationToken cancellationToken = default);
     Task<Result<TokenResponse>> RefreshTokenAsync(string accessToken, string refreshToken, CancellationToken cancellationToken = default);
     Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
@@ -15,4 +15,6 @@ public interface IIdentityService
     Task<Result> CheckPasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default);
     Task<Result> ConfirmEmailAsync(Guid userId, string token);
     Task<Result> ResendConfirmationEmailAsync(string email);
+    Task<Result> CheckEmailUniquenessAsync(string email);
+    //Task<Result<Account>> CreateIdentityAccountAsync(Guid userId, string email, string password);
 }

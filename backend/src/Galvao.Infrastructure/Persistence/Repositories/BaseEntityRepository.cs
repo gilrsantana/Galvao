@@ -1,5 +1,5 @@
-using Galvao.Domain.Entities;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Domain.Base;
 using Galvao.Shared;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,8 +30,8 @@ public abstract class BaseEntityRepository<TEntity> : IUnitOfWork
     }
 
     public virtual async Task<PagedResponse<TEntity>> GetPagedAsync(
-        int page, 
-        int pageSize, 
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         var totalCount = await DbSet.CountAsync(cancellationToken);

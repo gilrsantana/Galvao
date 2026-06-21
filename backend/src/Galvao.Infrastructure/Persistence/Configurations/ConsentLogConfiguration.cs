@@ -1,4 +1,4 @@
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

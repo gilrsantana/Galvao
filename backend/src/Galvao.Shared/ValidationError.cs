@@ -1,4 +1,4 @@
 namespace Galvao.Shared;
 
-public record ValidationError(string PropertyName, string ErrorMessage) 
+public record ValidationError(string PropertyName, string ErrorMessage)
     : Error("Validation.Error", ErrorMessage);

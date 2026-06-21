@@ -34,6 +34,6 @@ public class GetMemberByIdQueryHandler : IQueryHandler<GetMemberByIdQuery, Membe
             member.AcceptNews,
             member.AcceptPromo);
 
-        return response; 
+        return response;
     }
 }

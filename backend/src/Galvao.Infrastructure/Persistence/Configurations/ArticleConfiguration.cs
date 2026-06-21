@@ -1,4 +1,4 @@
-using Galvao.Domain.Entities;
+using Galvao.Domain.ArticleAggregate.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -38,7 +38,7 @@ public class ArticlesController : ApiControllerBase
     public async Task<IActionResult> Create([FromBody] CreateArticleRequest request, CancellationToken cancellationToken)
     {
         var result = await _createHandler.HandleAsync(
-            new CreateArticleCommand(request.Title, request.Content, request.Author), 
+            new CreateArticleCommand(request.Title, request.Content, request.Author),
             cancellationToken);
         return HandleResult(result);
     }
@@ -52,7 +52,7 @@ public class ArticlesController : ApiControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateArticleRequest request, CancellationToken cancellationToken)
     {
         var result = await _updateHandler.HandleAsync(
-            new UpdateArticleCommand(id, request.Title, request.Content, request.Author), 
+            new UpdateArticleCommand(id, request.Title, request.Content, request.Author),
             cancellationToken);
         return HandleResult(result);
     }
@@ -66,7 +66,7 @@ public class ArticlesController : ApiControllerBase
     public async Task<IActionResult> Publish(Guid id, [FromBody] PublishArticleRequest request, CancellationToken cancellationToken)
     {
         var result = await _publishHandler.HandleAsync(
-            new PublishArticleCommand(id, request.Publish), 
+            new PublishArticleCommand(id, request.Publish),
             cancellationToken);
         return HandleResult(result);
     }
@@ -85,9 +85,9 @@ public class ArticlesController : ApiControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResponse<ArticleResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPaged(
-        [FromQuery] int page = 1, 
-        [FromQuery] int pageSize = 10, 
-        [FromQuery] bool onlyPublished = true, 
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] bool onlyPublished = true,
         CancellationToken cancellationToken = default)
     {
         // Enforce onlyPublished = true for non-Admins
@@ -95,7 +95,7 @@ public class ArticlesController : ApiControllerBase
         var fetchOnlyPublished = !isAdmin || onlyPublished;
 
         var result = await _getPagedHandler.HandleAsync(
-            new GetPagedArticlesQuery(page, pageSize, fetchOnlyPublished), 
+            new GetPagedArticlesQuery(page, pageSize, fetchOnlyPublished),
             cancellationToken);
         return HandleResult(result);
     }

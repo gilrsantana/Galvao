@@ -7,5 +7,5 @@ public class ResendSettings
     public string ManagerApiKey { get; set; } = string.Empty;
     public string SenderApiKey { get; set; } = string.Empty;
     public string ClientName { get; set; } = string.Empty;
-    public string FromEmail { get; set; } = "onboarding@resend.dev";
+    public string FromEmail { get; set; } = "contact.gilmarsantana.com";
 }

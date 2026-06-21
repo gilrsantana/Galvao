@@ -1,4 +1,4 @@
-namespace Galvao.Domain.Entities;
+namespace Galvao.Domain.Base;
 
 public abstract class BaseEntity
 {

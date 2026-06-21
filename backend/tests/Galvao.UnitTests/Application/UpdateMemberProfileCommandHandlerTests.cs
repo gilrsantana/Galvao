@@ -2,7 +2,8 @@ using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Application.UseCases.Members.CommandHandlers;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.UnitTests.Application;
@@ -44,7 +45,7 @@ public class UpdateMemberProfileCommandHandlerTests
         Assert.Equal("Updated Name", member.DisplayName);
         Assert.Equal("First", member.FirstName);
         Assert.Equal("Last", member.LastName);
-        
+
         _memberRepositoryMock.Verify(x => x.Update(member), Times.Once);
         _memberContactRepositoryMock.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -57,7 +58,7 @@ public class UpdateMemberProfileCommandHandlerTests
         var member = Member.Create("test@galvao.com", "Original Name", "OriginalFirst", "OriginalLast", false, false).Value;
         var memberId = member.Id;
         var command = new UpdateMemberProfileCommand(memberId, "Updated Name", "UpdatedFirst", "UpdatedLast");
-        var memberContact = MemberContact.Create(memberId, "ext-123", "test@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(memberId, "ext-123", "test@galvao.com", null).Value;
 
         _memberRepositoryMock
             .Setup(x => x.GetByIdAsync(memberId, It.IsAny<CancellationToken>()))
@@ -79,7 +80,7 @@ public class UpdateMemberProfileCommandHandlerTests
         Assert.Equal("Updated Name", member.DisplayName);
         Assert.Equal("UpdatedFirst", member.FirstName);
         Assert.Equal("UpdatedLast", member.LastName);
-        
+
         _memberRepositoryMock.Verify(x => x.Update(member), Times.Once);
         _emailContactServiceMock.Verify(x => x.UpdateContactAsync("ext-123", "UpdatedFirst", "UpdatedLast", false, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -106,7 +107,7 @@ public class UpdateMemberProfileCommandHandlerTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        
+
         _memberRepositoryMock.Verify(x => x.Update(member), Times.Once);
         _emailContactServiceMock.Verify(x => x.UpdateContactAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -119,7 +120,7 @@ public class UpdateMemberProfileCommandHandlerTests
         var member = Member.Create("test@galvao.com", "Original Name", "OriginalFirst", "OriginalLast", false, false).Value;
         var memberId = member.Id;
         var command = new UpdateMemberProfileCommand(memberId, "Updated Name", "UpdatedFirst", "UpdatedLast");
-        var memberContact = MemberContact.Create(memberId, "ext-123", "test@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(memberId, "ext-123", "test@galvao.com", null).Value;
         var expectedError = new Error("Service.Error", "Failed to update contact");
 
         _memberRepositoryMock
@@ -140,7 +141,7 @@ public class UpdateMemberProfileCommandHandlerTests
         // Assert
         Assert.True(result.IsFailure);
         Assert.Equal(expectedError, result.Error);
-        
+
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

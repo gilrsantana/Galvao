@@ -1,6 +1,7 @@
 using Galvao.Application.Common.Interfaces;
-using Galvao.Domain.Enums;
+using Galvao.Domain.MemberContactAggregate.Enums;
 using Galvao.Infrastructure.Services.Emails;
+using Galvao.Infrastructure.Services.Emails.Templates;
 using Microsoft.AspNetCore.Identity;
 
 namespace Galvao.Infrastructure.Identity.Jobs;
@@ -38,11 +39,11 @@ public class SendEmailConfirmationJob : ISendEmailConfirmationJob
         var subject = "Confirme seu endereço de e-mail";
 
         var sendResult = await _emailSender.SendEmailAsync(
-            new List<string> { user.Email }, 
-            subject, 
-            htmlContent, 
-            userId, 
-            ETypeOfMessage.EmailConfirmation, 
+            new List<string> { user.Email },
+            subject,
+            htmlContent,
+            userId,
+            ETypeOfMessage.EmailConfirmation,
             cancellationToken);
         if (sendResult.IsFailure)
         {

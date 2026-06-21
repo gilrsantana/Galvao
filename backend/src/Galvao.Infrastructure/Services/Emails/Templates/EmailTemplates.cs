@@ -1,4 +1,4 @@
-namespace Galvao.Infrastructure.Services.Emails;
+namespace Galvao.Infrastructure.Services.Emails.Templates;
 
 public static class EmailTemplates
 {

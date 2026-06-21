@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Galvao.Application.Jobs;
+using Galvao.Application.Jobs.Interfaces;
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
@@ -18,6 +20,7 @@ using Galvao.Application.UseCases.Roles.CommandHandlers;
 using Galvao.Application.UseCases.Roles.Queries;
 using Galvao.Application.UseCases.Roles.QueryHandlers;
 using Galvao.Shared;
+using Galvao.Application.ApplicationJobs.Jobs;
 
 namespace Galvao.Application.Extensions;
 
@@ -25,7 +28,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        // Jobs
+        services.AddScoped<ICrmSyncJob, CrmSyncJob>();
+
         // Commands
+        services.AddScoped<ICommandHandler<RegisterMemberCommand, Guid>, RegisterMemberCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateMemberProfileCommand>, UpdateMemberProfileCommandHandler>();
         services.AddScoped<ICommandHandler<ChangeEmailCommand>, ChangeEmailCommandHandler>();
         services.AddScoped<ICommandHandler<ChangePasswordCommand>, ChangePasswordCommandHandler>();

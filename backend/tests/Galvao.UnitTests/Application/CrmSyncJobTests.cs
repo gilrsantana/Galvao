@@ -1,10 +1,12 @@
 using Moq;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Domain.Entities;
-using Galvao.Infrastructure.Identity.Jobs;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberContactAggregate.Enums;
+using Galvao.Application.Jobs;
 using Galvao.Shared;
+using Galvao.Application.ApplicationJobs.Jobs;
 
-namespace Galvao.UnitTests.Infrastructure;
+namespace Galvao.UnitTests.Application;
 
 public class CrmSyncJobTests
 {
@@ -66,9 +68,9 @@ public class CrmSyncJobTests
         _emailContactServiceMock.Verify(
             x => x.CreateContactAsync(email, firstName, lastName, true, false, It.IsAny<CancellationToken>()),
             Times.Once);
-        
+
         _memberContactRepositoryMock.Verify(
-            x => x.AddAsync(It.Is<MemberContact>(c => c.Id == userId && c.ExternalContactId == externalContactId && c.Email == email && !c.Unsubscribed), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.Is<MemberContact>(c => c.MemberId == userId && c.ExternalContactId == externalContactId && c.Email == email && System.Linq.Enumerable.Any(c.EmailSegments, s => s.ESegmentType == ESegmentType.News && s.UnSubscriptionDate == null)), It.IsAny<CancellationToken>()),
             Times.Once);
 
         _unitOfWorkMock.Verify(

@@ -1,6 +1,7 @@
+using Galvao.Domain.Base;
 using Galvao.Shared;
 
-namespace Galvao.Domain.Entities;
+namespace Galvao.Domain.MemberUserAggregate.Entities;
 
 public class RemovedUser : BaseEntity
 {
@@ -24,11 +25,11 @@ public class RemovedUser : BaseEntity
 
     // Parameterized Constructor
     private RemovedUser(
-        string name, 
-        string email, 
-        bool removedPersonalInformation, 
-        bool removedAccountData, 
-        bool removedMarketData, 
+        string name,
+        string email,
+        bool removedPersonalInformation,
+        bool removedAccountData,
+        bool removedMarketData,
         bool removedFromMailProvider) : base()
     {
         Name = name;
@@ -41,11 +42,11 @@ public class RemovedUser : BaseEntity
 
     // Static Factory
     public static Result<RemovedUser> Create(
-        string name, 
-        string email, 
-        bool removedPersonalInformation, 
-        bool removedAccountData, 
-        bool removedMarketData, 
+        string name,
+        string email,
+        bool removedPersonalInformation,
+        bool removedAccountData,
+        bool removedMarketData,
         bool removedFromMailProvider)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -55,11 +56,11 @@ public class RemovedUser : BaseEntity
             return Result.Failure<RemovedUser>(new Error("RemovedUser.InvalidEmail", "A valid email is required."));
 
         return new RemovedUser(
-            name, 
-            email, 
-            removedPersonalInformation, 
-            removedAccountData, 
-            removedMarketData, 
+            name,
+            email,
+            removedPersonalInformation,
+            removedAccountData,
+            removedMarketData,
             removedFromMailProvider);
     }
 }

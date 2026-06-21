@@ -1,6 +1,7 @@
+using Galvao.Domain.Base;
 using Galvao.Shared;
 
-namespace Galvao.Domain.Entities;
+namespace Galvao.Domain.MemberUserAggregate.Entities;
 
 public class Member : BaseEntity
 {
@@ -25,7 +26,13 @@ public class Member : BaseEntity
     }
 
     // Parameterized Constructor
-    private Member(string email, string displayName, string firstName, string lastName, bool acceptNews, bool acceptPromo) : base()
+    private Member(
+        string email,
+        string displayName,
+        string firstName,
+        string lastName,
+        bool acceptNews,
+        bool acceptPromo) : base()
     {
         Email = email;
         DisplayName = displayName;
@@ -37,11 +44,17 @@ public class Member : BaseEntity
     }
 
     // Static Factory
-    public static Result<Member> Create(string email, string displayName, string firstName, string lastName, bool acceptNews, bool acceptPromo)
+    public static Result<Member> Create(
+        string email,
+        string displayName,
+        string firstName,
+        string lastName,
+        bool acceptNews,
+        bool acceptPromo)
     {
         if (string.IsNullOrWhiteSpace(displayName))
             return Result.Failure<Member>(new Error("Member.DisplayNameRequired", "Display name is required."));
-        
+
         if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
             return Result.Failure<Member>(new Error("Member.InvalidEmail", "A valid email is required."));
 

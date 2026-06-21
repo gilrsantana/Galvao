@@ -1,6 +1,6 @@
-using Galvao.Domain.Enums;
+using Galvao.Domain.MemberContactAggregate.Enums;
 
-namespace Galvao.Domain.Entities;
+namespace Galvao.Domain.MemberContactAggregate.Entities;
 
 public class EmailAuditLog
 {
@@ -18,7 +18,7 @@ public class EmailAuditLog
     // EF Core Constructor
     private EmailAuditLog()
     { }
-    
+
     private EmailAuditLog(
         Guid? memberId,
         string recipientEmail,
@@ -44,7 +44,7 @@ public class EmailAuditLog
     public static EmailAuditLog Create(
         Guid? memberId,
         string recipientEmail,
-        string subject, 
+        string subject,
         EMailProvider eMailProvider,
         ETypeOfMessage typeOfMessage,
         int statusCode,

@@ -28,7 +28,7 @@ public static class DependencyInjection
             .AddRoles<Role>()
             .AddEntityFrameworkStores<GalvaoDbContext>()
             .AddDefaultTokenProviders();
-        
+
         // JWT Settings & Authentication
         SetJwtConfiguration(services, configuration)
             .AddAuthorization();
@@ -38,7 +38,7 @@ public static class DependencyInjection
             // Chain Layer Registrations
             .AddApplication()
             .AddInfrastructure(configuration);
-        
+
         return services;
     }
 
@@ -92,17 +92,17 @@ public static class DependencyInjection
                     .AllowAnyHeader();
             });
         });
-        return  services;
+        return services;
     }
 
     private static IServiceCollection AddHangfireConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection") 
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
                                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is missing.");
 
         // MySqlConnector (used by Hangfire) expects SslMode=None instead of SslMode=Disabled, and requires Allow User Variables=true
         var hangfireConnectionString = connectionString.Replace("SslMode=Disabled", "SslMode=None", StringComparison.OrdinalIgnoreCase);
-        if (!hangfireConnectionString.Contains("Allow User Variables", StringComparison.OrdinalIgnoreCase) && 
+        if (!hangfireConnectionString.Contains("Allow User Variables", StringComparison.OrdinalIgnoreCase) &&
             !hangfireConnectionString.Contains("AllowUserVariables", StringComparison.OrdinalIgnoreCase))
         {
             hangfireConnectionString += ";Allow User Variables=true";
@@ -140,9 +140,9 @@ public static class DependencyInjection
 
     private static IServiceCollection SetJwtConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>() 
+        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()
                           ?? throw new InvalidOperationException("JwtSettings section is missing from configuration.");
-        
+
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
         services.AddAuthentication(options =>
@@ -170,7 +170,7 @@ public static class DependencyInjection
                     {
                         var accessToken = context.Request.Query["token"];
                         var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) && 
+                        if (!string.IsNullOrEmpty(accessToken) &&
                             (path.StartsWithSegments("/api/admin/hangfire-redirect") || path.StartsWithSegments("/hangfire")))
                         {
                             context.Token = accessToken;

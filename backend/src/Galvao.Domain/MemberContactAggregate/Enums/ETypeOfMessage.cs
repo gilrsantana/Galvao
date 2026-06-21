@@ -1,4 +1,4 @@
-namespace Galvao.Domain.Enums;
+namespace Galvao.Domain.MemberContactAggregate.Enums;
 
 public enum ETypeOfMessage
 {

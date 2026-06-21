@@ -7,4 +7,6 @@ var app = builder.Build();
 app.Configure();
 app.Run();
 
-public partial class Program { }
+#pragma warning disable ASP0027 
+public partial class Program;
+#pragma warning restore ASP0027 

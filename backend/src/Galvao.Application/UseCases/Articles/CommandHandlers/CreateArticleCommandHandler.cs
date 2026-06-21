@@ -1,7 +1,7 @@
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Articles.Commands;
-using Galvao.Domain.Entities;
+using Galvao.Domain.ArticleAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.Application.UseCases.Articles.CommandHandlers;

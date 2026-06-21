@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 using Hangfire;
 using Galvao.Infrastructure.Identity.Jobs;
@@ -18,7 +18,6 @@ public class IdentityService : IIdentityService
     private readonly UserManager<Account> _userManager;
     private readonly RoleManager<Role> _roleManager;
     private readonly IMemberRepository _memberRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly JwtSettings _jwtSettings;
     private readonly IBackgroundJobClient _backgroundJobClient;
 
@@ -26,26 +25,20 @@ public class IdentityService : IIdentityService
         UserManager<Account> userManager,
         RoleManager<Role> roleManager,
         IMemberRepository memberRepository,
-        IUnitOfWork unitOfWork,
         IOptions<JwtSettings> jwtSettings,
         IBackgroundJobClient backgroundJobClient)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _memberRepository = memberRepository;
-        _unitOfWork = unitOfWork;
         _jwtSettings = jwtSettings.Value;
         _backgroundJobClient = backgroundJobClient;
     }
 
     public async Task<Result<Guid>> RegisterAsync(
-        string email, 
-        string password, 
-        string displayName, 
-        string firstName,
-        string lastName,
-        bool acceptNews,
-        bool acceptPromo,
+        Guid userId,
+        string email,
+        string password,
         CancellationToken cancellationToken = default)
     {
         var emailUniqueResult = await CheckEmailUniquenessAsync(email);
@@ -53,15 +46,6 @@ public class IdentityService : IIdentityService
         {
             return Result.Failure<Guid>(emailUniqueResult.Error);
         }
-
-        var memberResult = Member.Create(email, displayName, firstName, lastName, acceptNews, acceptPromo);
-        if (memberResult.IsFailure)
-        {
-            return Result.Failure<Guid>(memberResult.Error);
-        }
-
-        var member = memberResult.Value;
-        var userId = member.Id;
 
         var createAccountResult = await CreateIdentityAccountAsync(userId, email, password);
         if (createAccountResult.IsFailure)
@@ -77,8 +61,6 @@ public class IdentityService : IIdentityService
             return Result.Failure<Guid>(assignRoleResult.Error);
         }
 
-        await _memberRepository.AddAsync(member, cancellationToken);
-
         // Generate email confirmation token and enqueue Hangfire job
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(account);
         var encodedToken = System.Net.WebUtility.UrlEncode(token);
@@ -87,18 +69,10 @@ public class IdentityService : IIdentityService
         _backgroundJobClient.Enqueue<ISendEmailConfirmationJob>(job =>
             job.SendConfirmationEmailAsync(userId, confirmationLink, CancellationToken.None));
 
-        if (acceptNews || acceptPromo)
-        {
-            _backgroundJobClient.Enqueue<ICrmSyncJob>(job =>
-                job.SyncContactAsync(userId, email, firstName, lastName, acceptNews, acceptPromo, CancellationToken.None));
-        }
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
         return userId;
     }
 
-    private async Task<Result> CheckEmailUniquenessAsync(string email)
+    public async Task<Result> CheckEmailUniquenessAsync(string email)
     {
         var existingAccount = await _userManager.FindByEmailAsync(email);
         if (existingAccount is not null)
@@ -149,8 +123,8 @@ public class IdentityService : IIdentityService
     }
 
     public async Task<Result<TokenResponse>> LoginAsync(
-        string email, 
-        string password, 
+        string email,
+        string password,
         CancellationToken cancellationToken = default)
     {
         var account = await _userManager.FindByEmailAsync(email);
@@ -163,8 +137,8 @@ public class IdentityService : IIdentityService
     }
 
     public async Task<Result<TokenResponse>> RefreshTokenAsync(
-        string accessToken, 
-        string refreshToken, 
+        string accessToken,
+        string refreshToken,
         CancellationToken cancellationToken = default)
     {
         var principalResult = GetPrincipalFromExpiredToken(accessToken);
@@ -177,16 +151,16 @@ public class IdentityService : IIdentityService
         var userIdString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
         {
-            return Result.Failure<TokenResponse>(new Error("Auth.InvalidToken", 
+            return Result.Failure<TokenResponse>(new Error("Auth.InvalidToken",
                 "Invalid token claim identifier."));
         }
 
         var account = await _userManager.FindByIdAsync(userIdString);
-        if (account is null || 
-            account.RefreshToken != refreshToken || 
+        if (account is null ||
+            account.RefreshToken != refreshToken ||
             account.RefreshTokenExpiryTime <= DateTime.UtcNow)
         {
-            return Result.Failure<TokenResponse>(new Error("Auth.InvalidRefreshToken", 
+            return Result.Failure<TokenResponse>(new Error("Auth.InvalidRefreshToken",
                 "Invalid or expired refresh token."));
         }
 
@@ -217,7 +191,7 @@ public class IdentityService : IIdentityService
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        
+
         var expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryInMinutes);
 
         var token = new JwtSecurityToken(
@@ -228,7 +202,7 @@ public class IdentityService : IIdentityService
             signingCredentials: creds);
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-        
+
         // Generate Refresh Token
         var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
@@ -258,7 +232,7 @@ public class IdentityService : IIdentityService
         try
         {
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-            if (securityToken is not JwtSecurityToken jwtSecurityToken || 
+            if (securityToken is not JwtSecurityToken jwtSecurityToken ||
                 !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
                 return Result.Failure<ClaimsPrincipal>(new Error("Auth.InvalidToken", "Invalid token signature algorithm."));

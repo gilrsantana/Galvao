@@ -2,7 +2,9 @@ using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Application.UseCases.Members.CommandHandlers;
-using Galvao.Domain.Entities;
+using Galvao.Domain.MemberContactAggregate.Entities;
+using Galvao.Domain.MemberContactAggregate.Enums;
+using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.UnitTests.Application;
@@ -43,7 +45,7 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         // Assert
         Assert.True(result.IsFailure);
         Assert.Equal("Member.NotFound", result.Error.Code);
-        
+
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         _consentLogRepositoryMock.Verify(x => x.AddAsync(It.IsAny<ConsentLog>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -78,12 +80,12 @@ public class UpdateMarketingPreferencesCommandHandlerTests
 
         _emailContactServiceMock.Verify(x => x.CreateContactAsync("test@galvao.com", "First", "Last", true, false, It.IsAny<CancellationToken>()), Times.Once);
         _memberContactRepositoryMock.Verify(x => x.AddAsync(It.Is<MemberContact>(c => c.ExternalContactId == "ext-123"), It.IsAny<CancellationToken>()), Times.Once);
-        
-        _consentLogRepositoryMock.Verify(x => x.AddAsync(It.Is<ConsentLog>(l => 
-            l.MemberId == member.Id && 
-            l.Action == "Opt-In" && 
-            l.IpAddress == "127.0.0.1" && 
-            l.Source == "Chrome" && 
+
+        _consentLogRepositoryMock.Verify(x => x.AddAsync(It.Is<ConsentLog>(l =>
+            l.MemberId == member.Id &&
+            l.Action == "Opt-In" &&
+            l.IpAddress == "127.0.0.1" &&
+            l.Source == "Chrome" &&
             l.ConsentToken == "token123"), It.IsAny<CancellationToken>()), Times.Once);
 
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -95,7 +97,7 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         // Arrange
         var member = Member.Create("test@galvao.com", "Name", "First", "Last", false, false).Value;
         var command = new UpdateMarketingPreferencesCommand(member.Id, true, false, "token123", DateTime.UtcNow, "127.0.0.1", "Chrome");
-        var memberContact = MemberContact.Create(member.Id, "DELETED", "test@galvao.com", true).Value;
+        var memberContact = MemberContact.Create(member.Id, "DELETED", "test@galvao.com", null).Value;
 
         _memberRepositoryMock
             .Setup(x => x.GetByIdAsync(member.Id, It.IsAny<CancellationToken>()))
@@ -117,7 +119,7 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         Assert.True(member.AcceptNews);
         Assert.False(member.AcceptPromo);
         Assert.Equal("new-ext-123", memberContact.ExternalContactId);
-        Assert.False(memberContact.Unsubscribed);
+        Assert.Contains(memberContact.EmailSegments, s => s.ESegmentType == ESegmentType.News && s.UnSubscriptionDate == null);
         Assert.False(member.PendingSync);
 
         _emailContactServiceMock.Verify(x => x.CreateContactAsync("test@galvao.com", "First", "Last", true, false, It.IsAny<CancellationToken>()), Times.Once);
@@ -132,7 +134,7 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         // Arrange
         var member = Member.Create("test@galvao.com", "Name", "First", "Last", false, false).Value;
         var command = new UpdateMarketingPreferencesCommand(member.Id, true, false);
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", true).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", null).Value;
 
         _memberRepositoryMock
             .Setup(x => x.GetByIdAsync(member.Id, It.IsAny<CancellationToken>()))
@@ -153,7 +155,7 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         Assert.True(result.IsSuccess);
         Assert.True(member.AcceptNews);
         Assert.False(member.AcceptPromo);
-        Assert.False(memberContact.Unsubscribed);
+        Assert.Contains(memberContact.EmailSegments, s => s.ESegmentType == ESegmentType.News && s.UnSubscriptionDate == null);
         Assert.False(member.PendingSync);
 
         _emailContactServiceMock.Verify(x => x.UpdateContactAsync("ext-123", "First", "Last", false, It.IsAny<CancellationToken>()), Times.Once);
@@ -168,7 +170,8 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         // Arrange
         var member = Member.Create("test@galvao.com", "Name", "First", "Last", true, false).Value;
         var command = new UpdateMarketingPreferencesCommand(member.Id, false, false, "token", DateTime.UtcNow, "192.168.0.1", "Firefox");
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", null).Value;
+        memberContact.AddEmailSegment(ESegmentType.News);
 
         _memberRepositoryMock
             .Setup(x => x.GetByIdAsync(member.Id, It.IsAny<CancellationToken>()))
@@ -190,15 +193,15 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         Assert.False(member.AcceptNews);
         Assert.False(member.AcceptPromo);
         Assert.Equal("DELETED", memberContact.ExternalContactId);
-        Assert.True(memberContact.Unsubscribed);
+        Assert.Contains(memberContact.EmailSegments, s => s.ESegmentType == ESegmentType.News && s.UnSubscriptionDate != null);
         Assert.False(member.PendingSync);
 
         _emailContactServiceMock.Verify(x => x.DeleteContactAsync("ext-123", It.IsAny<CancellationToken>()), Times.Once);
         _memberContactRepositoryMock.Verify(x => x.Update(memberContact), Times.Once);
-        _consentLogRepositoryMock.Verify(x => x.AddAsync(It.Is<ConsentLog>(l => 
-            l.MemberId == member.Id && 
-            l.Action == "Opt-Out" && 
-            l.IpAddress == "192.168.0.1" && 
+        _consentLogRepositoryMock.Verify(x => x.AddAsync(It.Is<ConsentLog>(l =>
+            l.MemberId == member.Id &&
+            l.Action == "Opt-Out" &&
+            l.IpAddress == "192.168.0.1" &&
             l.Source == "Firefox"), It.IsAny<CancellationToken>()), Times.Once);
 
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -274,7 +277,7 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         // Arrange
         var member = Member.Create("test@galvao.com", "Name", "First", "Last", true, false).Value;
         var command = new UpdateMarketingPreferencesCommand(member.Id, false, false);
-        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", false).Value;
+        var memberContact = MemberContact.Create(member.Id, "ext-123", "test@galvao.com", null).Value;
         var expectedError = new Error("Service.Error", "Failed to delete contact");
 
         _memberRepositoryMock
@@ -331,7 +334,7 @@ public class UpdateMarketingPreferencesCommandHandlerTests
         // Assert
         Assert.True(result.IsFailure);
         Assert.Equal("Database.SaveFailed", result.Error.Code);
-        
+
         _consentLogRepositoryMock.Verify(x => x.AddAsync(It.Is<ConsentLog>(l => l.Action == "Opt-In"), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
