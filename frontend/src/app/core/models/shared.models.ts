@@ -8,11 +8,4 @@ export interface PagedResponse<T> {
   hasPreviousPage: boolean;
 }
 
-export interface ProblemDetails {
-  type?: string;
-  title?: string;
-  status?: number;
-  detail?: string;
-  instance?: string;
-  extensions?: { [key: string]: any };
-}
+export type { ProblemDetails } from '../api/models/problem-details';

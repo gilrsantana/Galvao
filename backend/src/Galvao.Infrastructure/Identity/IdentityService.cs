@@ -136,15 +136,15 @@ public class IdentityService : IIdentityService
             return Result.Failure<TokenResponse>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
         }
 
+        if (!await _userManager.CheckPasswordAsync(account, password))
+        {
+            return Result.Failure<TokenResponse>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
+        }
+
         var validateResult = await ValidateAccountAsync(account);
         if (validateResult.IsFailure)
         {
             return Result.Failure<TokenResponse>(validateResult.Error);
-        }
-
-        if (!await _userManager.CheckPasswordAsync(account, password))
-        {
-            return Result.Failure<TokenResponse>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
         }
 
         return await GenerateTokensAsync(account, cancellationToken);

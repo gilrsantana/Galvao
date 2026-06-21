@@ -184,7 +184,9 @@ public static class DependencyInjection
 
     public static void Configure(this WebApplication app)
     {
-        // Exception handling middleware must be FIRST in pipeline
+        app.UseCors("AllowFrontend");
+
+        // Exception handling middleware must be FIRST in pipeline (after CORS to ensure headers are preserved)
         app.UseMiddleware<CustomExceptionHandlingMiddleware>();
 
         if (app.Environment.IsDevelopment())
@@ -202,7 +204,6 @@ public static class DependencyInjection
         {
             app.UseHttpsRedirection();
         }
-        app.UseCors("AllowFrontend");
 
         app.UseAuthentication();
         app.UseAuthorization();

@@ -2,7 +2,6 @@ using Galvao.Application.ApplicationJobs.Interfaces;
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
-using Galvao.Domain.MemberContactAggregate.Entities;
 using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
 
@@ -58,7 +57,15 @@ public class RegisterMemberCommandHandler(
         if (command.AcceptNews || command.AcceptPromo)
         {
             _backgroundJobService.Enqueue<ICrmSyncJob>(job =>
-                job.SyncContactAsync(member.Id, member.Email, member.FirstName, member.LastName, member.AcceptNews, member.AcceptPromo, CancellationToken.None));
+                job.SyncContactAsync(
+                    member.Id,
+                    member.Email,
+                    member.FirstName,
+                    member.LastName,
+                    member.AcceptNews,
+                    member.AcceptPromo,
+                    CancellationToken.None)
+            );
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

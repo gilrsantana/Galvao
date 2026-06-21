@@ -7,6 +7,7 @@ import { ArticleDetailComponent } from './features/articles/article-detail/artic
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { ConfirmEmailComponent } from './features/auth/confirm-email/confirm-email.component';
+import { WelcomeComponent } from './features/auth/welcome/welcome.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
 import { adminGuard } from './core/guards/admin.guard';
 import { SettingsComponent } from './features/settings/settings.component';
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, title: 'Entrar | Galvão' },
   { path: 'register', component: RegisterComponent, title: 'Criar Conta | Galvão' },
   { path: 'confirm-email', component: ConfirmEmailComponent, title: 'Confirmar E-mail | Galvão' },
+  { path: 'welcome', component: WelcomeComponent, title: 'Bem-vindo | Galvão' },
   { 
     path: 'admin', 
     component: AdminDashboardComponent, 

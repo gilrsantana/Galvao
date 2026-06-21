@@ -40,13 +40,8 @@ export class RegisterComponent {
         acceptPromo: this.acceptPromo()
       });
 
-      // 2. Perform Automatic Login for a seamless user experience
-      await this.authService.login({
-        email: this.email(),
-        password: this.password()
-      });
-
-      this.router.navigate(['/']);
+      // Redirect to welcome page to inform the user to check their email for account confirmation
+      this.router.navigate(['/welcome'], { queryParams: { email: this.email() } });
     } catch (err: any) {
       console.error(err);
       this.errorMessage.set(err?.error?.detail || 'Registration failed. Make sure details are valid.');

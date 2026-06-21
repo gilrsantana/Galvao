@@ -96,7 +96,7 @@ export class AdminDashboardComponent implements OnInit {
     this.editingItemId.set(item.id);
     this.itemTitle.set(item.title);
     this.itemDescription.set(item.description);
-    this.itemPrice.set(item.price);
+    this.itemPrice.set(Number(item.price));
     this.itemCategory.set(item.category);
     this.showItemModal.set(true);
   }

@@ -1,31 +1,5 @@
-export interface MemberResponse {
-  id: string;
-  email: string;
-  displayName: string;
-  firstName: string;
-  lastName: string;
-  acceptNews: boolean;
-  acceptPromo: boolean;
-}
-
-export interface UpdateProfileRequest {
-  displayName: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface ChangeEmailRequest {
-  newEmail: string;
-}
-
-export interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}
-
-export interface UpdateMarketingPreferencesRequest {
-  acceptNews: boolean;
-  acceptPromo: boolean;
-  consentToken: string;
-  consentedAt: string;
-}
+export type { MemberResponse } from '../api/models/member-response';
+export type { UpdateProfileRequest } from '../api/models/update-profile-request';
+export type { ChangeEmailRequest } from '../api/models/change-email-request';
+export type { ChangePasswordRequest } from '../api/models/change-password-request';
+export type { UpdateMarketingPreferencesRequest } from '../api/models/update-marketing-preferences-request';
