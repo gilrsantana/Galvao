@@ -1,13 +1,13 @@
-using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
+using Galvao.Infrastructure.Identity.Jobs;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
-using Galvao.Infrastructure.Identity.Jobs;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace Galvao.UnitTests.Infrastructure;
 
@@ -19,6 +19,7 @@ public class IdentityServiceTests
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
     private readonly Mock<IBackgroundJobClient> _backgroundJobClientMock = new();
     private readonly IOptions<JwtSettings> _jwtSettingsOptions;
+    private readonly IOptions<IdentityOptions> _identityOptions;
     private readonly IdentityService _service;
 
     public IdentityServiceTests()
@@ -42,12 +43,31 @@ public class IdentityServiceTests
         };
         _jwtSettingsOptions = Options.Create(jwtSettings);
 
+        var identityOptions = new IdentityOptions
+        {
+            Password = new PasswordOptions
+            {
+                RequiredLength = 6,
+                RequiredUniqueChars = 0,
+                RequireDigit = false,
+                RequireNonAlphanumeric = false
+            },
+            SignIn = new SignInOptions
+            {
+                RequireConfirmedAccount = false,
+                RequireConfirmedEmail = false,
+                RequireConfirmedPhoneNumber = false
+            }
+        };
+        _identityOptions = Options.Create(identityOptions);
+
         _service = new IdentityService(
             _userManagerMock.Object,
             _roleManagerMock.Object,
             _memberRepositoryMock.Object,
             _jwtSettingsOptions,
-            _backgroundJobClientMock.Object);
+            _backgroundJobClientMock.Object,
+            _identityOptions);
     }
 
     [Fact]

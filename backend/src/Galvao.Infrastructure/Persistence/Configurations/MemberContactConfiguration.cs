@@ -31,7 +31,7 @@ public class MemberContactConfiguration : IEntityTypeConfiguration<MemberContact
 
         builder.HasOne<Member>()
             .WithOne()
-            .HasForeignKey<MemberContact>(mc => mc.Id)
+            .HasForeignKey<MemberContact>(mc => mc.MemberId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(mc => mc.EmailSegments)

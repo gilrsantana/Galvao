@@ -1,5 +1,5 @@
+using Galvao.Application.ApplicationJobs.Interfaces;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Application.Jobs.Interfaces;
 using Galvao.Domain.MemberContactAggregate.Entities;
 using Galvao.Domain.MemberContactAggregate.Enums;
 

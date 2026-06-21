@@ -1,6 +1,6 @@
+using Galvao.Application.ApplicationJobs.Interfaces;
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Application.Jobs.Interfaces;
 using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Domain.MemberContactAggregate.Entities;
 using Galvao.Domain.MemberUserAggregate.Entities;

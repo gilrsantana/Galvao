@@ -2,7 +2,6 @@ using Moq;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Domain.MemberContactAggregate.Entities;
 using Galvao.Domain.MemberContactAggregate.Enums;
-using Galvao.Application.Jobs;
 using Galvao.Shared;
 using Galvao.Application.ApplicationJobs.Jobs;
 

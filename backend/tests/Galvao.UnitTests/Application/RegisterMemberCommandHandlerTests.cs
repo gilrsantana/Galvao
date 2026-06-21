@@ -2,13 +2,13 @@ using System;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Moq;
+using Galvao.Application.ApplicationJobs.Interfaces;
 using Galvao.Application.Common.Interfaces;
-using Galvao.Application.Jobs.Interfaces;
-using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Application.UseCases.Members.CommandHandlers;
+using Galvao.Application.UseCases.Members.Commands;
 using Galvao.Domain.MemberUserAggregate.Entities;
 using Galvao.Shared;
+using Moq;
 
 namespace Galvao.UnitTests.Application;
 

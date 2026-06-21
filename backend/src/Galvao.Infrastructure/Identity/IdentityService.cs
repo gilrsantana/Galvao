@@ -4,9 +4,9 @@ using System.Security.Cryptography;
 using System.Text;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Domain.MemberUserAggregate.Entities;
+using Galvao.Infrastructure.Identity.Jobs;
 using Galvao.Shared;
 using Hangfire;
-using Galvao.Infrastructure.Identity.Jobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -19,6 +19,7 @@ public class IdentityService : IIdentityService
     private readonly RoleManager<Role> _roleManager;
     private readonly IMemberRepository _memberRepository;
     private readonly JwtSettings _jwtSettings;
+    private readonly IdentityOptions _identityOptions;
     private readonly IBackgroundJobClient _backgroundJobClient;
 
     public IdentityService(
@@ -26,13 +27,15 @@ public class IdentityService : IIdentityService
         RoleManager<Role> roleManager,
         IMemberRepository memberRepository,
         IOptions<JwtSettings> jwtSettings,
-        IBackgroundJobClient backgroundJobClient)
+        IBackgroundJobClient backgroundJobClient,
+        IOptions<IdentityOptions> identityOptions)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _memberRepository = memberRepository;
         _jwtSettings = jwtSettings.Value;
         _backgroundJobClient = backgroundJobClient;
+        _identityOptions = identityOptions.Value;
     }
 
     public async Task<Result<Guid>> RegisterAsync(
@@ -128,12 +131,49 @@ public class IdentityService : IIdentityService
         CancellationToken cancellationToken = default)
     {
         var account = await _userManager.FindByEmailAsync(email);
-        if (account is null || !await _userManager.CheckPasswordAsync(account, password))
+        if (account is null)
+        {
+            return Result.Failure<TokenResponse>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
+        }
+
+        var validateResult = await ValidateAccountAsync(account);
+        if (validateResult.IsFailure)
+        {
+            return Result.Failure<TokenResponse>(validateResult.Error);
+        }
+
+        if (!await _userManager.CheckPasswordAsync(account, password))
         {
             return Result.Failure<TokenResponse>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
         }
 
         return await GenerateTokensAsync(account, cancellationToken);
+    }
+
+    private async Task<Result> ValidateAccountAsync(Account account)
+    {
+        var emailIsRequired = _identityOptions.SignIn.RequireConfirmedEmail;
+
+        if (emailIsRequired && !await _userManager.IsEmailConfirmedAsync(account))
+        {
+            return Result.Failure(new Error("Auth.EmailNotConfirmed", "Email not confirmed."));
+        }
+
+        var phoneIsRequired = _identityOptions.SignIn.RequireConfirmedPhoneNumber;
+
+        if (phoneIsRequired && !await _userManager.IsPhoneNumberConfirmedAsync(account))
+        {
+            return Result.Failure(new Error("Auth.PhoneNotConfirmed", "Phone not confirmed."));
+        }
+
+        var accountIsRequired = _identityOptions.SignIn.RequireConfirmedAccount;
+
+        if (accountIsRequired && !await _userManager.IsEmailConfirmedAsync(account))
+        {
+            return Result.Failure(new Error("Auth.AccountNotConfirmed", "Account not confirmed."));
+        }
+
+        return Result.Success();
     }
 
     public async Task<Result<TokenResponse>> RefreshTokenAsync(

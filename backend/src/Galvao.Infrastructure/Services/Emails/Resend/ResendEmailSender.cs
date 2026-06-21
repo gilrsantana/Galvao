@@ -42,7 +42,7 @@ public class ResendEmailSender : IEmailSender
         string? errorMessage = null;
         var name = "Onboarding";
         var nameFrom = "onboarding";
-        var domain = "contato.gilmarsantana.com";
+        var domain = "contact.gilmarsantana.com";
         var from = $"{name} <{nameFrom}@{domain}>";
 
         try

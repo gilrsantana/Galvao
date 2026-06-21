@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Galvao.Application.Jobs.Interfaces;
+namespace Galvao.Application.ApplicationJobs.Interfaces;
 
 public interface ICrmSyncJob
 {
