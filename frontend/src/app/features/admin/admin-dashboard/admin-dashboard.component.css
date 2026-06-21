@@ -260,3 +260,87 @@ select.form-control {
   background-color: rgba(212, 175, 55, 0.08) !important;
   border-color: rgba(212, 175, 55, 0.3) !important;
 }
+
+/* Custom article editor tabs & preview */
+.content-editor-section {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-primary);
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.editor-tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.editor-tabs .tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 12px 20px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: var(--transition-fast);
+  position: relative;
+  border-radius: 0;
+  flex-grow: 0;
+}
+
+.editor-tabs .tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(30, 30, 26, 0.03);
+}
+
+.editor-tabs .tab-btn.active {
+  color: var(--accent-gold);
+  background: var(--bg-primary);
+}
+
+.editor-tabs .tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-gold);
+}
+
+.tab-content {
+  min-height: 280px;
+}
+
+.write-tab textarea {
+  width: 100%;
+  min-height: 280px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 16px;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.write-tab textarea:focus {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.preview-tab {
+  padding: 20px;
+  min-height: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--bg-primary);
+}

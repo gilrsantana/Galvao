@@ -23,8 +23,8 @@ export class ArticleService {
     );
   }
 
-  getById(id: string): Observable<ArticleResponse> {
-    return this.http.get<ArticleResponse>(`${this.apiBase}/articles/${id}`);
+  getBySlug(slug: string): Observable<ArticleResponse> {
+    return this.http.get<ArticleResponse>(`${this.apiBase}/articles/${slug}`);
   }
 
   create(request: CreateArticleRequest): Observable<string> {

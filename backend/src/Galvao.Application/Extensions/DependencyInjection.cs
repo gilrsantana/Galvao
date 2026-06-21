@@ -54,6 +54,7 @@ public static class DependencyInjection
         services.AddScoped<IQueryHandler<GetShowroomItemByIdQuery, ShowroomItemResponse>, GetShowroomItemByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetPagedShowroomItemsQuery, PagedResponse<ShowroomItemResponse>>, GetPagedShowroomItemsQueryHandler>();
         services.AddScoped<IQueryHandler<GetArticleByIdQuery, ArticleResponse>, GetArticleByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<GetArticleBySlugQuery, ArticleResponse>, GetArticleBySlugQueryHandler>();
         services.AddScoped<IQueryHandler<GetPagedArticlesQuery, PagedResponse<ArticleResponse>>, GetPagedArticlesQueryHandler>();
         services.AddScoped<IQueryHandler<GetUserRolesQuery, List<string>>, GetUserRolesQueryHandler>();
         services.AddScoped<IQueryHandler<GetAvailableRolesQuery, List<RoleResponse>>, GetAvailableRolesQueryHandler>();

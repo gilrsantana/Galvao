@@ -23,6 +23,13 @@ public class ArticleConfiguration : IEntityTypeConfiguration<Article>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(a => a.Slug)
+            .IsRequired()
+            .HasMaxLength(300);
+
+        builder.HasIndex(a => a.Slug)
+            .IsUnique();
+
         builder.Property(a => a.IsPublished)
             .IsRequired();
     }

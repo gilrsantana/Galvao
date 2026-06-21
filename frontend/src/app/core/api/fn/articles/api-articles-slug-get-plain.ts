@@ -9,18 +9,18 @@ import { RequestBuilder } from '../../request-builder';
 
 import { ArticleResponse } from '../../models/article-response';
 
-export interface ApiArticlesIdGet$Json$Params {
-  id: string;
+export interface ApiArticlesSlugGet$Plain$Params {
+  slug: string;
 }
 
-export function apiArticlesIdGet$Json(http: HttpClient, rootUrl: string, params: ApiArticlesIdGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<ArticleResponse>> {
-  const rb = new RequestBuilder(rootUrl, apiArticlesIdGet$Json.PATH, 'get');
+export function apiArticlesSlugGet$Plain(http: HttpClient, rootUrl: string, params: ApiArticlesSlugGet$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<ArticleResponse>> {
+  const rb = new RequestBuilder(rootUrl, apiArticlesSlugGet$Plain.PATH, 'get');
   if (params) {
-    rb.path('id', params.id, {});
+    rb.path('slug', params.slug, {});
   }
 
   return http.request(
-    rb.build({ responseType: 'json', accept: 'text/json', context })
+    rb.build({ responseType: 'text', accept: 'text/plain', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
@@ -29,4 +29,4 @@ export function apiArticlesIdGet$Json(http: HttpClient, rootUrl: string, params:
   );
 }
 
-apiArticlesIdGet$Json.PATH = '/api/Articles/{id}';
+apiArticlesSlugGet$Plain.PATH = '/api/Articles/{slug}';

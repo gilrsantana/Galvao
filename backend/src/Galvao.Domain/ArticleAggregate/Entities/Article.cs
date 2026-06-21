@@ -8,6 +8,7 @@ public class Article : BaseEntity
     public string Title { get; private set; }
     public string Content { get; private set; }
     public string Author { get; private set; }
+    public string Slug { get; private set; }
     public DateTime? PublishedAt { get; private set; }
     public bool IsPublished { get; private set; }
 
@@ -17,6 +18,7 @@ public class Article : BaseEntity
         Title = string.Empty;
         Content = string.Empty;
         Author = string.Empty;
+        Slug = string.Empty;
     }
 
     private Article(string title, string content, string author) : base()
@@ -24,6 +26,7 @@ public class Article : BaseEntity
         Title = title;
         Content = content;
         Author = author;
+        Slug = Slugify(title);
         IsPublished = false;
     }
 
@@ -55,9 +58,36 @@ public class Article : BaseEntity
         Title = title;
         Content = content;
         Author = author;
+        Slug = Slugify(title);
         Update();
 
         return Result.Success();
+    }
+
+    public static string Slugify(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+        text = text.ToLowerInvariant().Normalize(System.Text.NormalizationForm.FormD);
+        var sb = new System.Text.StringBuilder();
+        foreach (var c in text)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    sb.Append(c);
+                }
+                else if (c is ' ' or '-' or '_')
+                {
+                    sb.Append('-');
+                }
+            }
+        }
+        return sb.ToString()
+            .Replace("---", "-")
+            .Replace("--", "-")
+            .Trim('-');
     }
 
     public Result Publish()

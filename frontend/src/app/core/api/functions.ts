@@ -9,14 +9,14 @@ export type { ApiArticlesPost$Plain$Params as ApiArticlesPost$Plain$Params } fro
 export { apiArticlesPost$Plain as apiArticlesPost$Plain } from './fn/articles/api-articles-post-plain';
 export type { ApiArticlesPost$Json$Params as ApiArticlesPost$Json$Params } from './fn/articles/api-articles-post-json';
 export { apiArticlesPost$Json as apiArticlesPost$Json } from './fn/articles/api-articles-post-json';
-export type { ApiArticlesIdGet$Plain$Params as ApiArticlesIdGet$Plain$Params } from './fn/articles/api-articles-id-get-plain';
-export { apiArticlesIdGet$Plain as apiArticlesIdGet$Plain } from './fn/articles/api-articles-id-get-plain';
-export type { ApiArticlesIdGet$Json$Params as ApiArticlesIdGet$Json$Params } from './fn/articles/api-articles-id-get-json';
-export { apiArticlesIdGet$Json as apiArticlesIdGet$Json } from './fn/articles/api-articles-id-get-json';
 export type { ApiArticlesIdPut$Params as ApiArticlesIdPut$Params } from './fn/articles/api-articles-id-put';
 export { apiArticlesIdPut as apiArticlesIdPut } from './fn/articles/api-articles-id-put';
 export type { ApiArticlesIdPublishPut$Params as ApiArticlesIdPublishPut$Params } from './fn/articles/api-articles-id-publish-put';
 export { apiArticlesIdPublishPut as apiArticlesIdPublishPut } from './fn/articles/api-articles-id-publish-put';
+export type { ApiArticlesSlugGet$Plain$Params as ApiArticlesSlugGet$Plain$Params } from './fn/articles/api-articles-slug-get-plain';
+export { apiArticlesSlugGet$Plain as apiArticlesSlugGet$Plain } from './fn/articles/api-articles-slug-get-plain';
+export type { ApiArticlesSlugGet$Json$Params as ApiArticlesSlugGet$Json$Params } from './fn/articles/api-articles-slug-get-json';
+export { apiArticlesSlugGet$Json as apiArticlesSlugGet$Json } from './fn/articles/api-articles-slug-get-json';
 export type { ApiAuthRegisterPost$Plain$Params as ApiAuthRegisterPost$Plain$Params } from './fn/auth/api-auth-register-post-plain';
 export { apiAuthRegisterPost$Plain as apiAuthRegisterPost$Plain } from './fn/auth/api-auth-register-post-plain';
 export type { ApiAuthRegisterPost$Json$Params as ApiAuthRegisterPost$Json$Params } from './fn/auth/api-auth-register-post-json';

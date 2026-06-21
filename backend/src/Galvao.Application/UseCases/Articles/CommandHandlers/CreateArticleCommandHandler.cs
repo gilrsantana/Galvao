@@ -21,6 +21,13 @@ public class CreateArticleCommandHandler : ICommandHandler<CreateArticleCommand,
 
     public async Task<Result<Guid>> HandleAsync(CreateArticleCommand command, CancellationToken cancellationToken = default)
     {
+        var slug = Article.Slugify(command.Title);
+        var existingArticle = await _articleRepository.GetBySlugAsync(slug, cancellationToken);
+        if (existingArticle is not null)
+        {
+            return Result.Failure<Guid>(new Error("Article.SlugExists", "Um artigo com o mesmo título ou slug já existe."));
+        }
+
         var articleResult = Article.Create(command.Title, command.Content, command.Author);
         if (articleResult.IsFailure)
             return Result.Failure<Guid>(articleResult.Error);

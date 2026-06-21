@@ -26,4 +26,9 @@ public class ArticleRepository : BaseEntityRepository<Article>, IArticleReposito
 
         return new PagedResponse<Article>(items, totalCount, page, pageSize);
     }
+
+    public async Task<Article?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+    }
 }

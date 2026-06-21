@@ -13,20 +13,20 @@ public class ArticlesController : ApiControllerBase
     private readonly ICommandHandler<CreateArticleCommand, Guid> _createHandler;
     private readonly ICommandHandler<UpdateArticleCommand> _updateHandler;
     private readonly ICommandHandler<PublishArticleCommand> _publishHandler;
-    private readonly IQueryHandler<GetArticleByIdQuery, ArticleResponse> _getByIdHandler;
+    private readonly IQueryHandler<GetArticleBySlugQuery, ArticleResponse> _getBySlugHandler;
     private readonly IQueryHandler<GetPagedArticlesQuery, PagedResponse<ArticleResponse>> _getPagedHandler;
 
     public ArticlesController(
         ICommandHandler<CreateArticleCommand, Guid> createHandler,
         ICommandHandler<UpdateArticleCommand> updateHandler,
         ICommandHandler<PublishArticleCommand> publishHandler,
-        IQueryHandler<GetArticleByIdQuery, ArticleResponse> getByIdHandler,
+        IQueryHandler<GetArticleBySlugQuery, ArticleResponse> getBySlugHandler,
         IQueryHandler<GetPagedArticlesQuery, PagedResponse<ArticleResponse>> getPagedHandler)
     {
         _createHandler = createHandler;
         _updateHandler = updateHandler;
         _publishHandler = publishHandler;
-        _getByIdHandler = getByIdHandler;
+        _getBySlugHandler = getBySlugHandler;
         _getPagedHandler = getPagedHandler;
     }
 
@@ -71,13 +71,13 @@ public class ArticlesController : ApiControllerBase
         return HandleResult(result);
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{slug}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ArticleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetBySlug(string slug, CancellationToken cancellationToken)
     {
-        var result = await _getByIdHandler.HandleAsync(new GetArticleByIdQuery(id), cancellationToken);
+        var result = await _getBySlugHandler.HandleAsync(new GetArticleBySlugQuery(slug), cancellationToken);
         return HandleResult(result);
     }
 

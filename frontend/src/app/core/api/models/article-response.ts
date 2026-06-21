@@ -9,6 +9,7 @@ export interface ArticleResponse {
   id: string;
   isPublished: boolean;
   publishedAt: (string | null);
+  slug: string;
   title: string;
   updatedAt: (string | null);
 }

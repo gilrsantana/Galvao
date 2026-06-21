@@ -490,17 +490,41 @@
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom: 32px; margin-top: 16px;">
-          <label class="form-label">Conteúdo do Artigo (Markdown Disponível)</label>
-          <textarea 
-            rows="10" 
-            required 
-            [ngModel]="articleContent()"
-            (ngModelChange)="articleContent.set($event)"
-            name="articleContent"
-            placeholder="Escreva o artigo aqui. Use a sintaxe markdown para estilização de parágrafos, listas, cabeçalhos..." 
-            class="form-control"
-            style="resize: vertical; font-family: monospace; font-size: 13px; line-height: 1.5;"></textarea>
+        <div class="content-editor-section">
+          <div class="editor-tabs">
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="activeEditorTab() === 'write'"
+              (click)="setEditorTab('write')"
+            >
+              Escrever
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="activeEditorTab() === 'preview'"
+              (click)="setEditorTab('preview')"
+            >
+              Visualizar
+            </button>
+          </div>
+          <div class="tab-content">
+            <div [hidden]="activeEditorTab() !== 'write'" class="write-tab">
+              <textarea 
+                rows="10" 
+                required 
+                [ngModel]="articleContent()"
+                (ngModelChange)="articleContent.set($event)"
+                name="articleContent"
+                placeholder="Escreva o artigo aqui. Use a sintaxe markdown para estilização de parágrafos, listas, cabeçalhos..." 
+                class="form-control"
+                style="resize: vertical; font-family: monospace; font-size: 13px; line-height: 1.5; border: none; outline: none; box-shadow: none;"></textarea>
+            </div>
+            @if (activeEditorTab() === 'preview') {
+              <div class="preview-tab article-markdown" [innerHTML]="previewHtml()"></div>
+            }
+          </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 16px;">

@@ -19,7 +19,7 @@ export const routes: Routes = [
   { path: 'showroom', component: ShowroomListComponent, title: 'Showroom de Móveis Minimalistas | Galvão' },
   { path: 'showroom/:id', component: ShowroomDetailComponent, title: 'Detalhes do Produto | Galvão' },
   { path: 'articles', component: ArticleListComponent, title: 'Artigos & Revista de Decoração | Galvão' },
-  { path: 'articles/:id', component: ArticleDetailComponent, title: 'Detalhes do Artigo | Galvão' },
+  { path: 'articles/:slug', component: ArticleDetailComponent, title: 'Detalhes do Artigo | Galvão' },
   { path: 'login', component: LoginComponent, title: 'Entrar | Galvão' },
   { path: 'register', component: RegisterComponent, title: 'Criar Conta | Galvão' },
   { path: 'confirm-email', component: ConfirmEmailComponent, title: 'Confirmar E-mail | Galvão' },

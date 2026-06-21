@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { AdminButtonComponent } from '../components/admin-button.component';
 import { environment } from '../../../../environments/environment';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -23,6 +24,7 @@ export class AdminDashboardComponent implements OnInit {
   private readonly articleService = inject(ArticleService);
   private readonly roleService = inject(RoleService);
   private readonly authService = inject(AuthService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   // Active Tab
   readonly activeTab = signal<'showroom' | 'articles' | 'roles'>('showroom');
@@ -57,6 +59,8 @@ export class AdminDashboardComponent implements OnInit {
   readonly articleTitle = signal<string>('');
   readonly articleContent = signal<string>('');
   readonly articleAuthor = signal<string>('');
+  readonly activeEditorTab = signal<'write' | 'preview'>('write');
+  readonly previewHtml = signal<SafeHtml>('');
 
   // Form State - Role Creation & Assignment
   readonly newRoleName = signal<string>('');
@@ -225,6 +229,8 @@ export class AdminDashboardComponent implements OnInit {
     this.articleTitle.set('');
     this.articleContent.set('');
     this.articleAuthor.set('');
+    this.activeEditorTab.set('write');
+    this.previewHtml.set('');
     this.showArticleModal.set(true);
   }
 
@@ -233,6 +239,8 @@ export class AdminDashboardComponent implements OnInit {
     this.articleTitle.set(article.title);
     this.articleContent.set(article.content);
     this.articleAuthor.set(article.author);
+    this.activeEditorTab.set('write');
+    this.previewHtml.set('');
     this.showArticleModal.set(true);
   }
 
@@ -342,5 +350,61 @@ export class AdminDashboardComponent implements OnInit {
     } else {
       alert('Authentication token is missing. Please log in again.');
     }
+  }
+
+  setEditorTab(tab: 'write' | 'preview') {
+    this.activeEditorTab.set(tab);
+    if (tab === 'preview') {
+      const rawContent = this.articleContent() || '';
+      const parsed = this.parseMarkdown(rawContent);
+      this.previewHtml.set(this.sanitizer.bypassSecurityTrustHtml(parsed));
+    }
+  }
+
+  private parseMarkdown(markdown: string): string {
+    if (!markdown) return '<em>Nenhum conteúdo para visualizar.</em>';
+
+    let html = markdown;
+
+    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="md-img" />');
+
+    html = html.replace(/```(\w*)\n([\s\S]*?)\n```/g, (match, lang, code) => {
+      return `<pre class="code-block language-${lang}"><code>${code.trim()}</code></pre>`;
+    });
+
+    html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+
+    html = html.replace(/^# (.*?)$/gm, '<h1 class="md-h1">$1</h1>');
+    html = html.replace(/^## (.*?)$/gm, '<h2 class="md-h2">$1</h2>');
+    html = html.replace(/^### (.*?)$/gm, '<h3 class="md-h3">$1</h3>');
+
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+    html = html.replace(/^-\s+(.*?)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+    html = html.replace(/<\/ul>\s*<ul>/g, '');
+
+    const blocks = html.split(/\n\n+/);
+    html = blocks
+      .map((block) => {
+        const trimmed = block.trim();
+        if (!trimmed) return '';
+        if (
+          trimmed.startsWith('<h') ||
+          trimmed.startsWith('<pre') ||
+          trimmed.startsWith('<ul') ||
+          trimmed.startsWith('<li') ||
+          trimmed.startsWith('<img') ||
+          trimmed.startsWith('<p>')
+        ) {
+          return trimmed;
+        }
+        return `<p class="md-p">${trimmed.replace(/\n/g, '<br/>')}</p>`;
+      })
+      .join('\n');
+
+    return html;
   }
 }

@@ -5,6 +5,7 @@ public record ArticleResponse(
     string Title,
     string Content,
     string Author,
+    string Slug,
     bool IsPublished,
     DateTime? PublishedAt,
     bool Active,

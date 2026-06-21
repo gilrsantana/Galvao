@@ -29,8 +29,7 @@
         </header>
 
         <!-- Body Content -->
-        <div class="article-body">
-          {{ data.content }}
+        <div class="article-body article-markdown" [innerHTML]="renderedContent()">
         </div>
 
         <!-- Back to list -->
