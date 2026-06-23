@@ -5,18 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public class ShowroomItemRepository : BaseEntityRepository<ShowroomItem>, IShowroomItemRepository
+public class ShowroomItemRepository(GalvaoDbContext context) : BaseEntityRepository<ShowroomItem>(context), IShowroomItemRepository
 {
-    public ShowroomItemRepository(GalvaoDbContext context) : base(context)
-    {
-    }
-
-    public override async Task<ShowroomItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await DbSet
+    public override Task<ShowroomItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        DbSet
             .Include(x => x.Photos)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-    }
 
     public override async Task<PagedResponse<ShowroomItem>> GetPagedAsync(
         int page,
@@ -34,8 +28,6 @@ public class ShowroomItemRepository : BaseEntityRepository<ShowroomItem>, IShowr
         return new PagedResponse<ShowroomItem>(items, totalCount, page, pageSize);
     }
 
-    public async Task AddPhotoAsync(ShowroomItemPhoto photo, CancellationToken cancellationToken = default)
-    {
-        await Context.Set<ShowroomItemPhoto>().AddAsync(photo, cancellationToken);
-    }
+    public Task AddPhotoAsync(ShowroomItemPhoto photo, CancellationToken cancellationToken = default) =>
+        Context.Set<ShowroomItemPhoto>().AddAsync(photo, cancellationToken).AsTask();
 }

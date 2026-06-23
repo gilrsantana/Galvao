@@ -3,12 +3,8 @@ using Galvao.Domain.MemberContactAggregate.Entities;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public class MemberContactRepository : BaseEntityRepository<MemberContact>, IMemberContactRepository
+public class MemberContactRepository(GalvaoDbContext context) : BaseEntityRepository<MemberContact>(context), IMemberContactRepository
 {
-    public MemberContactRepository(GalvaoDbContext context) : base(context)
-    {
-    }
-
     public void Remove(MemberContact memberContact)
     {
         DbSet.Remove(memberContact);

@@ -7,23 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public abstract class BaseEntityRepository<TEntity> : IBaseEntityRepository<TEntity>
+public abstract class BaseEntityRepository<TEntity>(GalvaoDbContext context) : IBaseEntityRepository<TEntity>
     where TEntity : BaseEntity
 {
-    protected readonly GalvaoDbContext Context;
-    protected readonly DbSet<TEntity> DbSet;
+    protected readonly GalvaoDbContext Context = context;
+    protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
 
-    protected BaseEntityRepository(GalvaoDbContext context)
-    {
-        Context = context;
-        DbSet = context.Set<TEntity>();
-    }
+    public virtual Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        DbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public virtual async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        await DbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-
-    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default) =>
-        await DbSet.AddAsync(entity, cancellationToken);
+    public Task AddAsync(TEntity entity, CancellationToken cancellationToken = default) =>
+        DbSet.AddAsync(entity, cancellationToken).AsTask();
 
     public void Update(TEntity entity)
     {
@@ -95,6 +89,6 @@ public abstract class BaseEntityRepository<TEntity> : IBaseEntityRepository<TEnt
         return new PagedResponse<TEntity>(items, totalCount, pageNumber, queryRequest.Take);
     }
 
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
-        await Context.SaveChangesAsync(cancellationToken);
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+        Context.SaveChangesAsync(cancellationToken);
 }

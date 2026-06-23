@@ -3,9 +3,6 @@ using Galvao.Domain.MemberContactAggregate.Entities;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public class ConsentLogRepository : BaseEntityRepository<ConsentLog>, IConsentLogRepository
+public class ConsentLogRepository(GalvaoDbContext context) : BaseEntityRepository<ConsentLog>(context), IConsentLogRepository
 {
-    public ConsentLogRepository(GalvaoDbContext context) : base(context)
-    {
-    }
 }

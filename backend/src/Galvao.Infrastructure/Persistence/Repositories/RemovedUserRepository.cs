@@ -3,9 +3,6 @@ using Galvao.Domain.MemberUserAggregate.Entities;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public class RemovedUserRepository : BaseEntityRepository<RemovedUser>, IRemovedUserRepository
+public class RemovedUserRepository(GalvaoDbContext context) : BaseEntityRepository<RemovedUser>(context), IRemovedUserRepository
 {
-    public RemovedUserRepository(GalvaoDbContext context) : base(context)
-    {
-    }
 }

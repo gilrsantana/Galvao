@@ -4,14 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public class MemberRepository : BaseEntityRepository<Member>, IMemberRepository
+public class MemberRepository(GalvaoDbContext context) : BaseEntityRepository<Member>(context), IMemberRepository
 {
-    public MemberRepository(GalvaoDbContext context) : base(context)
-    {
-    }
-
-    public async Task<Member?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
-        await DbSet.FirstOrDefaultAsync(m => m.Email == email, cancellationToken);
+    public Task<Member?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
+        DbSet.FirstOrDefaultAsync(m => m.Email == email, cancellationToken);
 
     public void Remove(Member member)
     {

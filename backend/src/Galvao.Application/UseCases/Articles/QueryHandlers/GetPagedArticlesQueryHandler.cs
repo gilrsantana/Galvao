@@ -8,15 +8,9 @@ using Galvao.Shared;
 
 namespace Galvao.Application.UseCases.Articles.QueryHandlers;
 
-public class GetPagedArticlesQueryHandler : IQueryHandler<GetPagedArticlesQuery, PagedResponse<ArticleResponse>>
+public class GetPagedArticlesQueryHandler(IArticleRepository articleRepository) 
+    : IQueryHandler<GetPagedArticlesQuery, PagedResponse<ArticleResponse>>
 {
-    private readonly IArticleRepository _articleRepository;
-
-    public GetPagedArticlesQueryHandler(IArticleRepository articleRepository)
-    {
-        _articleRepository = articleRepository;
-    }
-
     public async Task<Result<PagedResponse<ArticleResponse>>> HandleAsync(GetPagedArticlesQuery query, CancellationToken cancellationToken = default)
     {
         var advancedQuery = new AdvancedQuery<Article>
@@ -37,7 +31,7 @@ public class GetPagedArticlesQueryHandler : IQueryHandler<GetPagedArticlesQuery,
             advancedQuery.Ordering.Add(new OrderingItem { Field = "CreatedAt", Direction = SortingDirection.Descending });
         }
 
-        var pagedArticles = await _articleRepository.AdvancedQueryAsync(advancedQuery, cancellationToken);
+        var pagedArticles = await articleRepository.AdvancedQueryAsync(advancedQuery, cancellationToken);
 
         var mappedArticles = pagedArticles.Items.Select(article => new ArticleResponse(
             article.Id,

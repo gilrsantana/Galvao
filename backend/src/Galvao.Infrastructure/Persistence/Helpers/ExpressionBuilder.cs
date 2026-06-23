@@ -8,7 +8,7 @@ public static class ExpressionBuilder
 {
     public static Expression<Func<T, bool>>? BuildPredicate<T>(List<FilterItem> filters)
     {
-        if (filters == null || !filters.Any()) return null;
+        if (filters == null || filters.Count == 0) return null;
 
         var parameter = Expression.Parameter(typeof(T), "x");
         Expression? combined = null;
@@ -23,7 +23,7 @@ public static class ExpressionBuilder
             var propAccess = Expression.MakeMemberAccess(parameter, prop);
             Expression? filterExpr = null;
 
-            object? ConvertValue(object? val, Type type)
+            static object? ConvertValue(object? val, Type type)
             {
                 if (val == null) return null;
                 var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
@@ -68,7 +68,7 @@ public static class ExpressionBuilder
                     case FilterOption.Contains:
                         if (prop.PropertyType == typeof(string) && filter.Value is string sVal)
                         {
-                            var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                            var containsMethod = typeof(string).GetMethod("Contains", [typeof(string)]);
                             if (containsMethod != null)
                             {
                                 filterExpr = Expression.Call(propAccess, containsMethod, Expression.Constant(sVal));
@@ -115,7 +115,7 @@ public static class ExpressionBuilder
 
     public static IOrderedQueryable<T> ApplyOrdering<T>(IQueryable<T> query, List<OrderingItem> ordering)
     {
-        if (ordering == null || !ordering.Any())
+        if (ordering == null || ordering.Count == 0)
         {
             var idProp = typeof(T).GetProperty("Id") ?? typeof(T).GetProperties().FirstOrDefault();
             if (idProp == null) return (IOrderedQueryable<T>)query;
@@ -156,7 +156,7 @@ public static class ExpressionBuilder
         var expr = Expression.Call(
             typeof(Queryable),
             method,
-            new Type[] { typeof(T), prop.PropertyType },
+            [typeof(T), prop.PropertyType],
             isFirst ? query.Expression : existing!.Expression,
             Expression.Quote(orderLambda));
 

@@ -33,10 +33,10 @@ public class OrderingItem
 
 public class AdvancedQuery<T> where T : BaseEntity
 {
-    public List<FilterItem> Filters { get; set; } = new();
-    public List<OrderingItem> Ordering { get; set; } = new();
+    public List<FilterItem> Filters { get; set; } = [];
+    public List<OrderingItem> Ordering { get; set; } = [];
     public bool NoTracking { get; set; } = true;
-    public List<Expression<Func<T, object>>> Includes { get; set; } = new();
+    public List<Expression<Func<T, object>>> Includes { get; set; } = [];
 
     public int Skip { get; set; } = 0;
     public int Take { get; set; } = 25;

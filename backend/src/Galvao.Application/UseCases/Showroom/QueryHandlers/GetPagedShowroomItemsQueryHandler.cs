@@ -7,15 +7,9 @@ using Galvao.Shared;
 
 namespace Galvao.Application.UseCases.Showroom.QueryHandlers;
 
-public class GetPagedShowroomItemsQueryHandler : IQueryHandler<GetPagedShowroomItemsQuery, PagedResponse<ShowroomItemResponse>>
+public class GetPagedShowroomItemsQueryHandler(IShowroomItemRepository showroomItemRepository) 
+    : IQueryHandler<GetPagedShowroomItemsQuery, PagedResponse<ShowroomItemResponse>>
 {
-    private readonly IShowroomItemRepository _showroomItemRepository;
-
-    public GetPagedShowroomItemsQueryHandler(IShowroomItemRepository showroomItemRepository)
-    {
-        _showroomItemRepository = showroomItemRepository;
-    }
-
     public async Task<Result<PagedResponse<ShowroomItemResponse>>> HandleAsync(GetPagedShowroomItemsQuery query, CancellationToken cancellationToken = default)
     {
         var advancedQuery = new AdvancedQuery<ShowroomItem>
@@ -34,7 +28,7 @@ public class GetPagedShowroomItemsQueryHandler : IQueryHandler<GetPagedShowroomI
             ]
         };
 
-        var pagedItems = await _showroomItemRepository.AdvancedQueryAsync(advancedQuery, cancellationToken);
+        var pagedItems = await showroomItemRepository.AdvancedQueryAsync(advancedQuery, cancellationToken);
 
         List<ShowroomItemResponse> mappedItems =
         [.. pagedItems.Items.Select(item => new ShowroomItemResponse(

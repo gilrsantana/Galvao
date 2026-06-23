@@ -3,22 +3,11 @@ using Galvao.Domain.MemberContactAggregate.Entities;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public class EmailAuditLogRepository : IEmailAuditLogRepository
+public class EmailAuditLogRepository(GalvaoDbContext context) : IEmailAuditLogRepository
 {
-    private readonly GalvaoDbContext _context;
+    public Task AddAsync(EmailAuditLog log, CancellationToken cancellationToken = default) =>
+        context.EmailAuditLogs.AddAsync(log, cancellationToken).AsTask();
 
-    public EmailAuditLogRepository(GalvaoDbContext context)
-    {
-        _context = context;
-    }
-
-    public async Task AddAsync(EmailAuditLog log, CancellationToken cancellationToken = default)
-    {
-        await _context.EmailAuditLogs.AddAsync(log, cancellationToken);
-    }
-
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        return await _context.SaveChangesAsync(cancellationToken);
-    }
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+        context.SaveChangesAsync(cancellationToken);
 }

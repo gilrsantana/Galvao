@@ -5,11 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Galvao.Infrastructure.Persistence.Repositories;
 
-public class ArticleRepository : BaseEntityRepository<Article>, IArticleRepository
+public class ArticleRepository(GalvaoDbContext context) : BaseEntityRepository<Article>(context), IArticleRepository
 {
-    public ArticleRepository(GalvaoDbContext context) : base(context)
-    {
-    }
 
     public async Task<PagedResponse<Article>> GetPagedPublishedAsync(
         int page,
@@ -27,8 +24,6 @@ public class ArticleRepository : BaseEntityRepository<Article>, IArticleReposito
         return new PagedResponse<Article>(items, totalCount, page, pageSize);
     }
 
-    public async Task<Article?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
-    {
-        return await DbSet.FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
-    }
+    public Task<Article?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
+        DbSet.FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
 }
