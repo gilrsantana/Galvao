@@ -27,38 +27,47 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        // Jobs
-        services.AddScoped<ICrmSyncJob, CrmSyncJob>();
-
-        // Commands
-        services.AddScoped<ICommandHandler<RegisterMemberCommand, Guid>, RegisterMemberCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateMemberProfileCommand>, UpdateMemberProfileCommandHandler>();
-        services.AddScoped<ICommandHandler<ChangeEmailCommand>, ChangeEmailCommandHandler>();
-        services.AddScoped<ICommandHandler<ChangePasswordCommand>, ChangePasswordCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateMarketingPreferencesCommand>, UpdateMarketingPreferencesCommandHandler>();
-        services.AddScoped<ICommandHandler<PurgeUserCommand>, PurgeUserCommandHandler>();
-        services.AddScoped<ICommandHandler<CreateShowroomItemCommand, Guid>, CreateShowroomItemCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateShowroomItemCommand>, UpdateShowroomItemCommandHandler>();
-        services.AddScoped<ICommandHandler<AddShowroomItemPhotoCommand, Guid>, AddShowroomItemPhotoCommandHandler>();
-        services.AddScoped<ICommandHandler<RemoveShowroomItemPhotoCommand>, RemoveShowroomItemPhotoCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateShowroomItemPhotoCommand>, UpdateShowroomItemPhotoCommandHandler>();
-        services.AddScoped<ICommandHandler<CreateArticleCommand, Guid>, CreateArticleCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateArticleCommand>, UpdateArticleCommandHandler>();
-        services.AddScoped<ICommandHandler<PublishArticleCommand>, PublishArticleCommandHandler>();
-        services.AddScoped<ICommandHandler<CreateRoleCommand>, CreateRoleCommandHandler>();
-        services.AddScoped<ICommandHandler<AssignRoleCommand>, AssignRoleCommandHandler>();
-        services.AddScoped<ICommandHandler<RemoveRoleCommand>, RemoveRoleCommandHandler>();
-
-        // Queries
-        services.AddScoped<IQueryHandler<GetMemberByIdQuery, MemberResponse>, GetMemberByIdQueryHandler>();
-        services.AddScoped<IQueryHandler<GetShowroomItemByIdQuery, ShowroomItemResponse>, GetShowroomItemByIdQueryHandler>();
-        services.AddScoped<IQueryHandler<GetPagedShowroomItemsQuery, PagedResponse<ShowroomItemResponse>>, GetPagedShowroomItemsQueryHandler>();
-        services.AddScoped<IQueryHandler<GetArticleByIdQuery, ArticleResponse>, GetArticleByIdQueryHandler>();
-        services.AddScoped<IQueryHandler<GetArticleBySlugQuery, ArticleResponse>, GetArticleBySlugQueryHandler>();
-        services.AddScoped<IQueryHandler<GetPagedArticlesQuery, PagedResponse<ArticleResponse>>, GetPagedArticlesQueryHandler>();
-        services.AddScoped<IQueryHandler<GetUserRolesQuery, List<string>>, GetUserRolesQueryHandler>();
-        services.AddScoped<IQueryHandler<GetAvailableRolesQuery, List<RoleResponse>>, GetAvailableRolesQueryHandler>();
+        services
+            .AddJobs()
+            .AddCommands()
+            .AddQueries();
 
         return services;
     }
+
+    private static IServiceCollection AddQueries(this IServiceCollection services) =>
+        services
+            .AddScoped<IQueryHandler<GetMemberByIdQuery, MemberResponse>, GetMemberByIdQueryHandler>()
+            .AddScoped<IQueryHandler<GetShowroomItemByIdQuery, ShowroomItemResponse>, GetShowroomItemByIdQueryHandler>()
+            .AddScoped<IQueryHandler<GetPagedShowroomItemsQuery, PagedResponse<ShowroomItemResponse>>, GetPagedShowroomItemsQueryHandler>()
+            .AddScoped<IQueryHandler<GetArticleByIdQuery, ArticleResponse>, GetArticleByIdQueryHandler>()
+            .AddScoped<IQueryHandler<GetArticleBySlugQuery, ArticleResponse>, GetArticleBySlugQueryHandler>()
+            .AddScoped<IQueryHandler<GetPagedArticlesQuery, PagedResponse<ArticleResponse>>, GetPagedArticlesQueryHandler>()
+            .AddScoped<IQueryHandler<GetUserRolesQuery, List<string>>, GetUserRolesQueryHandler>()
+            .AddScoped<IQueryHandler<GetAvailableRolesQuery, List<RoleResponse>>, GetAvailableRolesQueryHandler>();
+
+    private static IServiceCollection AddCommands(this IServiceCollection services) =>
+        services
+            .AddScoped<ICommandHandler<RegisterMemberCommand, Guid>, RegisterMemberCommandHandler>()
+            .AddScoped<ICommandHandler<UpdateMemberProfileCommand>, UpdateMemberProfileCommandHandler>()
+            .AddScoped<ICommandHandler<ChangeEmailCommand>, ChangeEmailCommandHandler>()
+            .AddScoped<ICommandHandler<ChangePasswordCommand>, ChangePasswordCommandHandler>()
+            .AddScoped<ICommandHandler<UpdateMarketingPreferencesCommand>, UpdateMarketingPreferencesCommandHandler>()
+            .AddScoped<ICommandHandler<PurgeUserCommand>, PurgeUserCommandHandler>()
+            .AddScoped<ICommandHandler<CreateShowroomItemCommand, Guid>, CreateShowroomItemCommandHandler>()
+            .AddScoped<ICommandHandler<UpdateShowroomItemCommand>, UpdateShowroomItemCommandHandler>()
+            .AddScoped<ICommandHandler<AddShowroomItemPhotoCommand, Guid>, AddShowroomItemPhotoCommandHandler>()
+            .AddScoped<ICommandHandler<RemoveShowroomItemPhotoCommand>, RemoveShowroomItemPhotoCommandHandler>()
+            .AddScoped<ICommandHandler<UpdateShowroomItemPhotoCommand>, UpdateShowroomItemPhotoCommandHandler>()
+            .AddScoped<ICommandHandler<CreateArticleCommand, Guid>, CreateArticleCommandHandler>()
+            .AddScoped<ICommandHandler<UpdateArticleCommand>, UpdateArticleCommandHandler>()
+            .AddScoped<ICommandHandler<PublishArticleCommand>, PublishArticleCommandHandler>()
+            .AddScoped<ICommandHandler<CreateRoleCommand>, CreateRoleCommandHandler>()
+            .AddScoped<ICommandHandler<AssignRoleCommand>, AssignRoleCommandHandler>()
+            .AddScoped<ICommandHandler<RemoveRoleCommand>, RemoveRoleCommandHandler>();
+
+    private static IServiceCollection AddJobs(this IServiceCollection services) =>
+        services
+            .AddScoped<ICrmSyncJob, CrmSyncJob>();
+
 }
