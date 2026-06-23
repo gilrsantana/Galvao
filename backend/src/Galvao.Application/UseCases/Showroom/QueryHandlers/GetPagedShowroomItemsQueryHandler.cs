@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
 using Galvao.Application.Common.Models;
@@ -24,15 +23,21 @@ public class GetPagedShowroomItemsQueryHandler : IQueryHandler<GetPagedShowroomI
             Skip = (query.Page - 1) * query.PageSize,
             Take = query.PageSize,
             NoTracking = true,
-            Includes = new List<Expression<Func<ShowroomItem, object>>> { x => x.Photos }
+            Includes = [x => x.Photos],
+            Ordering =
+            [
+                new OrderingItem
+                {
+                    Field = "CreatedAt",
+                    Direction = SortingDirection.Descending
+                }
+            ]
         };
-
-        // Default ordering by CreatedAt descending to show latest showroom items
-        advancedQuery.Ordering.Add(new OrderingItem { Field = "CreatedAt", Direction = SortingDirection.Descending });
 
         var pagedItems = await _showroomItemRepository.AdvancedQueryAsync(advancedQuery, cancellationToken);
 
-        var mappedItems = pagedItems.Items.Select(item => new ShowroomItemResponse(
+        List<ShowroomItemResponse> mappedItems =
+        [.. pagedItems.Items.Select(item => new ShowroomItemResponse(
             item.Id,
             item.Title,
             item.Description,
@@ -41,8 +46,12 @@ public class GetPagedShowroomItemsQueryHandler : IQueryHandler<GetPagedShowroomI
             item.Active,
             item.CreatedAt,
             item.UpdatedAt,
-            item.Photos.Select(p => new ShowroomItemPhotoResponse(p.Id, p.Url, p.Caption, p.IsPrimary)).ToList()
-        )).ToList();
+            [.. item.Photos.Select(p => new ShowroomItemPhotoResponse(
+                p.Id,
+                p.Url,
+                p.Caption,
+                p.IsPrimary))]
+        ))];
 
         var response = new PagedResponse<ShowroomItemResponse>(
             mappedItems,
