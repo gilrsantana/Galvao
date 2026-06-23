@@ -1,6 +1,9 @@
+using System.Linq.Expressions;
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Application.Common.Models;
 using Galvao.Application.UseCases.Showroom.Queries;
+using Galvao.Domain.ShowroomAggregate.Entities;
 using Galvao.Shared;
 
 namespace Galvao.Application.UseCases.Showroom.QueryHandlers;
@@ -16,7 +19,18 @@ public class GetPagedShowroomItemsQueryHandler : IQueryHandler<GetPagedShowroomI
 
     public async Task<Result<PagedResponse<ShowroomItemResponse>>> HandleAsync(GetPagedShowroomItemsQuery query, CancellationToken cancellationToken = default)
     {
-        var pagedItems = await _showroomItemRepository.GetPagedAsync(query.Page, query.PageSize, cancellationToken);
+        var advancedQuery = new AdvancedQuery<ShowroomItem>
+        {
+            Skip = (query.Page - 1) * query.PageSize,
+            Take = query.PageSize,
+            NoTracking = true,
+            Includes = new List<Expression<Func<ShowroomItem, object>>> { x => x.Photos }
+        };
+
+        // Default ordering by CreatedAt descending to show latest showroom items
+        advancedQuery.Ordering.Add(new OrderingItem { Field = "CreatedAt", Direction = SortingDirection.Descending });
+
+        var pagedItems = await _showroomItemRepository.AdvancedQueryAsync(advancedQuery, cancellationToken);
 
         var mappedItems = pagedItems.Items.Select(item => new ShowroomItemResponse(
             item.Id,

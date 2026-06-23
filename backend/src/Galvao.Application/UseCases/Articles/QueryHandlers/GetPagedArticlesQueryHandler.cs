@@ -1,5 +1,7 @@
+using System.Linq.Expressions;
 using Galvao.Application.Common.CQRS;
 using Galvao.Application.Common.Interfaces;
+using Galvao.Application.Common.Models;
 using Galvao.Application.UseCases.Articles.Queries;
 using Galvao.Domain.ArticleAggregate.Entities;
 using Galvao.Shared;
@@ -17,16 +19,25 @@ public class GetPagedArticlesQueryHandler : IQueryHandler<GetPagedArticlesQuery,
 
     public async Task<Result<PagedResponse<ArticleResponse>>> HandleAsync(GetPagedArticlesQuery query, CancellationToken cancellationToken = default)
     {
-        PagedResponse<Article> pagedArticles;
+        var advancedQuery = new AdvancedQuery<Article>
+        {
+            Skip = (query.Page - 1) * query.PageSize,
+            Take = query.PageSize,
+            NoTracking = true
+        };
 
         if (query.OnlyPublished)
         {
-            pagedArticles = await _articleRepository.GetPagedPublishedAsync(query.Page, query.PageSize, cancellationToken);
+            advancedQuery.Filters.Add(new FilterItem { PropertyName = "IsPublished", Operation = FilterOption.Equal, Value = true });
+            advancedQuery.Filters.Add(new FilterItem { PropertyName = "Active", Operation = FilterOption.Equal, Value = true });
+            advancedQuery.Ordering.Add(new OrderingItem { Field = "PublishedAt", Direction = SortingDirection.Descending });
         }
         else
         {
-            pagedArticles = await _articleRepository.GetPagedAsync(query.Page, query.PageSize, cancellationToken);
+            advancedQuery.Ordering.Add(new OrderingItem { Field = "CreatedAt", Direction = SortingDirection.Descending });
         }
+
+        var pagedArticles = await _articleRepository.AdvancedQueryAsync(advancedQuery, cancellationToken);
 
         var mappedArticles = pagedArticles.Items.Select(article => new ArticleResponse(
             article.Id,
