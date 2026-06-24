@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: CRM Sync Activity workflow Diagram
+description: Activity diagram showcasing decisions for member registration and Resend CRM sync queue.
+timestamp: 2026-06-24T07:23:16-03:00
+tags: [sync, diagrams, activity-diagram, uml, crm, mermaid]
+---
+
 # Activity Diagrams
 
 This document details the operational workflows of the Galvão system.

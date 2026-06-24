@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: Authentication & Token Refresh Sequence Diagram
+description: Sequence flow of credential login and silent token refresh rotation.
+timestamp: 2026-06-24T07:23:16-03:00
+tags: [auth, diagrams, sequence-diagram, uml, refresh-token, mermaid]
+---
+
 # Authentication & Token Rotation Sequence Diagrams
 
 This document contains sequence diagrams detailing the user authentication (login) and silent token renewal (refresh) flows in the Galvão system.

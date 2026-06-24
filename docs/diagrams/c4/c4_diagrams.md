@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: C4 Model Diagrams
+description: System Context, Container, and Component diagrams for the Galvão application.
+timestamp: 2026-06-24T07:23:16-03:00
+tags: [architecture, diagrams, c4, mermaid]
+---
+
 # C4 Model Diagrams
 
 This document contains C4 Model diagrams representing the context, containers, and components of the Galvão system.

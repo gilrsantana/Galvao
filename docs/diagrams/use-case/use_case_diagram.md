@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: System Use Case Specifications Diagram
+description: Actors, boundaries, and use case interactions for guest, member, and administrator roles.
+timestamp: 2026-06-24T07:23:16-03:00
+tags: [authorization, diagrams, use-case-diagram, uml, actors, mermaid]
+---
+
 # Use Case Diagrams
 
 This document illustrates the use cases of the Galvão system, identifying the primary actors, features, and their relationships.

@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: Frontend Architecture Details
+description: Detailed Signal-based state, routing, interceptors, and SSR design of the Galvão SPA.
+timestamp: 2026-06-24T07:21:46-03:00
+tags: [frontend, angular, signals, ssr, cls]
+---
+
 # Frontend Architecture Documentation
 
 This document describes the design, directory structure, state management, and API integration patterns of the Galvão client application.
@@ -185,7 +193,24 @@ To ensure a smooth user experience and high Core Web Vitals (specifically Cumula
 
 ---
 
-## 9. Architecture Diagrams References
+## 9. Settings Dashboard & Account Deletion Flow
+
+The Settings page (`SettingsComponent`) allows authenticated members to manage their profiles, customize marketing consent preferences, and execute GDPR-compliant account deletion (purging).
+
+### Profile & Password Modifications
+* **Profile Updating**: Modifies first/last name and display name reactively, updating the local binding.
+* **Email Rotation**: Exposes an email update form. Updating the email hits the backend API, which triggers Identity email replacement and CRM contact recreation.
+* **Password Modification**: A credentials editing form that validates password length and structure prior to requesting ASP.NET Identity updates.
+
+### Three-Stage Account Purging Flow
+To prevent accidental data loss and satisfy compliance regulations, account deletion is structured as a progressive three-stage flow:
+1. **Stage 0 (Idle Warning)**: Displays an "Excluir Conta" action trigger.
+2. **Stage 1 (GDPR Warning Modal)**: Activates a visual modal explaining that the deletion is permanent, irreversible, and scrubs local records and third-party CRM mailing contact lists. The user must explicitly press a confirmation button to continue.
+3. **Stage 2 (Credentials Verification Gate)**: Prompts the user to enter their current password. This password is submitted along with the deletion request to the API controller, preventing session-hijack account deletions. If authorization succeeds, all account information is purged and the client is logged out.
+
+---
+
+## 10. Architecture Diagrams References
 
 Refer to the visual diagrams for structural context:
 * [C4 Context & Container Diagrams](../diagrams/c4/c4_diagrams.md): How the SPA communicates with the Web API and Resend endpoints under the SSR Express host.

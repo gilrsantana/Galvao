@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: Entities State Lifecycle Diagram
+description: State diagrams detailing Article draft-to-published and ShowroomItem photos constraints.
+timestamp: 2026-06-24T07:23:16-03:00
+tags: [lifecycle, diagrams, state-diagram, uml, article, mermaid]
+---
+
 # State Diagrams
 
 This document describes the state transitions and lifecycles of core domain objects in the Galvão system.

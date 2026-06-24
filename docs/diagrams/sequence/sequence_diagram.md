@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: User Registration Sequence Diagram
+description: Sequence of calls for member registration, database transactions, and CRM synchronization.
+timestamp: 2026-06-24T07:23:16-03:00
+tags: [registration, diagrams, sequence-diagram, uml, mermaid]
+---
+
 # Sequence Diagrams
 
 This document contains sequence diagrams showing the runtime interaction of components during core operations.

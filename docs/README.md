@@ -1,3 +1,11 @@
+---
+type: architecture_document
+title: Galvão System Architecture Overview
+description: Main system overview and technology stack details for the Galvão project.
+timestamp: 2026-06-24T07:23:16-03:00
+tags: [overview, architecture, system]
+---
+
 # Galvão System Architecture Documentation
 
 Welcome to the architectural documentation for **Galvão**, an application featuring a client showroom catalog, article feeds, and administration panels, built with .NET 10, Angular 22+, MySQL, and Resend.
@@ -57,12 +65,17 @@ Galvão is structured as a decoupled Single Page Application (SPA) frontend and 
 
 ```text
 docs/
-├── README.md                  # Main entry point (This file)
+├── index.md                   # Global bundle directory index (OKF Entry Point)
+├── README.md                  # Main system overview (This file)
+├── log.md                     # Chronological catalog update log
 ├── frontend/
-│   └── README.md              # Frontend architecture (routing, signals, interceptors)
+│   ├── index.md               # Frontend catalog index
+│   └── architecture.md        # Frontend architecture details
 ├── backend/
-│   └── README.md              # Backend layers, controllers, configurations
+│   ├── index.md               # Backend catalog index
+│   └── architecture.md        # Backend architecture details
 └── diagrams/
+    ├── index.md               # Diagrams catalog index
     ├── c4/
     │   └── c4_diagrams.md     # Level 1 Context, Level 2 Container, Level 3 Components
     ├── class/
@@ -83,8 +96,8 @@ docs/
 ## 4. Quick Documentation Links
 
 ### Architecture Descriptions
-* [Frontend Architecture Overview](./frontend/README.md)
-* [Backend Clean Architecture & API Specs](./backend/README.md)
+* [Frontend Architecture Overview](./frontend/architecture.md)
+* [Backend Clean Architecture & API Specs](./backend/architecture.md)
 
 ### Architectural & UML Diagrams
 * **C4 Model**: [System Context, Container & Components Diagrams](./diagrams/c4/c4_diagrams.md)

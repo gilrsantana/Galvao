@@ -41,3 +41,11 @@ Use this playbook when you need to add a new entity or feature to the applicatio
 - [ ] Write unit tests for domain logic and application handlers using `Moq` for mocks.
   - 👉 *Refer to skill:* [07-create-unit-test](file:///home/gilmar/Development/ai-driven-development/projects/galvao/.gemini/skills/07-create-unit-test/SKILL.md)
 - [ ] Run `dotnet build` to ensure the entire solution compiles with zero errors.
+
+### 📝 Phase 7: Documentation & OKF Compliance
+- [ ] Document the new entities, CQRS commands/queries, endpoints, and background jobs.
+- [ ] Ensure all new markdown documents have valid OKF YAML frontmatter.
+- [ ] Update the sub-index pages and changelog `log.md`.
+- [ ] Run the validator script `python3 docs/validate_okf.py` to confirm conformance.
+  - 👉 *Refer to rule:* [13-open-knowledge-format](file:///home/gilmar/Development/ai-driven-development/projects/galvao/.gemini/rules/13-open-knowledge-format.md)
+  - 👉 *Refer to skill:* [12-manage-okf-documentation](file:///home/gilmar/Development/ai-driven-development/projects/galvao/.gemini/skills/12-manage-okf-documentation/SKILL.md)
