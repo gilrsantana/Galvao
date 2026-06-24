@@ -27,7 +27,7 @@ This rule outlines the syntax, formatting, indentation, and structural conventio
 
 ### Example:
 ```csharp
-namespace Blog.Domain.Entities;
+namespace Galvao.Domain.Entities;
 
 public class Sample
 {
@@ -53,7 +53,7 @@ public class Sample
 - Always use **file-scoped namespaces** to reduce nesting depth.
 - Example:
   ```csharp
-  namespace Blog.Domain.Entities;
+  namespace Galvao.Domain.Entities;
   ```
 
 ---

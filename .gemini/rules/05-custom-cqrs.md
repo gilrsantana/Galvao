@@ -2,7 +2,7 @@
 
 ## Metadata
 - **ID**: RULE-005-CUSTOM-CQRS
-- **Scope**: Blog.Application & Blog.Presentation
+- **Scope**: Galvao.Application & Galvao.Presentation
 - **Target Types**: Commands, Queries, Handlers
 - **Status**: Active
 
@@ -11,7 +11,7 @@ This project uses a custom hand-rolled CQRS implementation. It **does not** use 
 
 ---
 
-## 1. Marker Interfaces (`Blog.Application/Common/CQRS/`)
+## 1. Marker Interfaces (`Galvao.Application/Common/CQRS/`)
 
 ### Commands
 - Write operations that mutate state.
@@ -71,18 +71,18 @@ public interface IQueryHandler<in TQuery, TResponse>
 
 ### The Command:
 ```csharp
-namespace Blog.Application.UseCases.Posts.Commands;
+namespace Galvao.Application.UseCases.Posts.Commands;
 
 public record ChangePostAuthorCommand(Guid PostId, Guid NewAuthorId) : ICommand;
 ```
 
 ### The Handler:
 ```csharp
-using Blog.Application.Common.CQRS;
-using Blog.Application.Common.Interfaces;
-using Blog.Shared;
+using Galvao.Application.Common.CQRS;
+using Galvao.Application.Common.Interfaces;
+using Galvao.Shared;
 
-namespace Blog.Application.UseCases.Posts.CommandHandlers;
+namespace Galvao.Application.UseCases.Posts.CommandHandlers;
 
 public class ChangePostAuthorCommandHandler : ICommandHandler<ChangePostAuthorCommand>
 {
@@ -125,7 +125,7 @@ public class ChangePostAuthorCommandHandler : ICommandHandler<ChangePostAuthorCo
 ---
 
 ## 5. Dependency Injection Registration
-Every handler must be registered explicitly as `Scoped` inside `Blog.Application/Extensions/DependencyInjection.cs`:
+Every handler must be registered explicitly as `Scoped` inside `Galvao.Application/Extensions/DependencyInjection.cs`:
 ```csharp
 services.AddScoped<ICommandHandler<ChangePostAuthorCommand>, ChangePostAuthorCommandHandler>();
 ```

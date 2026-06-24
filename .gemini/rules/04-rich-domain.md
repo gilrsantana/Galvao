@@ -2,7 +2,7 @@
 
 ## Metadata
 - **ID**: RULE-004-RICH-DOMAIN-MODEL
-- **Scope**: Blog.Domain
+- **Scope**: Galvao.Domain
 - **Target Types**: Entities, BaseEntity
 - **Status**: Active
 
@@ -16,7 +16,7 @@ Every domain entity must inherit from `BaseEntity`, which standardizes tracking 
 
 ### BaseEntity Implementation:
 ```csharp
-namespace Blog.Domain.Entities;
+namespace Galvao.Domain.Entities;
 
 public abstract class BaseEntity
 {
@@ -82,9 +82,9 @@ public abstract class BaseEntity
 ## 6. Rich Domain Entity Template Example
 
 ```csharp
-using Blog.Shared;
+using Galvao.Shared;
 
-namespace Blog.Domain.Entities;
+namespace Galvao.Domain.Entities;
 
 public class Member : BaseEntity
 {

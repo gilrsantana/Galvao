@@ -12,8 +12,8 @@ This skill guides you through implementing HTTP controllers in the Presentation 
 ## Steps
 
 ### 1. File Location & Namespace
-- Create a file inside `src/Blog.Presentation/Controllers/` named `{Name}sController.cs` (e.g., `ProductsController.cs`).
-- Namespace must be `Blog.Presentation.Controllers`.
+- Create a file inside `src/Galvao.Presentation/Controllers/` named `{Name}sController.cs` (e.g., `ProductsController.cs`).
+- Namespace must be `Galvao.Presentation.Controllers`.
 
 ### 2. Base Configuration
 - Inherit from `ApiControllerBase`.
@@ -34,14 +34,14 @@ This skill guides you through implementing HTTP controllers in the Presentation 
 ## Code Template
 
 ```csharp
-using Blog.Application.Common.CQRS;
-using Blog.Application.UseCases.Products.Commands;
-using Blog.Application.UseCases.Products.Queries;
+using Galvao.Application.Common.CQRS;
+using Galvao.Application.UseCases.Products.Commands;
+using Galvao.Application.UseCases.Products.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Blog.Presentation.Controllers;
+namespace Galvao.Presentation.Controllers;
 
 public class ProductsController : ApiControllerBase
 {

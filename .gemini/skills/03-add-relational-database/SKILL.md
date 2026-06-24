@@ -1,46 +1,29 @@
 ---
 name: add-relational-database
-description: Add and configure a relational database (PostgreSQL, SQL Server, MySQL, SQLite, Oracle) in the project using EF Core, DatabaseOptions, and Migrations.
+description: Add and configure the MySQL database in the project using EF Core, DatabaseOptions, and Migrations.
 ---
 
-# Skill: Adding a Relational Database with EF Core
+# Skill: Configuring MySQL Relational Database with EF Core
 
-This skill guides the assistant through adding, configuring, and registering a relational database provider using EF Core Code-First patterns.
-
----
-
-## Interactive Initiation (REQUIRED STEP)
-Before executing any file modifications or package installations, the assistant **MUST** prompt the user to get:
-1. The target **Relational Database Provider** (PostgreSQL, SQL Server, MySQL, SQLite, Oracle).
-2. The **Connection String** for the database.
-
-*Example query to the user:*
-> Please specify:
-> 1. Which database engine should be used? (PostgreSQL, MS SQL Server, MySQL, SQLite, Oracle)
-> 2. What is the database connection string?
+This skill guides you through configuring the MySQL database provider using EF Core Code-First patterns tailored to the **Galvao** project.
 
 ---
 
 ## Configuration Steps
 
-### 1. Install Required EF Core Packages
-Based on the selected provider, install the appropriate NuGet package inside the `src/Blog.Infrastructure` project:
+### 1. Verification of NuGet Packages
+Ensure the MySQL EF Core provider is installed in the `src/Galvao.Infrastructure` project:
+- Package: `MySql.EntityFrameworkCore`
 
-- **PostgreSQL**:
-  `dotnet add src/Blog.Infrastructure package Npgsql.EntityFrameworkCore.PostgreSQL`
-- **SQL Server**:
-  `dotnet add src/Blog.Infrastructure package Microsoft.EntityFrameworkCore.SqlServer`
-- **MySQL**:
-  `dotnet add src/Blog.Infrastructure package MySql.EntityFrameworkCore`
-- **SQLite**:
-  `dotnet add src/Blog.Infrastructure package Microsoft.EntityFrameworkCore.Sqlite`
-- **Oracle**:
-  `dotnet add src/Blog.Infrastructure package Oracle.EntityFrameworkCore`
+If not installed, install it:
+`dotnet add src/Galvao.Infrastructure package MySql.EntityFrameworkCore`
 
-### 2. Create the DatabaseOptions POCO
-Create `src/Blog.Infrastructure/Configurations/DatabaseOptions.cs` to hold database parameters:
+---
+
+### 2. Configure DatabaseOptions POCO
+The `DatabaseOptions` class resides in `src/Galvao.Infrastructure/Configurations/DatabaseOptions.cs`:
 ```csharp
-namespace Blog.Infrastructure.Configurations;
+namespace Galvao.Infrastructure.Configurations;
 
 public class DatabaseOptions
 {
@@ -49,64 +32,66 @@ public class DatabaseOptions
     public bool EnableDetailedErrors { get; set; } = false;
     public bool EnableSensitiveDataLogging { get; set; } = false;
     public int CommandTimeout { get; set; } = 30;
-    public bool EnableRetryOnFailure { get; set; } = true;
+    public bool EnableRetryOnFailure { get; set; } = false;
     public int MaxRetryCount { get; set; } = 3;
     public int MaxRetryDelaySeconds { get; set; } = 5;
-    public int? MaxBatchSize { get; set; }
 }
 ```
 
-### 3. Register Database in Dependency Injection
-Update `src/Blog.Infrastructure/Extensions/DependencyInjection.cs`:
-- Retrieve and bind `DatabaseOptions` from configuration.
-- Add and configure the DbContext with the selected database provider.
+---
 
-- **Example Setup (PostgreSQL)**:
-  ```csharp
-  var connectionString = configuration.GetConnectionString("DefaultConnection");
-  if (string.IsNullOrEmpty(connectionString))
-      throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+### 3. Register MySQL DbContext in Dependency Injection
+Update `src/Galvao.Infrastructure/Extensions/DependencyInjection.cs` to set up [GalvaoDbContext](file:///home/gilmar/Development/ai-driven-development/projects/galvao/backend/src/Galvao.Infrastructure/Persistence/GalvaoDbContext.cs#L13):
 
-  services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
-  var dbOptions = configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>() ?? new DatabaseOptions();
+```csharp
+using Galvao.Infrastructure.Configurations;
+using Galvao.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-  services.AddDbContext<BlogDbContext>(options =>
-  {
-      options.UseNpgsql(connectionString, npgsqlOptions =>
-      {
-          npgsqlOptions.CommandTimeout(dbOptions.CommandTimeout);
-          if (dbOptions.EnableRetryOnFailure)
-          {
-              npgsqlOptions.EnableRetryOnFailure(
-                  maxRetryCount: dbOptions.MaxRetryCount,
-                  maxRetryDelay: TimeSpan.FromSeconds(dbOptions.MaxRetryDelaySeconds),
-                  errorCodesToAdd: null);
-          }
-          if (dbOptions.MaxBatchSize.HasValue)
-          {
-              npgsqlOptions.MaxBatchSize(dbOptions.MaxBatchSize.Value);
-          }
-      });
+public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+{
+    var connectionString = configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrEmpty(connectionString))
+        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-      if (dbOptions.EnableDetailedErrors)
-          options.EnableDetailedErrors();
-      if (dbOptions.EnableSensitiveDataLogging)
-          options.EnableSensitiveDataLogging();
-  });
-  ```
+    services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
+    var dbOptions = configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>() ?? new DatabaseOptions();
+
+    services.AddDbContext<GalvaoDbContext>(options =>
+    {
+        options.UseMySQL(connectionString, mysqlOptions =>
+        {
+            mysqlOptions.CommandTimeout(dbOptions.CommandTimeout);
+            // MySql.EntityFrameworkCore doesn't always support EnableRetryOnFailure in the same way as Pomelo,
+            // check configuration and capabilities of the current driver.
+        });
+
+        if (dbOptions.EnableDetailedErrors)
+            options.EnableDetailedErrors();
+        if (dbOptions.EnableSensitiveDataLogging)
+            options.EnableSensitiveDataLogging();
+    });
+
+    return services;
+}
+```
+
+---
 
 ### 4. Update Application Settings
-Add configuration entries to `appsettings.json` and `appsettings.Development.json`:
+Ensure `appsettings.json` has:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "YOUR_CONNECTION_STRING_HERE"
+    "DefaultConnection": "Server=localhost;Database=galvao;User=root;Password=yourpassword;"
   },
   "DatabaseOptions": {
     "EnableDetailedErrors": true,
     "EnableSensitiveDataLogging": true,
     "CommandTimeout": 30,
-    "EnableRetryOnFailure": true,
+    "EnableRetryOnFailure": false,
     "MaxRetryCount": 3,
     "MaxRetryDelaySeconds": 5
   }

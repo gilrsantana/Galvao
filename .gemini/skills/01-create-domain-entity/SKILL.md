@@ -12,8 +12,8 @@ This skill guides you through the creation of a domain entity following the proj
 ## Steps
 
 ### 1. File Location & Namespace
-- Create a file inside `src/Blog.Domain/Entities/` named `{EntityName}.cs`.
-- Namespace must be `Blog.Domain.Entities`.
+- Create a file inside `src/Galvao.Domain/Entities/` named `{EntityName}.cs`.
+- Namespace must be `Galvao.Domain.Entities`.
 
 ### 2. Base Class Inheritance
 - All domain entities must inherit from `BaseEntity`.
@@ -48,9 +48,9 @@ This skill guides you through the creation of a domain entity following the proj
 ## Code Template
 
 ```csharp
-using Blog.Shared;
+using Galvao.Shared;
 
-namespace Blog.Domain.Entities;
+namespace Galvao.Domain.Entities;
 
 public class Product : BaseEntity
 {

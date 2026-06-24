@@ -12,7 +12,7 @@ This skill guides you through the creation of unit tests utilizing xUnit and the
 ## Steps
 
 ### 1. Identify Target Folder & Class
-- Create your test class in the `Blog.UnitTests` project.
+- Create your test class in the `Galvao.UnitTests` project.
 - Mirror the file structure of the code under test (e.g., `Application/` or `Domain/`).
 - Class name must match the target class with a `Tests` suffix: `{TargetClass}Tests.cs`.
 
@@ -48,12 +48,12 @@ This skill guides you through the creation of unit tests utilizing xUnit and the
 
 ```csharp
 using Moq;
-using Blog.Application.UseCases.Users.CommandHandlers;
-using Blog.Application.UseCases.Users.Commands;
-using Blog.Application.Common.Interfaces;
-using Blog.Shared;
+using Galvao.Application.UseCases.Users.CommandHandlers;
+using Galvao.Application.UseCases.Users.Commands;
+using Galvao.Application.Common.Interfaces;
+using Galvao.Shared;
 
-namespace Blog.UnitTests.Application;
+namespace Galvao.UnitTests.Application;
 
 public class UpdateProfileCommandHandlerTests
 {

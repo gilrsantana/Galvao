@@ -12,7 +12,7 @@ This skill guides you through EF Core database mappings and repository implement
 ## Steps
 
 ### 1. Define Entity Configuration
-- Create a file inside `src/Blog.Infrastructure/Persistence/Configurations/` named `{EntityName}Configuration.cs`.
+- Create a file inside `src/Galvao.Infrastructure/Persistence/Configurations/` named `{EntityName}Configuration.cs`.
 - Implement `IEntityTypeConfiguration<TEntity>`.
 - Use the Fluent API to map the entity properties, keys, and indexes.
 - Explicitly configure foreign key mappings with `OnDelete(DeleteBehavior.Restrict)`.
@@ -20,10 +20,10 @@ This skill guides you through EF Core database mappings and repository implement
 ---
 
 ### 2. Implement the Repository
-- Create a class inside `src/Blog.Infrastructure/Persistence/Repositories/` named `{EntityName}Repository.cs`.
+- Create a class inside `src/Galvao.Infrastructure/Persistence/Repositories/` named `{EntityName}Repository.cs`.
 - Inherit from `BaseEntityRepository<{EntityName}>`.
-- Implement the interface defined in `Blog.Application/Common/Interfaces/` (e.g., `IProductRepository`).
-- Constructor-inject `BlogDbContext` and pass it to the base constructor using `: base(context)`.
+- Implement the interface defined in `Galvao.Application/Common/Interfaces/` (e.g., `IProductRepository`).
+- Constructor-inject `GalvaoDbContext` and pass it to the base constructor using `: base(context)`.
 - **Inherited Methods**: Your repository automatically inherits standard CRUD operations:
   - `GetByIdAsync(...)`
   - `AddAsync(...)`
@@ -36,16 +36,16 @@ This skill guides you through EF Core database mappings and repository implement
 
 - **Example Repository**:
   ```csharp
-  using Blog.Domain.Entities;
-  using Blog.Application.Common.Interfaces;
-  using Blog.Infrastructure.Persistence;
+  using Galvao.Domain.Entities;
+  using Galvao.Application.Common.Interfaces;
+  using Galvao.Infrastructure.Persistence;
   using Microsoft.EntityFrameworkCore;
 
-  namespace Blog.Infrastructure.Persistence.Repositories;
+  namespace Galvao.Infrastructure.Persistence.Repositories;
 
   public class ProductRepository : BaseEntityRepository<Product>, IProductRepository
   {
-      public ProductRepository(BlogDbContext context) : base(context)
+      public ProductRepository(GalvaoDbContext context) : base(context)
       {
       }
 
@@ -58,7 +58,7 @@ This skill guides you through EF Core database mappings and repository implement
 ---
 
 ### 3. Dependency Injection Registration
-- Open `src/Blog.Infrastructure/Extensions/DependencyInjection.cs`.
+- Open `src/Galvao.Infrastructure/Extensions/DependencyInjection.cs`.
 - Register your repository:
   ```csharp
   services.AddScoped<IProductRepository, ProductRepository>();

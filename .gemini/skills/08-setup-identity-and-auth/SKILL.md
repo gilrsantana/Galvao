@@ -13,10 +13,10 @@ This skill guides you through setting up ASP.NET Core Identity, JWT Bearer authe
 
 ### 1. Install Required NuGet Packages
 Ensure the following packages are installed:
-- **Blog.Infrastructure**:
+- **Galvao.Infrastructure**:
   - `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
   - `System.IdentityModel.Tokens.Jwt`
-- **Blog.Presentation**:
+- **Galvao.Presentation**:
   - `Microsoft.AspNetCore.Authentication.JwtBearer`
 
 ---
@@ -28,7 +28,7 @@ In your Infrastructure project (under `Identity/`), create the Identity entities
   ```csharp
   using Microsoft.AspNetCore.Identity;
 
-  namespace Blog.Infrastructure.Identity;
+  namespace Galvao.Infrastructure.Identity;
 
   public class Account : IdentityUser<Guid>
   {
@@ -63,7 +63,7 @@ In your Infrastructure project (under `Identity/`), create the Identity entities
   ```csharp
   using Microsoft.AspNetCore.Identity;
 
-  namespace Blog.Infrastructure.Identity;
+  namespace Galvao.Infrastructure.Identity;
 
   public class Role : IdentityRole<Guid>
   {
@@ -99,14 +99,14 @@ By default, EF Core creates tables named `AspNetUsers`, `AspNetRoles`, etc. Over
   ```csharp
   builder.ToTable("AccountRoles");
   ```
-Apply the configurations using `builder.ApplyConfigurationsFromAssembly` inside the `BlogDbContext` class.
+Apply the configurations using `builder.ApplyConfigurationsFromAssembly` inside the `GalvaoDbContext` class.
 
 ---
 
 ### 4. Create JWT Token Configuration
 Define a `JwtSettings.cs` options class inside the Infrastructure layer:
 ```csharp
-namespace Blog.Infrastructure.Identity;
+namespace Galvao.Infrastructure.Identity;
 
 public class JwtSettings
 {
@@ -120,8 +120,8 @@ Add settings to `appsettings.json`:
 ```json
 "JwtSettings": {
   "Secret": "A_SUPER_LONG_JWT_SIGNING_KEY_EXCEEDING_256_BITS",
-  "Issuer": "BlogAPI",
-  "Audience": "BlogAPI",
+  "Issuer": "GalvaoAPI",
+  "Audience": "GalvaoAPI",
   "ExpiryInMinutes": 60
 }
 ```
@@ -135,7 +135,7 @@ Open the Presentation layer's Composition Root config (`Configurations/Dependenc
    ```csharp
    services.AddIdentityCore<Account>()
        .AddRoles<Role>()
-       .AddEntityFrameworkStores<BlogDbContext>();
+       .AddEntityFrameworkStores<GalvaoDbContext>();
    ```
 
 2. **Configure Authentication & JWT Bearer Options**:
@@ -173,7 +173,7 @@ Open the Presentation layer's Composition Root config (`Configurations/Dependenc
 ---
 
 ### 6. Implement the IdentityService
-Create an interface `IIdentityService` in the Application layer, and implement it in `Blog.Infrastructure/Identity/IdentityService.cs`. Use `UserManager<Account>` and `RoleManager<Role>` to manage credentials:
+Create an interface `IIdentityService` in the Application layer, and implement it in `Galvao.Infrastructure/Identity/IdentityService.cs`. Use `UserManager<Account>` and `RoleManager<Role>` to manage credentials:
 
 - **GenerateAccessToken**: Generate claims (Sub, Jti, Email, roles) and write the token using `JwtSecurityTokenHandler`.
 - **GenerateRefreshToken**: Create a cryptographically secure random token:

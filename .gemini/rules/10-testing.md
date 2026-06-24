@@ -2,7 +2,7 @@
 
 ## Metadata
 - **ID**: RULE-010-TESTING
-- **Scope**: Blog.UnitTests & Blog.IntegrationTests
+- **Scope**: Galvao.UnitTests & Galvao.IntegrationTests
 - **Target Types**: Test Classes, Fakes, Fixtures, Mocks
 - **Status**: Active
 
@@ -29,12 +29,12 @@ Quality and test coverage are verified via xUnit test suites. We favor pure, fas
 ### Example Unit Test:
 ```csharp
 using Moq;
-using Blog.Application.UseCases.Posts.CommandHandlers;
-using Blog.Application.UseCases.Posts.Commands;
-using Blog.Application.Common.Interfaces;
-using Blog.Shared;
+using Galvao.Application.UseCases.Posts.CommandHandlers;
+using Galvao.Application.UseCases.Posts.Commands;
+using Galvao.Application.Common.Interfaces;
+using Galvao.Shared;
 
-namespace Blog.UnitTests.Application;
+namespace Galvao.UnitTests.Application;
 
 public class CreatePostCommandHandlerTests
 {

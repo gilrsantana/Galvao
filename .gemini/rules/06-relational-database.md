@@ -2,7 +2,7 @@
 
 ## Metadata
 - **ID**: RULE-06-RELATIONAL-DATABASE
-- **Scope**: Blog.Infrastructure & appsettings.json
+- **Scope**: Galvao.Infrastructure & appsettings.json
 - **Target Types**: DbContext, DatabaseOptions, EF Core Mappings
 - **Status**: Active
 
@@ -38,7 +38,7 @@ All relational database integrations must follow a strict Code-First approach, s
 ## 3. Code-First Migration Lifecycle
 - All database schemas must be modeled code-first.
 - Always apply migrations using:
-  - EF CLI tool: `dotnet ef migrations add <MigrationName> --project src/Blog.Infrastructure --startup-project src/Blog.Presentation`
+  - EF CLI tool: `dotnet ef migrations add <MigrationName> --project src/Galvao.Infrastructure --startup-project src/Galvao.Presentation`
 - Do not make direct alterations to the database schema. All changes must go through Migrations.
 
 ---

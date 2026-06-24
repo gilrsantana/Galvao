@@ -2,7 +2,7 @@
 
 ## Metadata
 - **ID**: RULE-008-API-CONTROLLERS-ERROR-HANDLING
-- **Scope**: Blog.Presentation
+- **Scope**: Galvao.Presentation
 - **Target Types**: Controllers, Middlewares, OpenAPI, Scalar
 - **Status**: Active
 
@@ -74,9 +74,9 @@ The Presentation layer uses native ASP.NET Core OpenAPI services combined with *
   if (app.Environment.IsDevelopment())
   {
       app.MapOpenApi();
-      app.MapScalarApiReference(options =>
-      {
-          options.WithTitle("Blog Web API")
+        app.MapScalarApiReference(options =>
+        {
+            options.WithTitle("Galvao Web API")
                  .WithTheme(ScalarTheme.Moon)
                  .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
       });

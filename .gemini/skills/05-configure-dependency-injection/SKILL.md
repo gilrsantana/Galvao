@@ -20,9 +20,9 @@ For any new project layer (e.g., Application, Infrastructure, or a new module):
 - **Template for Application Layer**:
   ```csharp
   using Microsoft.Extensions.DependencyInjection;
-  using Blog.Application.Common.CQRS;
+  using Galvao.Application.Common.CQRS;
 
-  namespace Blog.Application.Extensions;
+  namespace Galvao.Application.Extensions;
 
   public static class DependencyInjection
   {
@@ -39,7 +39,7 @@ For any new project layer (e.g., Application, Infrastructure, or a new module):
   using Microsoft.Extensions.DependencyInjection;
   using Microsoft.Extensions.Configuration;
 
-  namespace Blog.Infrastructure.Extensions;
+  namespace Galvao.Infrastructure.Extensions;
 
   public static class DependencyInjection
   {
@@ -91,7 +91,7 @@ For any new project layer (e.g., Application, Infrastructure, or a new module):
 ### 3. Maintain Program.cs Cleanliness
 Ensure `Program.cs` is kept simple. It should only call the extensions:
 ```csharp
-using Blog.Presentation.Configurations;
+using Galvao.Presentation.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddPresentationServices(builder.Configuration);

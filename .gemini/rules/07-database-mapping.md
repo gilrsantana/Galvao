@@ -2,7 +2,7 @@
 
 ## Metadata
 - **ID**: RULE-007-DATABASE-MAPPING
-- **Scope**: Blog.Infrastructure
+- **Scope**: Galvao.Infrastructure
 - **Target Types**: DbContext, Entity Configurations, BaseEntityRepository, IUnitOfWork
 - **Status**: Active
 
@@ -12,14 +12,14 @@ This rule outlines the patterns for database interaction, Entity Framework Core 
 ---
 
 ## 1. DbContext Configuration
-- **Class Naming**: Use the suffix `DbContext` (e.g., `BlogDbContext`).
+- **Class Naming**: Use the suffix `DbContext` (e.g., `GalvaoDbContext`).
 - **Identity Integration**: Inherit from `IdentityDbContext<Account, Role, Guid, ...>` for user-auth tables.
 - **Model Configuration Discovery**: Auto-discover and apply configurations from the assembly:
   ```csharp
   protected override void OnModelCreating(ModelBuilder builder)
   {
       base.OnModelCreating(builder);
-      builder.ApplyConfigurationsFromAssembly(typeof(BlogDbContext).Assembly);
+      builder.ApplyConfigurationsFromAssembly(typeof(GalvaoDbContext).Assembly);
   }
   ```
 
@@ -63,19 +63,19 @@ To guarantee consistency and promote code reuse, all repository implementations 
 
 ### Repository Implementation:
 ```csharp
-using Blog.Domain.Entities;
-using Blog.Application.Common.Interfaces;
+using Galvao.Domain.Entities;
+using Galvao.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Blog.Infrastructure.Persistence.Repositories;
+namespace Galvao.Infrastructure.Persistence.Repositories;
 
 public abstract class BaseEntityRepository<TEntity> : IUnitOfWork
     where TEntity : BaseEntity
 {
-    protected readonly BlogDbContext Context;
+    protected readonly GalvaoDbContext Context;
     protected readonly DbSet<TEntity> DbSet;
 
-    protected BaseEntityRepository(BlogDbContext context)
+    protected BaseEntityRepository(GalvaoDbContext context)
     {
         Context = context;
         DbSet = context.Set<TEntity>();

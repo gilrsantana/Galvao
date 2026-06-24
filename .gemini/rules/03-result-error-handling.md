@@ -7,29 +7,29 @@
 - **Status**: Active
 
 ## Overview
-This codebase avoids raising exceptions for expected business errors (e.g., entity validation failed, record not found, authorization denied). Instead, it uses a functional **Result** pattern defined in `Blog.Shared` to represent outcomes explicitly. Exceptions are reserved strictly for exceptional runtime failures (database connection drop, system crash).
+This codebase avoids raising exceptions for expected business errors (e.g., entity validation failed, record not found, authorization denied). Instead, it uses a functional **Result** pattern defined in `Galvao.Shared` to represent outcomes explicitly. Exceptions are reserved strictly for exceptional runtime failures (database connection drop, system crash).
 
 ---
 
-## 1. Shared Error and Result Primitives (`Blog.Shared`)
+## 1. Shared Error and Result Primitives (`Galvao.Shared`)
 
-All projects in the solution (`Blog.Domain`, `Blog.Application`, `Blog.Infrastructure`, `Blog.Presentation`) must reference the `Blog.Shared` project:
+All projects in the solution (`Galvao.Domain`, `Galvao.Application`, `Galvao.Infrastructure`, `Galvao.Presentation`) must reference the `Galvao.Shared` project:
 
 ```xml
 <ItemGroup>
-  <ProjectReference Include="..\Blog.Shared\Blog.Shared.csproj" />
+  <ProjectReference Include="..\Galvao.Shared\Galvao.Shared.csproj" />
 </ItemGroup>
 ```
 
 And import the namespace at the top of C# files:
 ```csharp
-using Blog.Shared;
+using Galvao.Shared;
 ```
 
 ### A. The `Error` Record
 An immutable record representing a general application error:
 ```csharp
-namespace Blog.Shared;
+namespace Galvao.Shared;
 
 public record Error(string Code, string Message)
 {
@@ -40,7 +40,7 @@ public record Error(string Code, string Message)
 ### B. The `ValidationError` Record
 A specialized record extending `Error` to represent property-specific validation failures. It carries a fixed code of `"Validation.Error"` and defines a `PropertyName` property for field-level identification:
 ```csharp
-namespace Blog.Shared;
+namespace Galvao.Shared;
 
 public record ValidationError(string PropertyName, string ErrorMessage) 
     : Error("Validation.Error", ErrorMessage);
@@ -53,7 +53,7 @@ Wrappers representing the outcome of an operation.
 - Generic `Result<TValue>` exposes a `Value` property (which throws an `InvalidOperationException` if accessed on a failed result) and supports implicit conversion from `TValue`.
 
 ```csharp
-namespace Blog.Shared;
+namespace Galvao.Shared;
 
 public class Result
 {

@@ -14,22 +14,22 @@ Dependency Injection (DI) registration must be modular and decentralized. Each l
 ## 1. Modular Layer Registration (`Extensions/`)
 Every project layer that requires dependency registration must define an `Extensions/` directory containing a static `DependencyInjection.cs` class.
 
-### A. Application Layer (`Blog.Application/Extensions/DependencyInjection.cs`)
+### A. Application Layer (`Galvao.Application/Extensions/DependencyInjection.cs`)
 - Register Use Case handlers (Commands and Queries) individually as `Scoped`.
 - Use comment blocks to separate `// Commands` and `// Queries`.
-- **Namespace**: `Blog.Application.Extensions`
+- **Namespace**: `Galvao.Application.Extensions`
 - **Method Signature**: `public static IServiceCollection AddApplication(this IServiceCollection services)`
 
-### B. Infrastructure Layer (`Blog.Infrastructure/Extensions/DependencyInjection.cs`)
+### B. Infrastructure Layer (`Galvao.Infrastructure/Extensions/DependencyInjection.cs`)
 - Register repositories, data context, database configurations, options binding, and infrastructure services.
-- **Namespace**: `Blog.Infrastructure.Extensions`
+- **Namespace**: `Galvao.Infrastructure.Extensions`
 - **Method Signature**: `public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)`
 
 ---
 
 ## 2. Presentation Layer Orchestration (`Configurations/`)
-- The `Blog.Presentation` layer contains a `Configurations/` folder.
-- The `Configurations/DependencyInjection.cs` file under the namespace `Blog.Presentation.Configurations` houses the composition root.
+- The `Galvao.Presentation` layer contains a `Configurations/` folder.
+- The `Configurations/DependencyInjection.cs` file under the namespace `Galvao.Presentation.Configurations` houses the composition root.
 - It must implement two extension methods:
   1. **Service Registration**:
      `public static IServiceCollection AddPresentationServices(this IServiceCollection services, IConfiguration configuration)`
@@ -52,7 +52,7 @@ Every project layer that requires dependency registration must define an `Extens
 
 ### Standard `Program.cs` Template:
 ```csharp
-using Blog.Presentation.Configurations;
+using Galvao.Presentation.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddPresentationServices(builder.Configuration);

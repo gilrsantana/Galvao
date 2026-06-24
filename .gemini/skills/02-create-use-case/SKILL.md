@@ -12,7 +12,7 @@ This skill guides you through implementing a Use Case (CQRS pattern) without Med
 ## Steps
 
 ### 1. Identify Folders
-Organize code in `src/Blog.Application/UseCases/{AggregateName}/`:
+Organize code in `src/Galvao.Application/UseCases/{AggregateName}/`:
 - Commands belong in `Commands/` (e.g., `CreateProductCommand.cs`).
 - Command Handlers belong in `CommandHandlers/` (e.g., `CreateProductCommandHandler.cs`).
 - Queries belong in `Queries/` (e.g., `GetProductByIdQuery.cs`).
@@ -22,20 +22,20 @@ Organize code in `src/Blog.Application/UseCases/{AggregateName}/`:
 Commands mutate state, queries retrieve data.
 - **Example Command** (with return value):
   ```csharp
-  using Blog.Application.Common.CQRS;
-  using Blog.Shared;
+  using Galvao.Application.Common.CQRS;
+  using Galvao.Shared;
 
-  namespace Blog.Application.UseCases.Products.Commands;
+  namespace Galvao.Application.UseCases.Products.Commands;
 
   public record CreateProductCommand(string Name, decimal Price) : ICommand<Guid>;
   ```
 
 - **Example Query**:
   ```csharp
-  using Blog.Application.Common.CQRS;
-  using Blog.Shared;
+  using Galvao.Application.Common.CQRS;
+  using Galvao.Shared;
 
-  namespace Blog.Application.UseCases.Products.Queries;
+  namespace Galvao.Application.UseCases.Products.Queries;
 
   public record GetProductByIdQuery(Guid ProductId) : IQuery<ProductResponse>;
   ```
@@ -43,7 +43,7 @@ Commands mutate state, queries retrieve data.
 ### 3. Create the Response/DTO
 - Place response records in `Queries/` or adjacent folders as positional `record` types:
   ```csharp
-  namespace Blog.Application.UseCases.Products.Queries;
+  namespace Galvao.Application.UseCases.Products.Queries;
 
   public record ProductResponse(Guid Id, string Name, decimal Price, DateTime CreatedAt);
   ```
@@ -60,12 +60,12 @@ Commands mutate state, queries retrieve data.
 
 - **Example Handler**:
   ```csharp
-  using Blog.Application.Common.CQRS;
-  using Blog.Application.Common.Interfaces;
-  using Blog.Application.UseCases.Products.Commands;
-  using Blog.Shared;
+  using Galvao.Application.Common.CQRS;
+  using Galvao.Application.Common.Interfaces;
+  using Galvao.Application.UseCases.Products.Commands;
+  using Galvao.Shared;
 
-  namespace Blog.Application.UseCases.Products.CommandHandlers;
+  namespace Galvao.Application.UseCases.Products.CommandHandlers;
 
   public class CreateProductCommandHandler : ICommandHandler<CreateProductCommand, Guid>
   {
@@ -97,7 +97,7 @@ Commands mutate state, queries retrieve data.
   ```
 
 ### 5. Explicit DI Registration
-- Open `src/Blog.Application/Extensions/DependencyInjection.cs`.
+- Open `src/Galvao.Application/Extensions/DependencyInjection.cs`.
 - Add your handler registration to the `AddApplication` method:
   ```csharp
   // Commands
