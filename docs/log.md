@@ -29,4 +29,8 @@ tags: [log, changelog, history]
 | 2026-06-24 | Antigravity | Expanded | [backend/architecture.md](./backend/architecture.md) | Documented RemovedUser, EmailAuditLog, EmailSegment, PurgeUser, ChangeEmail, ChangePassword, RolesController, Hangfire configurations, redirect, and cookies security. |
 | 2026-06-24 | Antigravity | Expanded | [frontend/architecture.md](./frontend/architecture.md) | Documented Settings profile forms, password change, and the three-stage account purging process. |
 | 2026-06-24 | Antigravity | Expanded | [diagrams/class/class_diagram.md](./diagrams/class/class_diagram.md) | Added RemovedUser, EmailAuditLog, and EmailSegment to UML domain models structure and specification descriptions. |
+| 2026-06-25 | Antigravity | Created | [backend/database.md](./backend/database.md) | Created database table OKF documentation describing schema mapping. |
+| 2026-06-25 | Antigravity | Created | [backend/endpoints.md](./backend/endpoints.md) | Created critical API endpoints OKF documentation. |
+| 2026-06-25 | Antigravity | Created | [backend/resend_fallback.md](./backend/resend_fallback.md) | Created Resend CRM sync fallback rules documentation. |
+| 2026-06-25 | Antigravity | Modified | [backend/index.md](./backend/index.md) | Added links to database, endpoints, and fallback docs. |
 
